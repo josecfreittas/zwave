@@ -1,6 +1,7 @@
 import os
-import pygame
+import math
 import random
+import pygame
 
 class Player:
 
@@ -24,7 +25,7 @@ class Player:
     }
 
     ## constructor ##
-    def __init__(self, main, model = 'random', scale = 1, width = 49, height = 49):
+    def __init__(self, main, model = 'random', scale = 1, width = 55, height = 55):
         
         ## set init values ##
         self.main = main
@@ -51,9 +52,10 @@ class Player:
         ## scale player ##
         self.surface = pygame.transform.scale(
             model,
-            (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
+            (self.view["width"] * self.view["scale"], self.view["height"] * self.view["scale"])
         )
 
+    ## method to rotate player ##
     def rotate(self):
 
         ## set angle of rotation based on current frame ##
@@ -67,27 +69,24 @@ class Player:
 
         ## define center of new copy ##
         area.center = new.get_rect().center
-        
-        ## ##
-        new = new.subsurface(area).copy()
-        
-        return new
 
+        return new.subsurface(area).copy()
+
+    ## method to define angle for player rotation acording to the mouse position ##
     def set_angle(self):
-        if (self.main.destiny['x'] > 0) or (self.main.destiny['y'] > 0):
-            if (self.main.destiny['x-way'] == 'right') and (self.main.destiny['y-way'] == 'bottom'):
-                self.view["angle"] = - (self.main.destiny['y_velocity'] * 45)
-            elif (self.main.destiny['x-way'] == 'right') and (self.main.destiny['y-way'] == 'top'):
-                self.view["angle"] = self.main.destiny['y_velocity'] * 45
-            elif (self.main.destiny['x-way'] == 'left') and (self.main.destiny['y-way'] == 'bottom'):
-                self.view["angle"] = ((self.main.destiny['y_velocity'] * 45) - 180)
-            elif (self.main.destiny['x-way'] == 'left') and (self.main.destiny['y-way'] == 'top'):
-                self.view["angle"] = - ((self.main.destiny['y_velocity'] * 45) - 180)
-            else:
-                self.view["angle"] = 0
+
+        if (self.main.mouse['x'] > 0) or (self.main.mouse['y'] > 0):
+
+            ## calculate angle by two points, mouse position and player position ##
+            dx = self.main.mouse["x"] - (self.view["x"] + (self.view["width"] / 2))
+            dy = self.main.mouse["y"] - (self.view["y"] + (self.view["height"] / 2))
+            rads = math.atan2(-dy,dx)
+            rads %= 2 * math.pi
+            self.view["angle"] = math.degrees(rads)
     
+    ## method to update player ##
     def update(self):
 
         self.set_angle()
-
         self.main.screen.blit(self.rotate(), (self.view['x'], self.view['y']))
+    

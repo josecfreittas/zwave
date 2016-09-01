@@ -24,13 +24,13 @@ class Main:
     }
 
     ## target to change game view change ##
-    destiny = {
+    mouse = {
         "x": None,
         "y": None,
+        "relative-x": None,
+        "relative-x": None,
         "x-way": None,
         "y-way": None,
-        "x_velocity": None,
-        "y_velocity": None,
     }
 
     ## map of game ##
@@ -74,34 +74,29 @@ class Main:
         ## init game loop ##
         self.loop()
 
-    def move_to_destiny(self):
-        if (self.destiny['x'] > 0) and (self.destiny['y'] > 0):
-            if self.destiny['x'] > self.destiny['y']:
-                diference = float(self.destiny['x']) / float(self.destiny['y'])
-                self.destiny['x_velocity'] = 2 - (2 / diference)
-                self.destiny['y_velocity'] = 2 / diference
-            else:
-                diference = float(self.destiny['y']) / float(self.destiny['x'])
-                self.destiny['x_velocity'] = 2 / diference
-                self.destiny['y_velocity'] = 2 - (2 / diference)
+    def move(self):
 
+        ## make 'keys' variable with pressed keys
+        keys = pygame.key.get_pressed()
+
+        ## speed to axes in diagonal movement ##
+        if (keys[pygame.K_w] or keys[pygame.K_s]) and (keys[pygame.K_a] or keys[pygame.K_d]):
+            velocity = 1.5
+
+        ## speed to axes in horizontal and vertical movements ##
         else:
-            self.destiny['x_velocity'] = 2
-            self.destiny['y_velocity'] = 2
+            velocity = 2
 
-        if self.destiny['x'] > 0:
-            self.destiny['x'] = self.destiny['x'] - self.destiny['x_velocity']
-            if self.destiny['x-way'] == 'left':
-                self.view["x"] = self.view["x"] - self.destiny['x_velocity']
-            else:
-                self.view["x"] = self.view["x"] + self.destiny['x_velocity']
 
-        if self.destiny['y'] > 0:
-            self.destiny['y'] = self.destiny['y'] - self.destiny['y_velocity']
-            if self.destiny['y-way'] == 'top':
-                self.view["y"] = self.view["y"] - self.destiny['y_velocity']
-            else:
-                self.view["y"] = self.view["y"] + self.destiny['y_velocity']
+        ## movement according to keys down ##
+        if keys[pygame.K_w]:
+            self.view["y"] -= velocity
+        if keys[pygame.K_s]:
+            self.view["y"] += velocity
+        if keys[pygame.K_a]:
+            self.view["x"] -= velocity
+        if keys[pygame.K_d]:
+            self.view["x"] += velocity
 
     ## method from game loop ##
     def loop(self):
@@ -113,7 +108,7 @@ class Main:
         while running:
 
             ## call method responsible for move view to new destiny, if one exists ##
-            self.move_to_destiny()
+            self.move()
 
             ## update game map ##
             self.map.update()
@@ -128,6 +123,12 @@ class Main:
             ## update pygame screen ##
             pygame.display.update()
 
+            ## mouse x position ##
+            self.mouse["x"] = pygame.mouse.get_pos()[0]
+
+            ## mouse y position ##
+            self.mouse["y"] = pygame.mouse.get_pos()[1]
+
             ## events hunter ##
             for event in pygame.event.get():
 
@@ -135,50 +136,8 @@ class Main:
                 if event.type == pygame.QUIT:
                     running = False
 
-                ## click event ##
-                if event.type == pygame.MOUSEBUTTONDOWN:
-
-                    ## check which side of the x-axis was the click ##
-                    ## if left ##
-                    if pygame.mouse.get_pos()[0] < (self.view["width"] / 2):
-
-                        ## sets the direction that the screen must move ##
-                        self.destiny['x-way'] = 'left'
-
-                        ## defines how much should move ##
-                        self.destiny['x'] = (self.view["width"] / 2) - pygame.mouse.get_pos()[0]
-
-                    ## if right ##
-                    else:
-
-                        ## sets the direction that the screen must move ##
-                        self.destiny['x-way'] = 'right'
-                        
-                        ## defines how much should move ##
-                        self.destiny['x'] = pygame.mouse.get_pos()[0] - (self.view["width"] / 2)
-
-
-                    ## check which side of the y-axis was the click ##
-                    ## if top ##
-                    if pygame.mouse.get_pos()[1] < (self.view["height"] / 2):
-
-                        ## sets the direction that the screen must move ##
-                        self.destiny['y-way'] = 'top'
-
-                        ## defines how much should move ##
-                        self.destiny['y'] = (self.view["height"] / 2) - pygame.mouse.get_pos()[1]
-
-                    ## if down ##
-                    else:
-
-                        ## sets the direction that the screen must move ##
-                        self.destiny['y-way'] = 'bottom'
-
-                        ## defines how much should move ##
-                        self.destiny['y'] = pygame.mouse.get_pos()[1] - (self.view["height"] / 2)
-
             ## increment or reset atual frame ##
             self.frame = (self.frame + 1) if self.frame < self.tick else 0
-            
+
             ## pygame clock tick ##
             clock.tick(self.tick)
