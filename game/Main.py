@@ -1,6 +1,6 @@
 import pygame
 from Map import *
-from Heart import *
+from Signal import *
 from Player import *
 
 class Main:
@@ -39,8 +39,8 @@ class Main:
     ## player ##
     player = None
 
-    ## hearts of bases ##
-    heart = {
+    ## signals of bases ##
+    signal = {
         "blue": None,
         "orange": None,
     }
@@ -53,8 +53,6 @@ class Main:
         self.view["scale"] = scale
         self.view["width"] = width
         self.view["height"] = height
-        self.view["x"] = 0
-        self.view["y"] = 1450
         self.tick = 60
         self.frame = 0
 
@@ -64,16 +62,21 @@ class Main:
         ## make map ##
         self.map = Map(self)
 
-        ## make base hearts ##
-        self.heart["blue"] = Heart(self, 'blue')
-        self.heart["orange"] = Heart(self, 'orange')
+        ## make base signals ##
+        self.signal["north"] = Signal(self, 'north')
+        self.signal["south"] = Signal(self, 'south')
 
         ## make player ##
         self.player = Player(self, '02')
 
+        ## screen center (player position in map) ##
+        self.view["x"] = (self.map.view["width"] / 2) - (self.view["width"] / 2)
+        self.view["y"] = (self.map.view["height"] / 2) - (self.view["height"] / 2)
+
         ## init game loop ##
         self.loop()
 
+    ## method to player/screen movimentation ##
     def move(self):
 
         ## make 'keys' variable with pressed keys
@@ -86,7 +89,6 @@ class Main:
         ## speed to axes in horizontal and vertical movements ##
         else:
             velocity = 2
-
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:
@@ -113,9 +115,9 @@ class Main:
             ## update game map ##
             self.map.update()
 
-            ## update base hearts ##
-            self.heart["blue"].update()
-            self.heart["orange"].update()
+            ## update base signals ##
+            self.signal["north"].update()
+            self.signal["south"].update()
 
             ## update player ##
             self.player.update()

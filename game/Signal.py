@@ -1,15 +1,15 @@
 import os
 import pygame
 
-class Heart:
+class Signal:
 
     ## main game object ##
     main = None
     
-    ## base heart color/type ##
-    color = None
+    ## signal point/position ##
+    point = None
 
-    ## heart view ##
+    ## signal view ##
     view = {
         "scale": None,
         "width": None,
@@ -18,7 +18,7 @@ class Heart:
         "y": None,
     }
 
-    ## heart estructure ##
+    ## signal estructure ##
     structure = {
         "base": None,
         "light": None,
@@ -27,7 +27,7 @@ class Heart:
     }
         
     ## constructor ##
-    def __init__(self, main, color = 'blue', scale = 1, width = 128, height = 128):
+    def __init__(self, main, point = 'north', scale = 1, width = 128, height = 128):
         
         ## set init values ##
         self.view["scale"] = scale
@@ -37,54 +37,54 @@ class Heart:
         self.view["y"] = 0
         self.main = main
 
-        ## set heart color/type ##
-        self.color = color
+        ## set signal point/type ##
+        self.point = point
         
         self.set_structure()
 
-    ## method to set surfaces / structures of base heart ##
+    ## method to set surfaces / structures of base signal ##
     def set_structure(self):
 
-        ## load heart base image ##
-        base = pygame.image.load(os.path.join("assets", "img", "hearts", "base.png")).convert_alpha()
+        ## load signal base image ##
+        base = pygame.image.load(os.path.join("assets", "img", "signals", "base.png")).convert_alpha()
 
-        ## scale heart base ##
+        ## scale signal base ##
         self.structure["base"] = pygame.transform.scale(
             base,
             (int((self.view["width"] * 1.5) * self.view["scale"]), int((self.view["height"] * 1.5) * self.view["scale"]))
         )
 
 
-        ## load heart light image ##
-        light = pygame.image.load(os.path.join("assets", "img", "hearts", "%s_light.png" % self.color)).convert_alpha()
+        ## load signal light image ##
+        light = pygame.image.load(os.path.join("assets", "img", "signals", "light.png")).convert_alpha()
 
-        ## scale heart light ##
+        ## scale signal light ##
         self.structure["light"] = pygame.transform.scale(
             light,
             (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
         )
 
 
-        ## load heart star image ##
-        star = pygame.image.load(os.path.join("assets", "img", "hearts", "%s_star.png" % self.color)).convert_alpha()
+        ## load signal star image ##
+        star = pygame.image.load(os.path.join("assets", "img", "signals", "star.png")).convert_alpha()
 
-        ## scale heart light ##
+        ## scale signal light ##
         self.structure["star"] = pygame.transform.scale(
             star,
             (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
         )
 
 
-        ## load heart point image ##
-        point = pygame.image.load(os.path.join("assets", "img", "hearts", "point.png")).convert_alpha()
+        ## load signal point image ##
+        point = pygame.image.load(os.path.join("assets", "img", "signals", "point.png")).convert_alpha()
 
-        ## scale heart point ##
+        ## scale signal point ##
         self.structure["point"] = pygame.transform.scale(
             point,
             (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
         )
     
-    ## method to animate star of heart ##
+    ## method to animate star of signal ##
     def animate_star(self):
 
         ## set angle of rotation based on current frame ##
@@ -100,9 +100,7 @@ class Heart:
         area.center = new.get_rect().center
         
         ## ##
-        new = new.subsurface(area).copy()
-        
-        return new
+        return new.subsurface(area).copy()
 
     def animate_light(self):
 
@@ -119,36 +117,34 @@ class Heart:
         area.center = new.get_rect().center
         
         ## ##
-        new = new.subsurface(area).copy()
-        
-        return new
+        return new.subsurface(area).copy()
 
-    ## method to update heart view position ##
+    ## method to update signal view position ##
     def update_position(self):
 
-        ## if is blue heart ##
-        if self.color == 'blue':
-            self.view["x"] = (0 - self.main.view["x"]) + 320
-            self.view["y"] = (1024 - self.main.view["y"]) + 576
+        ## if is north signal ##
+        if self.point == 'north':
+            self.view["x"] = 320 - self.main.view["x"]
+            self.view["y"] = 1600 - self.main.view["y"]
 
-        ## if is orange heart ##
+        ## if is orange signal ##
         else:
-            self.view["x"] = (1024 - self.main.view["x"]) + 576
-            self.view["y"] = (0 - self.main.view["y"]) + 320
+            self.view["x"] = 1600 - self.main.view["x"]
+            self.view["y"] = 320 - self.main.view["y"]
 
     def update(self):
 
-        ## call method to update heart position acording to the actual game view ##
+        ## call method to update signal position acording to the actual game view ##
         self.update_position()
 
-        ## draw heart base in the screen ##
+        ## draw signal base in the screen ##
         self.main.screen.blit(self.structure["base"], (self.view["x"], self.view["y"]))
 
-        ## draw animated heart light in the screen ##
+        ## draw animated signal light in the screen ##
         self.main.screen.blit(self.animate_light(), (self.view["x"], self.view["y"]))
 
-        ## draw animated heart star in the screen ##
+        ## draw animated signal star in the screen ##
         self.main.screen.blit(self.animate_star(), (self.view["x"], self.view["y"]))
 
-        ## draw heart point in the screen ##
+        ## draw signal point in the screen ##
         self.main.screen.blit(self.structure["point"], (self.view["x"], self.view["y"]))

@@ -89,4 +89,3 @@ class Player:
 
         self.set_angle()
         self.main.screen.blit(self.rotate(), (self.view['x'], self.view['y']))
-    
