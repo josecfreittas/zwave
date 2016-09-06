@@ -1,1 +1,1 @@
-from Main import *
+from main import *

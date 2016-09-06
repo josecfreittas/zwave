@@ -1,7 +1,7 @@
 import pygame
-from Map import *
-from Signal import *
-from Player import *
+from map import *
+from signal import *
+from player import *
 
 class Main:
     
@@ -21,6 +21,8 @@ class Main:
         "height": None,
         "x": None,
         "y": None,
+        "last_x": None,
+        "last_y": None,
     }
 
     ## target to change game view change ##
@@ -79,6 +81,15 @@ class Main:
     ## method to player/screen movimentation ##
     def move(self):
 
+        ## check if had collision, if had, set last position of view ##
+        if self.player.check_collision("wall"):
+            self.view["x"] = self.view["last_x"]
+            self.view["y"] = self.view["last_y"]
+
+        ## save current positon of view for future use ##
+        self.view["last_x"] = self.view["x"]
+        self.view["last_y"] = self.view["y"]
+
         ## make 'keys' variable with pressed keys
         keys = pygame.key.get_pressed()
 
@@ -100,6 +111,7 @@ class Main:
         if keys[pygame.K_d]:
             self.view["x"] += velocity
 
+
     ## method from game loop ##
     def loop(self):
 
@@ -108,9 +120,6 @@ class Main:
 
         running = True
         while running:
-
-            ## call method responsible for move view to new destiny, if one exists ##
-            self.move()
 
             ## update game map ##
             self.map.update()
@@ -121,6 +130,9 @@ class Main:
 
             ## update player ##
             self.player.update()
+
+            ## call method responsible for move view to new destiny, if one exists ##
+            self.move()
 
             ## update pygame screen ##
             pygame.display.update()

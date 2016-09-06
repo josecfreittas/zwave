@@ -18,11 +18,11 @@ class Map:
     ## map surface ##
     surface = None
 
-    ## size in pixels of map tiles tiles ##
-    tile_size = None
-
     ## map colliders ##
     colliders = {
+        "size": None,
+        "sprites": None,
+        "group": None,
         "raw": {
             "1":  ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
             "2":  ' @                       @@@@@@@@',
@@ -69,11 +69,14 @@ class Map:
         self.view["height"] = height
         self.view["x"] = 0
         self.view["y"] = 0
-        self.tile_size = 64
-        self.colliders["list"] = []
+        self.colliders["size"] = 64
+        self.colliders["sprites"] = {}
+        self.colliders["group"] = pygame.sprite.Group()
+        
         self.main = main
 
         self.set_surface()
+        self.set_colliders()
     
     ## method to set map surface ##
     def set_surface(self):
@@ -86,19 +89,15 @@ class Map:
             surface,
             ((self.view["width"] * self.view["scale"]), (self.view["height"] * self.view["scale"]))
         )
+
     
-    def draw_collider(self, row, column):
-        x = ((column - 1) * self.tile_size) - self.main.view["x"]
-        y = ((row - 1) * self.tile_size)  - self.main.view["y"]
-        return pygame.draw.rect(self.main.screen, (0,0,0), (x, y, self.tile_size, self.tile_size), 0)
-
-    def update_colliders(self):
-
+    def set_colliders(self):
+        
         ## map number of rows ##
-        rows = self.view["width"] / self.tile_size
+        rows = self.view["width"] / self.colliders["size"]
 
         ## map number of columns ##
-        columns = self.view["height"] / self.tile_size
+        columns = self.view["height"] / self.colliders["size"]
 
         ## current row ##
         row = 1
@@ -115,13 +114,53 @@ class Map:
             ## increment current tile ##
             tile += 1
 
+            ## increment current column or current row ##
             if column < columns:
                 column += 1
             else:
                 column = 1
                 row += 1
+            
+            ## check if in raw, current tile is a wall ##
             if self.colliders["raw"][str(row)][column] == '@':
-                self.draw_collider(row, column)
+
+                ## make a generic sprite with size of map tiles  ##
+                sprite = pygame.sprite.Sprite()
+                sprite.image = pygame.Surface((self.colliders["size"], self.colliders["size"]))
+
+                ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
+                sprite.image.fill((255, 0, 0))
+                sprite.image.set_colorkey((255, 0, 0))
+
+                ## make sprite rect ##
+                sprite.rect = sprite.image.get_rect()
+
+                ## add sprit to map colliders list (dict) ##
+                name = str(row) + "," + str(column)
+                self.colliders["sprites"][name] = sprite
+
+                ## add new collider to colliders group ##
+                self.colliders["group"].add(self.colliders["sprites"][name])
+
+
+    ## method to update all colliders position acording to screen position ##
+    def update_colliders(self):
+
+        ## loop for update all sprites ##
+        for key, sprite in self.colliders["sprites"].iteritems():
+
+            ## get row and column by dict key ##
+            point = key.split(",")
+            row = int(point[0])
+            column = int(point[1])
+
+            ## calcule new position of collider ##
+            x = ((column - 1) * self.colliders["size"]) - self.main.view["x"]
+            y = ((row - 1) * self.colliders["size"])  - self.main.view["y"]
+
+            ## set new position ##
+            self.colliders["sprites"][key].rect.x = x
+            self.colliders["sprites"][key].rect.y = y
 
     ## method to update map view position ##
     def update_position(self):
@@ -139,3 +178,6 @@ class Map:
 
         ## call method to update colliders ##
         self.update_colliders()
+
+        ## draw invisible colliders ##
+        self.colliders["group"].draw(self.main.screen)
