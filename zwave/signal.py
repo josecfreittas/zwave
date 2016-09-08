@@ -11,7 +11,6 @@ class Signal:
 
     ## signal view ##
     view = {
-        "scale": None,
         "width": None,
         "height": None,
         "x": None,
@@ -27,15 +26,14 @@ class Signal:
     }
         
     ## constructor ##
-    def __init__(self, main, point = 'north', scale = 1, width = 128, height = 128):
+    def __init__(self, main, point = 'north', width = 128, height = 128):
         
         ## set init values ##
-        self.view["scale"] = scale
+        self.main = main
         self.view["width"] = width
         self.view["height"] = height
         self.view["x"] = 0
         self.view["y"] = 0
-        self.main = main
 
         ## set signal point/type ##
         self.point = point
@@ -51,7 +49,7 @@ class Signal:
         ## scale signal base ##
         self.structure["base"] = pygame.transform.scale(
             base,
-            (int((self.view["width"] * 1.5) * self.view["scale"]), int((self.view["height"] * 1.5) * self.view["scale"]))
+            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
         )
 
 
@@ -61,7 +59,7 @@ class Signal:
         ## scale signal light ##
         self.structure["light"] = pygame.transform.scale(
             light,
-            (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
+            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
         )
 
 
@@ -71,7 +69,7 @@ class Signal:
         ## scale signal light ##
         self.structure["star"] = pygame.transform.scale(
             star,
-            (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
+            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
         )
 
 
@@ -81,7 +79,7 @@ class Signal:
         ## scale signal point ##
         self.structure["point"] = pygame.transform.scale(
             point,
-            (int(self.view["width"] * self.view["scale"]), int(self.view["height"] * self.view["scale"]))
+            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
         )
     
     ## method to animate star of signal ##
@@ -124,13 +122,13 @@ class Signal:
 
         ## if is north signal ##
         if self.point == 'north':
-            self.view["x"] = 320 - self.main.view["x"]
-            self.view["y"] = 1600 - self.main.view["y"]
+            self.view["x"] = (320 * self.main.view["scale"]) - self.main.view["x"]
+            self.view["y"] = (1600 * self.main.view["scale"]) - self.main.view["y"]
 
         ## if is orange signal ##
         else:
-            self.view["x"] = 1600 - self.main.view["x"]
-            self.view["y"] = 320 - self.main.view["y"]
+            self.view["x"] = (1600 * self.main.view["scale"]) - self.main.view["x"]
+            self.view["y"] = (320 * self.main.view["scale"]) - self.main.view["y"]
 
     def update(self):
 

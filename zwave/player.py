@@ -19,7 +19,6 @@ class Player:
 
     ## player view ##
     view = {
-        "scale": None,
         "width": None,
         "height": None,
         "x": None,
@@ -28,19 +27,18 @@ class Player:
     }
 
     ## constructor ##
-    def __init__(self, main, model = 'random', scale = 1, width = 65, height = 65):
+    def __init__(self, main, model = 'random', width = 65, height = 65):
         
         ## set init values ##
         self.main = main
-        self.view["scale"] = scale
         self.view["width"] = width
         self.view["height"] = height
         self.view["angle"] = 0
         self.collider = pygame.sprite.Group()
 
         ## set position in center of game screen ##
-        self.view["x"] = (self.main.view["width"] / 2) - ((self.view["width"] * self.view["scale"]) / 2)
-        self.view["y"] = (self.main.view["height"] / 2) - ((self.view["height"] * self.view["scale"]) / 2)
+        self.view["x"] = (self.main.view["width"] / 2) - ((self.view["width"] * self.main.view["scale"]) / 2)
+        self.view["y"] = (self.main.view["height"] / 2) - ((self.view["height"] * self.main.view["scale"]) / 2)
 
         ## set defined or ramdom player model ##
         self.model = '0' + str(random.randint(1,9)) if model == 'random' else model
@@ -58,15 +56,22 @@ class Player:
         ## scale player ##
         self.surface = pygame.transform.scale(
             model,
-            (self.view["width"] * self.view["scale"], self.view["height"] * self.view["scale"])
+            (self.view["width"] * self.main.view["scale"], self.view["height"] * self.main.view["scale"])
         )
 
     ## method to draw player collider ##
     def set_collider(self):
-        size = int(((self.view["width"] / 1.5) + (self.view["height"] / 1.5)) / 2)
 
-        x = (self.main.view["width"] / 2) - ((size * self.view["scale"]) / 2)
-        y = (self.main.view["height"] / 2) - ((size * self.view["scale"]) / 2)
+        ## calculate size of collider based on player size ##
+        size = int(
+                (
+                    ((self.view["width"] * self.main.view["scale"]) / 1.5) + 
+                    ((self.view["height"] * self.main.view["scale"]) / 1.5)
+                ) / 2
+            )
+
+        x = (self.main.view["width"] / 2) - (size / 2)
+        y = (self.main.view["height"] / 2) - (size / 2)
 
         ## make a generic sprite  ##
         sprite = pygame.sprite.Sprite()
@@ -119,8 +124,8 @@ class Player:
         if (self.main.mouse['x'] > 0) or (self.main.mouse['y'] > 0):
 
             ## calculate angle by two points, mouse position and player position ##
-            dx = self.main.mouse["x"] - (self.view["x"] + (self.view["width"] / 2))
-            dy = self.main.mouse["y"] - (self.view["y"] + (self.view["height"] / 2))
+            dx = self.main.mouse["x"] - (self.view["x"] + ((self.view["width"] * self.main.view["scale"]) / 2))
+            dy = self.main.mouse["y"] - (self.view["y"] + ((self.view["height"] * self.main.view["scale"]) / 2))
             rads = math.atan2(-dy,dx)
             rads %= 2 * math.pi
             self.view["angle"] = math.degrees(rads)

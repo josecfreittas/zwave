@@ -50,7 +50,7 @@ class Main:
 
 
     ## constructor ##
-    def __init__(self, scale = 1, width = 1024, height = 512):
+    def __init__(self, scale = 2, width = 1024, height = 512):
 
         ## set init values ##
         self.view["scale"] = scale
@@ -75,8 +75,8 @@ class Main:
         self.player = Player(self, '02')
 
         ## screen center (player position in map) ##
-        self.view["x"] = (self.map.view["width"] / 2) - (self.view["width"] / 2)
-        self.view["y"] = (self.map.view["height"] / 2) - (self.view["height"] / 2)
+        self.view["x"] = ((self.map.view["width"] * self.view["scale"]) / 2) - (self.view["width"] / 2)
+        self.view["y"] = ((self.map.view["height"] * self.view["scale"]) / 2) - (self.view["height"] / 2)
 
         ## init game loop ##
         self.loop()
@@ -98,11 +98,11 @@ class Main:
 
         ## speed to axes in diagonal movement ##
         if (keys[pygame.K_w] or keys[pygame.K_s]) and (keys[pygame.K_a] or keys[pygame.K_d]):
-            velocity = 1.5
+            velocity = 1.5 * self.view["scale"]
 
         ## speed to axes in horizontal and vertical movements ##
         else:
-            velocity = 2
+            velocity = 2 * self.view["scale"]
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:

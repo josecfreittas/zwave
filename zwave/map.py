@@ -9,7 +9,6 @@ class Map:
 
     ## map view ##
     view = {
-        "scale": None,
         "width": None,
         "height": None,
         "x": None,
@@ -62,10 +61,10 @@ class Map:
 
 
     ## constructor ##
-    def __init__(self, main, scale = 1, width = 2048, height = 2048):
+    def __init__(self, main, width = 2048, height = 2048):
 
         ## set init values ##
-        self.view["scale"] = scale
+        self.main = main
         self.view["width"] = width
         self.view["height"] = height
         self.view["x"] = 0
@@ -74,8 +73,6 @@ class Map:
         self.colliders["sprites"] = {}
         self.colliders["group"] = pygame.sprite.Group()
         
-        self.main = main
-
         self.set_surface()
         self.set_colliders()
     
@@ -88,17 +85,17 @@ class Map:
         ## scale map ##
         self.surface = pygame.transform.scale(
             surface,
-            ((self.view["width"] * self.view["scale"]), (self.view["height"] * self.view["scale"]))
+            ((self.view["width"] * self.main.view["scale"]), (self.view["height"] * self.main.view["scale"]))
         )
 
     
     def set_colliders(self):
         
         ## map number of rows ##
-        rows = self.view["width"] / self.colliders["size"]
+        rows = (self.view["width"] * self.main.view["scale"]) / (self.colliders["size"] * self.main.view["scale"])
 
         ## map number of columns ##
-        columns = self.view["height"] / self.colliders["size"]
+        columns = (self.view["height"] * self.main.view["scale"]) / (self.colliders["size"] * self.main.view["scale"])
 
         ## current row ##
         row = 1
@@ -127,11 +124,16 @@ class Map:
 
                 ## make a generic sprite with size of map tiles  ##
                 sprite = pygame.sprite.Sprite()
-                sprite.image = pygame.Surface((self.colliders["size"], self.colliders["size"]))
+                sprite.image = pygame.Surface(
+                    (
+                        (self.colliders["size"] * self.main.view["scale"]),
+                        (self.colliders["size"] * self.main.view["scale"])
+                    )
+                )
 
                 ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
                 sprite.image.fill((255, 0, 0))
-                sprite.image.set_colorkey((255, 0, 0))
+                #sprite.image.set_colorkey((255, 0, 0))
 
                 ## make sprite rect ##
                 sprite.rect = sprite.image.get_rect()
@@ -162,8 +164,8 @@ class Map:
             column = int(point[1])
 
             ## calcule new position of collider ##
-            x = ((column - 1) * self.colliders["size"]) - self.main.view["x"]
-            y = ((row - 1) * self.colliders["size"])  - self.main.view["y"]
+            x = ((column - 1) * (self.colliders["size"] * self.main.view["scale"])) - self.main.view["x"]
+            y = ((row - 1) * (self.colliders["size"] * self.main.view["scale"]))  - self.main.view["y"]
 
             ## set new position ##
             self.colliders["sprites"][key].rect.x = x
