@@ -133,7 +133,7 @@ class Map:
 
                 ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
                 sprite.image.fill((255, 0, 0))
-                #sprite.image.set_colorkey((255, 0, 0))
+                sprite.image.set_colorkey((255, 0, 0))
 
                 ## make sprite rect ##
                 sprite.rect = sprite.image.get_rect()
