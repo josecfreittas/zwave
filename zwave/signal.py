@@ -9,6 +9,9 @@ class Signal:
     ## signal point/position ##
     point = None
 
+    ## signal color number ##
+    color = None
+
     ## signal view ##
     view = {
         "width": None,
@@ -19,18 +22,18 @@ class Signal:
 
     ## signal estructure ##
     structure = {
-        "base": None,
         "light": None,
         "star": None,
         "point": None,
     }
         
     ## constructor ##
-    def __init__(self, main, point = 'north', width = 128, height = 128):
+    def __init__(self, main, point = 'north', color = '01', width = 128, height = 128):
         
         ## set init values ##
         self.main = main
         self.point = point
+        self.color = color
         self.view["x"] = 0
         self.view["y"] = 0
         self.view["width"] = width * self.main.view["scale"]
@@ -38,19 +41,15 @@ class Signal:
         
         self.set_structure()
 
-    ## method to set surfaces / structures of base signal ##
+    ## method to set surfaces / structures of signal ##
     def set_structure(self):
 
-        ## load and scale signal base image ##
-        base = pygame.image.load(os.path.join("assets", "img", "signals", "base.png")).convert_alpha()
-        self.structure["base"] = pygame.transform.scale(base, (self.view["width"], self.view["height"]))
-
         ## load and scale signal light image ##
-        light = pygame.image.load(os.path.join("assets", "img", "signals", "light.png")).convert_alpha()
+        light = pygame.image.load(os.path.join("assets", "img", "signals", "light_%s.png" % self.color)).convert_alpha()
         self.structure["light"] = pygame.transform.scale(light, (self.view["width"], self.view["height"]))
 
         ## load and scale signal star image ##
-        star = pygame.image.load(os.path.join("assets", "img", "signals", "star.png")).convert_alpha()
+        star = pygame.image.load(os.path.join("assets", "img", "signals", "star_%s.png" % self.color)).convert_alpha()
         self.structure["star"] = pygame.transform.scale(star, (self.view["width"], self.view["height"]))
 
         ## load and scale signal point image ##
@@ -109,9 +108,6 @@ class Signal:
 
         ## call method to update signal position acording to the actual game view ##
         self.update_position()
-
-        ## draw signal base in the screen ##
-        self.main.screen.blit(self.structure["base"], (self.view["x"], self.view["y"]))
 
         ## draw animated signal light in the screen ##
         self.main.screen.blit(self.animate_light(), (self.view["x"], self.view["y"]))
