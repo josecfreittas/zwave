@@ -50,7 +50,7 @@ class Main:
 
 
     ## constructor ##
-    def __init__(self, scale = 2, width = 1024, height = 512):
+    def __init__(self, scale = 1, width = 1024, height = 512):
 
         ## set init values ##
         self.view["scale"] = scale
