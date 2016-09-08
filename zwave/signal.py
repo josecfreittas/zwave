@@ -30,58 +30,37 @@ class Signal:
         
         ## set init values ##
         self.main = main
-        self.view["width"] = width
-        self.view["height"] = height
+        self.point = point
         self.view["x"] = 0
         self.view["y"] = 0
-
-        ## set signal point/type ##
-        self.point = point
+        self.view["width"] = width
+        self.view["height"] = height
         
         self.set_structure()
 
     ## method to set surfaces / structures of base signal ##
     def set_structure(self):
 
-        ## load signal base image ##
+        ## calcule scaled width and height for all pieces of structure ##
+        width = int(self.view["width"] * self.main.view["scale"])
+        height = int(self.view["height"] * self.main.view["scale"])
+
+        ## load and scale signal base image ##
         base = pygame.image.load(os.path.join("assets", "img", "signals", "base.png")).convert_alpha()
+        self.structure["base"] = pygame.transform.scale(base, (width, height))
 
-        ## scale signal base ##
-        self.structure["base"] = pygame.transform.scale(
-            base,
-            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
-        )
-
-
-        ## load signal light image ##
+        ## load and scale signal light image ##
         light = pygame.image.load(os.path.join("assets", "img", "signals", "light.png")).convert_alpha()
+        self.structure["light"] = pygame.transform.scale(light, (width, height))
 
-        ## scale signal light ##
-        self.structure["light"] = pygame.transform.scale(
-            light,
-            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
-        )
-
-
-        ## load signal star image ##
+        ## load and scale signal star image ##
         star = pygame.image.load(os.path.join("assets", "img", "signals", "star.png")).convert_alpha()
+        self.structure["star"] = pygame.transform.scale(star, (width, height))
 
-        ## scale signal light ##
-        self.structure["star"] = pygame.transform.scale(
-            star,
-            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
-        )
-
-
-        ## load signal point image ##
+        ## load and scale signal point image ##
         point = pygame.image.load(os.path.join("assets", "img", "signals", "point.png")).convert_alpha()
+        self.structure["point"] = pygame.transform.scale(point, (width, height))
 
-        ## scale signal point ##
-        self.structure["point"] = pygame.transform.scale(
-            point,
-            (int(self.view["width"] * self.main.view["scale"]), int(self.view["height"] * self.main.view["scale"]))
-        )
-    
     ## method to animate star of signal ##
     def animate_star(self):
 
@@ -97,7 +76,7 @@ class Signal:
         ## define center of new copy ##
         area.center = new.get_rect().center
         
-        ## ##
+        ## return new star ##
         return new.subsurface(area).copy()
 
     def animate_light(self):
@@ -114,7 +93,7 @@ class Signal:
         ## define center of new copy ##
         area.center = new.get_rect().center
         
-        ## ##
+        ## return new light ##
         return new.subsurface(area).copy()
 
     ## method to update signal view position ##
@@ -125,7 +104,7 @@ class Signal:
             self.view["x"] = (320 * self.main.view["scale"]) - self.main.view["x"]
             self.view["y"] = (1600 * self.main.view["scale"]) - self.main.view["y"]
 
-        ## if is orange signal ##
+        ## if is south signal ##
         else:
             self.view["x"] = (1600 * self.main.view["scale"]) - self.main.view["x"]
             self.view["y"] = (320 * self.main.view["scale"]) - self.main.view["y"]
