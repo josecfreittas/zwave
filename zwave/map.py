@@ -79,31 +79,28 @@ class Map:
     ## method to set map surface ##
     def set_surface(self):
 
-        ## load map image ##
+        ## calculate scaled map width and height ##
+        width = int(self.view["width"] * self.main.view["scale"])
+        height = int(self.view["height"] * self.main.view["scale"])
+
+        ## load and scale map image ##
         surface = pygame.image.load(os.path.join("assets", "img", "map.png")).convert_alpha()
-
-        ## scale map ##
-        self.surface = pygame.transform.scale(
-            surface,
-            ((self.view["width"] * self.main.view["scale"]), (self.view["height"] * self.main.view["scale"]))
-        )
-
+        self.surface = pygame.transform.scale(surface, (width, height))
     
     def set_colliders(self):
-        
+
+        ## scaled tile/collider size ##
+        tile_size = (self.colliders["size"] * self.main.view["scale"])
+
         ## map number of rows ##
-        rows = (self.view["width"] * self.main.view["scale"]) / (self.colliders["size"] * self.main.view["scale"])
+        rows = (self.view["width"] * self.main.view["scale"]) / tile_size
 
         ## map number of columns ##
-        columns = (self.view["height"] * self.main.view["scale"]) / (self.colliders["size"] * self.main.view["scale"])
+        columns = (self.view["height"] * self.main.view["scale"]) / tile_size
 
-        ## current row ##
+        ## current row, column and tile ##
         row = 1
-
-        ## current column ##
         column = 0
-
-        ## current tile ##
         tile = 0
 
         ## loop for all the tiles ##
@@ -124,12 +121,7 @@ class Map:
 
                 ## make a generic sprite with size of map tiles  ##
                 sprite = pygame.sprite.Sprite()
-                sprite.image = pygame.Surface(
-                    (
-                        (self.colliders["size"] * self.main.view["scale"]),
-                        (self.colliders["size"] * self.main.view["scale"])
-                    )
-                )
+                sprite.image = pygame.Surface((tile_size, tile_size))
 
                 ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
                 sprite.image.fill((255, 0, 0))
