@@ -1,5 +1,4 @@
 #--*-- conding: utf-8 --*--
+import zwave
 
-import game
-
-game.Main()
+zwave.init()

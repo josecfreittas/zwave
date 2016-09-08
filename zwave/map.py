@@ -1,4 +1,5 @@
 import os
+import sys
 import pygame
 
 class Map:
@@ -146,8 +147,14 @@ class Map:
     ## method to update all colliders position acording to screen position ##
     def update_colliders(self):
 
+        ## check version of python 2 or 3, and set var 'items' with the appropriate syntax for each version ##
+        if sys.version_info.major == 2:
+            items = self.colliders["sprites"].iteritems()
+        else:
+            items = self.colliders["sprites"].items()
+
         ## loop for update all sprites ##
-        for key, sprite in self.colliders["sprites"].iteritems():
+        for key, sprite in items:
 
             ## get row and column by dict key ##
             point = key.split(",")

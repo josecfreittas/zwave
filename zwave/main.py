@@ -1,7 +1,8 @@
 import pygame
-from map import *
-from signal import *
-from player import *
+
+from zwave.map import *
+from zwave.signal import *
+from zwave.player import *
 
 class Main:
     
@@ -57,6 +58,8 @@ class Main:
         self.view["height"] = height
         self.tick = 60
         self.frame = 0
+        self.mouse['x'] = 0
+        self.mouse['y'] = 0
 
         ## set pygame screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
