@@ -33,33 +33,29 @@ class Signal:
         self.point = point
         self.view["x"] = 0
         self.view["y"] = 0
-        self.view["width"] = width
-        self.view["height"] = height
+        self.view["width"] = width * self.main.view["scale"]
+        self.view["height"] = height * self.main.view["scale"]
         
         self.set_structure()
 
     ## method to set surfaces / structures of base signal ##
     def set_structure(self):
 
-        ## calcule scaled width and height for all pieces of structure ##
-        width = int(self.view["width"] * self.main.view["scale"])
-        height = int(self.view["height"] * self.main.view["scale"])
-
         ## load and scale signal base image ##
         base = pygame.image.load(os.path.join("assets", "img", "signals", "base.png")).convert_alpha()
-        self.structure["base"] = pygame.transform.scale(base, (width, height))
+        self.structure["base"] = pygame.transform.scale(base, (self.view["width"], self.view["height"]))
 
         ## load and scale signal light image ##
         light = pygame.image.load(os.path.join("assets", "img", "signals", "light.png")).convert_alpha()
-        self.structure["light"] = pygame.transform.scale(light, (width, height))
+        self.structure["light"] = pygame.transform.scale(light, (self.view["width"], self.view["height"]))
 
         ## load and scale signal star image ##
         star = pygame.image.load(os.path.join("assets", "img", "signals", "star.png")).convert_alpha()
-        self.structure["star"] = pygame.transform.scale(star, (width, height))
+        self.structure["star"] = pygame.transform.scale(star, (self.view["width"], self.view["height"]))
 
         ## load and scale signal point image ##
         point = pygame.image.load(os.path.join("assets", "img", "signals", "point.png")).convert_alpha()
-        self.structure["point"] = pygame.transform.scale(point, (width, height))
+        self.structure["point"] = pygame.transform.scale(point, (self.view["width"], self.view["height"]))
 
     ## method to animate star of signal ##
     def animate_star(self):

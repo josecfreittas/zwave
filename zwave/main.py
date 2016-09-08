@@ -53,13 +53,13 @@ class Main:
     def __init__(self, scale = 1, width = 1024, height = 512):
 
         ## set init values ##
+        self.mouse['x'] = 0
+        self.mouse['y'] = 0
         self.view["scale"] = scale
         self.view["width"] = width
         self.view["height"] = height
-        self.tick = 60
         self.frame = 0
-        self.mouse['x'] = 0
-        self.mouse['y'] = 0
+        self.tick = 60
 
         ## set pygame screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
@@ -72,11 +72,11 @@ class Main:
         self.signal["south"] = Signal(self, 'south')
 
         ## make player ##
-        self.player = Player(self, '02')
+        self.player = Player(self)
 
         ## screen center (player position in map) ##
-        self.view["x"] = ((self.map.view["width"] * self.view["scale"]) / 2) - (self.view["width"] / 2)
-        self.view["y"] = ((self.map.view["height"] * self.view["scale"]) / 2) - (self.view["height"] / 2)
+        self.view["x"] = (self.map.view["width"] / 2) - (self.view["width"] / 2)
+        self.view["y"] = (self.map.view["height"] / 2) - (self.view["height"] / 2)
 
         ## init game loop ##
         self.loop()
