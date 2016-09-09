@@ -18,10 +18,6 @@ class Main:
         self.view["last_x"] = 0
         self.view["last_y"] = 0
 
-        ## mouse ##
-        self.mouse = {}
-        self.mouse["x"] = 0
-        self.mouse["y"] = 0
 
         ## framerate ##
         self.tick = 60
@@ -29,6 +25,15 @@ class Main:
 
         ## game screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
+
+        ## cursor ##
+        pygame.mouse.set_visible(False)
+        self.cursor = {}
+        self.cursor["x"] = 0
+        self.cursor["y"] = 0
+        self.cursor["size"] = 35
+        self.cursor["image"] = pygame.image.load(os.path.join("assets", "img", "cursor.png")).convert_alpha()
+        self.cursor["image"] = pygame.transform.scale(self.cursor["image"], (self.cursor["size"], self.cursor["size"]))
 
         ## game map ##
         self.map = Map(self)
@@ -52,17 +57,6 @@ class Main:
 
         ## init game loop ##
         self.loop()
-
-    ## method to allow external access to object values ##
-    def __getattr__(self, name):
-        if name == "view":
-            return self.view
-        elif name == "screen":
-            return self.screen
-        elif name == "map":
-            return self.map
-        elif name == "player":
-            return self.player
 
     ## method to player/screen movimentation ##
     def move(self):
@@ -123,14 +117,17 @@ class Main:
             ## call method responsible for move view to new destiny, if one exists ##
             self.move()
 
+            ## draw cursor ##
+            self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
+
             ## update pygame screen ##
             pygame.display.update()
 
-            ## mouse x position ##
-            self.mouse["x"] = pygame.mouse.get_pos()[0]
+            ## cursor x position ##
+            self.cursor["x"] = pygame.mouse.get_pos()[0]
 
-            ## mouse y position ##
-            self.mouse["y"] = pygame.mouse.get_pos()[1]
+            ## cursor y position ##
+            self.cursor["y"] = pygame.mouse.get_pos()[1]
 
             ## events hunter ##
             for event in pygame.event.get():

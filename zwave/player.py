@@ -34,11 +34,6 @@ class Player:
         self.set_collider()
 
     ## methods to allow external access to object values ##
-    def __getattr__(self, name):
-        if name == "view":
-            return self.view
-        if name == "collider":
-            return self.collider
     def __getitem__(self, name):
         if name == 'view':
 	        return self.view
@@ -109,14 +104,14 @@ class Player:
 
         return new.subsurface(area).copy()
 
-    ## method to define angle for player rotation acording to the mouse position ##
+    ## method to define angle for player rotation acording to the cursor position ##
     def set_angle(self):
 
-        if (self.main.mouse['x'] > 0) or (self.main.mouse['y'] > 0):
+        if (self.main.cursor['x'] > 0) or (self.main.cursor['y'] > 0):
 
-            ## calculate angle by two points, mouse position and player position ##
-            dx = self.main.mouse["x"] - (self.view["x"] + (self.view["width"] / 2))
-            dy = self.main.mouse["y"] - (self.view["y"] + (self.view["height"] / 2))
+            ## calculate angle by two points, cursor position and player position ##
+            dx = self.main.cursor["x"] - (self.view["x"] + (self.view["width"] / 2))
+            dy = self.main.cursor["y"] - (self.view["y"] + (self.view["height"] / 2))
             rads = math.atan2(-dy,dx)
             rads %= 2 * math.pi
             self.view["angle"] = math.degrees(rads)

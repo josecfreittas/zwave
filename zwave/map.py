@@ -63,14 +63,6 @@ class Map:
         self.set_surface()
         self.set_colliders()
 
-    ## methods to allow external access to object values ##
-    def __getattr__(self, name):
-        if name == "view":
-            return self.view
-    def __getitem__(self, key):
-        if key == 'view':
-	        return self.view
-
     ## method to set map surface ##
     def set_surface(self):
 
