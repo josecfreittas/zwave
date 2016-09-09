@@ -50,11 +50,11 @@ class Signal:
     ## set object position relative to map ##
     def set_position(self):
         if self.point == "north":
-            self.view["relative"]["x"] = 64 * self.main.view["scale"]
-            self.view["relative"]["y"] = 1856 * self.main.view["scale"]
+            self.view["relative"]["x"] = 32 * self.main.view["scale"]
+            self.view["relative"]["y"] = 1888 * self.main.view["scale"]
         else:
-            self.view["relative"]["x"] = 1856 * self.main.view["scale"]
-            self.view["relative"]["y"] = 64 * self.main.view["scale"]
+            self.view["relative"]["x"] = 1888 * self.main.view["scale"]
+            self.view["relative"]["y"] = 32 * self.main.view["scale"]
 
     ## method to animate star of signal ##
     def animate_star(self):

@@ -21,11 +21,11 @@ class Map:
         self.surface = None
 
         ## map colliders ##
-        self.colliders = {}
-        self.colliders["size"] = 64 * self.main.view["scale"]
-        self.colliders["sprites"] = {}
-        self.colliders["group"] = pygame.sprite.Group()
-        self.colliders["raw"] = {
+        self.collider = {}
+        self.collider["size"] = 64 * self.main.view["scale"]
+        self.collider["sprites"] = {}
+        self.collider["walls"] = pygame.sprite.Group()
+        self.collider["raw"] = {
             "1":  ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
             "2":  ' @                       @@@@@@@@',
             "3":  ' @                        @   @@@',
@@ -63,10 +63,13 @@ class Map:
         self.set_surface()
         self.set_colliders()
 
-    ## method to allow external access to object values ##
+    ## methods to allow external access to object values ##
     def __getattr__(self, name):
         if name == "view":
             return self.view
+    def __getitem__(self, key):
+        if key == 'view':
+	        return self.view
 
     ## method to set map surface ##
     def set_surface(self):
@@ -78,10 +81,10 @@ class Map:
     def set_colliders(self):
 
         ## map number of rows ##
-        rows = self.view["width"] / self.colliders["size"]
+        rows = self.view["width"] / self.collider["size"]
 
         ## map number of columns ##
-        columns = self.view["height"] / self.colliders["size"]
+        columns = self.view["height"] / self.collider["size"]
 
         ## current row, column and tile ##
         row = 1
@@ -102,11 +105,11 @@ class Map:
                 row += 1
             
             ## check if in raw, current tile is a wall ##
-            if self.colliders["raw"][str(row)][column] == '@':
+            if self.collider["raw"][str(row)][column] == '@':
 
                 ## make a generic sprite with size of map tiles  ##
                 sprite = pygame.sprite.Sprite()
-                sprite.image = pygame.Surface((self.colliders["size"], self.colliders["size"]))
+                sprite.image = pygame.Surface((self.collider["size"], self.collider["size"]))
 
                 ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
                 sprite.image.fill((255, 0, 0))
@@ -117,10 +120,10 @@ class Map:
 
                 ## add sprit to map colliders list (dict) ##
                 name = str(row) + "," + str(column)
-                self.colliders["sprites"][name] = sprite
+                self.collider["sprites"][name] = sprite
 
                 ## add new collider to colliders group ##
-                self.colliders["group"].add(self.colliders["sprites"][name])
+                self.collider["walls"].add(self.collider["sprites"][name])
 
 
     ## method to update all colliders position acording to screen position ##
@@ -128,9 +131,9 @@ class Map:
 
         ## check version of python 2 or 3, and set var 'items' with the appropriate syntax for each version ##
         if sys.version_info.major == 2:
-            items = self.colliders["sprites"].iteritems()
+            items = self.collider["sprites"].iteritems()
         else:
-            items = self.colliders["sprites"].items()
+            items = self.collider["sprites"].items()
 
         ## loop for update all sprites ##
         for key, sprite in items:
@@ -141,12 +144,12 @@ class Map:
             column = int(point[1])
 
             ## calcule new position of collider ##
-            x = ((column - 1) * self.colliders["size"]) - self.main.view["x"]
-            y = ((row - 1) * self.colliders["size"])  - self.main.view["y"]
+            x = ((column - 1) * self.collider["size"]) - self.main.view["x"]
+            y = ((row - 1) * self.collider["size"])  - self.main.view["y"]
 
             ## set new position ##
-            self.colliders["sprites"][key].rect.x = x
-            self.colliders["sprites"][key].rect.y = y
+            self.collider["sprites"][key].rect.x = x
+            self.collider["sprites"][key].rect.y = y
 
     ## method to update map view position ##
     def update_position(self):
@@ -166,4 +169,4 @@ class Map:
         self.update_colliders()
 
         ## draw invisible colliders ##
-        self.colliders["group"].draw(self.main.screen)
+        self.collider["walls"].draw(self.main.screen)

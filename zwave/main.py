@@ -46,7 +46,9 @@ class Main:
         self.player = Player(self)
 
         ## make enemy ##
-        self.enemy = Enemy(self)
+        self.enemies = pygame.sprite.Group()
+        self.enemy1 = Enemy(self)
+        self.enemies.add(self.enemy1.collider["sprite1"])
 
         ## init game loop ##
         self.loop()
@@ -55,14 +57,18 @@ class Main:
     def __getattr__(self, name):
         if name == "view":
             return self.view
+        elif name == "screen":
+            return self.screen
         elif name == "map":
             return self.map
+        elif name == "player":
+            return self.player
 
     ## method to player/screen movimentation ##
     def move(self):
 
         ## check if had collision, if had, set last position of view ##
-        if self.player.check_collision("wall"):
+        if self.player.check_collision("wall") or self.player.check_collision("enemies"):
             self.view["x"] = self.view["last_x"]
             self.view["y"] = self.view["last_y"]
 
@@ -108,11 +114,11 @@ class Main:
             self.signal["north"].update()
             self.signal["south"].update()
 
+            ## enemy update ##
+            self.enemy1.update()
+
             ## update player ##
             self.player.update()
-
-            ## enemy update ##
-            self.enemy.update()
 
             ## call method responsible for move view to new destiny, if one exists ##
             self.move()

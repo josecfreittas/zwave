@@ -18,7 +18,9 @@ class Player:
         self.surface = None
 
         ## player collider ##
-        self.collider = pygame.sprite.Group()
+        self.collider = {}
+        self.collider["sprite"] = None
+        self.collider["touch"] = pygame.sprite.Group()
 
         ## player view ##
         self.view = {}
@@ -31,10 +33,17 @@ class Player:
         self.set_surface()
         self.set_collider()
 
-    ## method to allow external access to object values ##
+    ## methods to allow external access to object values ##
     def __getattr__(self, name):
         if name == "view":
             return self.view
+        if name == "collider":
+            return self.collider
+    def __getitem__(self, name):
+        if name == 'view':
+	        return self.view
+        if name == "collider":
+            return self.collider
 
     ## method to set player surface ##
     def set_surface(self):
@@ -68,14 +77,17 @@ class Player:
         sprite.rect.y = y
 
         ## add new collider to colliders group ##
-        self.collider.add(sprite)
+        self.collider["sprite"] = sprite
+        self.collider["touch"].add(self.collider["sprite"])
 
     ## method to check if exist collision ##
     def check_collision(self, collider):
         if collider == 'wall':
-            collider = self.main.map.colliders["group"]
+            collider = self.main.map.collider["walls"]
+        if collider == 'enemies':
+            collider = self.main.enemies
 
-        if pygame.sprite.groupcollide(self.collider, collider, False, False):
+        if pygame.sprite.groupcollide(self.collider["touch"], collider, False, False):
             return True
         else:
             return False
