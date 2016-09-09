@@ -18,7 +18,10 @@ class Map:
         self.view["y"] = 0
 
         ## map suface ##
-        self.surface = None
+        self.surface = {}
+        self.surface["ground"] = None
+        self.surface["shadows"] = None
+        self.surface["walls"] = None
 
         ## map colliders ##
         self.collider = {}
@@ -63,12 +66,17 @@ class Map:
         self.set_surface()
         self.set_colliders()
 
-    ## method to set map surface ##
+    ## method to set/load and scale map surfaces ##
     def set_surface(self):
 
-        ## load and scale map image ##
-        surface = pygame.image.load(os.path.join("assets", "img", "map.png")).convert_alpha()
-        self.surface = pygame.transform.scale(surface, (self.view["width"], self.view["height"]))
+        self.surface["ground"] = pygame.image.load(os.path.join("assets", "img", "map", "ground.png")).convert_alpha()
+        self.surface["ground"] = pygame.transform.scale(self.surface["ground"], (self.view["width"], self.view["height"]))
+
+        self.surface["shadows"] = pygame.image.load(os.path.join("assets", "img", "map", "shadows.png")).convert_alpha()
+        self.surface["shadows"] = pygame.transform.scale(self.surface["shadows"], (self.view["width"], self.view["height"]))
+
+        self.surface["walls"] = pygame.image.load(os.path.join("assets", "img", "map", "walls.png")).convert_alpha()
+        self.surface["walls"] = pygame.transform.scale(self.surface["walls"], (self.view["width"], self.view["height"]))
     
     def set_colliders(self):
 
@@ -153,9 +161,6 @@ class Map:
 
         ## call method to update position ##
         self.update_position()
-
-        ## draw map on the screen ##
-        self.main.screen.blit(self.surface,(self.view["x"], self.view["y"]))
 
         ## call method to update colliders ##
         self.update_colliders()

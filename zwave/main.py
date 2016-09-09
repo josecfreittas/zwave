@@ -101,12 +101,14 @@ class Main:
         running = True
         while running:
 
-            ## update game map ##
+            ## call method responsible for move view to new destiny, if one exists ##
+            self.move()
+
+            ## update map ##
             self.map.update()
 
-            ## update base signals ##
-            self.signal["north"].update()
-            self.signal["south"].update()
+            ## draw map ground ##
+            self.screen.blit(self.map.surface["ground"], (self.map.view["x"], self.map.view["y"]))
 
             ## enemy update ##
             self.enemy1.update()
@@ -114,8 +116,15 @@ class Main:
             ## update player ##
             self.player.update()
 
-            ## call method responsible for move view to new destiny, if one exists ##
-            self.move()
+            ## draw map shadows ##
+            self.screen.blit(self.map.surface["shadows"], (self.map.view["x"], self.map.view["y"]))
+
+            ## draw map walls ##
+            self.screen.blit(self.map.surface["walls"], (self.map.view["x"], self.map.view["y"]))
+
+            ## update base signals ##
+            self.signal["north"].update()
+            self.signal["south"].update()
 
             ## draw cursor ##
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))

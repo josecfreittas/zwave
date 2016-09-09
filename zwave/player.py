@@ -37,8 +37,6 @@ class Player:
     def __getitem__(self, name):
         if name == 'view':
 	        return self.view
-        if name == "collider":
-            return self.collider
 
     ## method to set player surface ##
     def set_surface(self):
