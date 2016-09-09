@@ -5,44 +5,36 @@ import pygame
 
 class Player:
 
-    ## main game object ##
-    main = None
-    
-    ## visual model of player ##
-    model = None
-    
-    ## player surface ##
-    surface = None
-
-    ## player collider ##
-    collider = None
-
-    ## player view ##
-    view = {
-        "width": None,
-        "height": None,
-        "x": None,
-        "y": None,
-        "angle": None,
-    }
-
     ## constructor ##
-    def __init__(self, main, model = '01', width = 65, height = 65):
+    def __init__(self, main, model = '01', width = 65, height = 65):    
         
-        ## set init values ##
+        ## main game object ##
         self.main = main
+        
+        ## visual model of player ##
         self.model = model
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        self.view["angle"] = 0
+        
+        ## player surface ##
+        self.surface = None
+
+        ## player collider ##
         self.collider = pygame.sprite.Group()
 
-        ## set position in center of game screen ##
+        ## player view ##
+        self.view = {}
+        self.view["angle"] = 0
+        self.view["width"] = width * self.main.view["scale"]
+        self.view["height"] = height * self.main.view["scale"]
         self.view["x"] = (self.main.view["width"] / 2) - (self.view["width"] / 2)
         self.view["y"] = (self.main.view["height"] / 2) - (self.view["height"] / 2)
-        
+
         self.set_surface()
         self.set_collider()
+
+    ## method to allow external access to object values ##
+    def __getattr__(self, name):
+        if name == "view":
+            return self.view
 
     ## method to set player surface ##
     def set_surface(self):

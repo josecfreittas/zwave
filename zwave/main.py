@@ -3,83 +3,60 @@ import pygame
 from zwave.map import *
 from zwave.signal import *
 from zwave.player import *
+from zwave.enemy import *
 
 class Main:
-    
-    ## pygame screen ##
-    screen = None
-
-    ## pygame tick number ##
-    tick = None
-
-    ## game frame [0-tick] ##
-    frame = None
-
-    ## game view ##
-    view = {
-        "scale": None,
-        "width": None,
-        "height": None,
-        "x": None,
-        "y": None,
-        "last_x": None,
-        "last_y": None,
-    }
-
-    ## target to change game view change ##
-    mouse = {
-        "x": None,
-        "y": None,
-        "relative-x": None,
-        "relative-x": None,
-        "x-way": None,
-        "y-way": None,
-    }
-
-    ## map of game ##
-    map = None
-
-    ## player ##
-    player = None
-
-    ## signals of bases ##
-    signal = {
-        "blue": None,
-        "orange": None,
-    }
-
 
     ## constructor ##
     def __init__(self, scale = 1, width = 1024, height = 512):
 
-        ## set init values ##
-        self.mouse['x'] = 0
-        self.mouse['y'] = 0
+        ## game view ##
+        self.view = {}
         self.view["scale"] = scale
         self.view["width"] = width
         self.view["height"] = height
-        self.frame = 0
-        self.tick = 60
+        self.view["last_x"] = 0
+        self.view["last_y"] = 0
 
-        ## set pygame screen ##
+        ## mouse ##
+        self.mouse = {}
+        self.mouse["x"] = 0
+        self.mouse["y"] = 0
+
+        ## framerate ##
+        self.tick = 60
+        self.frame = 0
+
+        ## game screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
-        
-        ## make map ##
+
+        ## game map ##
         self.map = Map(self)
 
-        ## make base signals ##
-        self.signal["north"] = Signal(self, 'north')
-        self.signal["south"] = Signal(self, 'south')
+        ## game view x and y ##
+        self.view["x"] = (self.map.view["width"] / 2) - (width / 2)
+        self.view["y"] = (self.map.view["height"] / 2) - (height / 2)
 
-        ## make player ##
+        ## make base signals ##
+        self.signal = {}
+        self.signal["south"] = Signal(self, "south")
+        self.signal["north"] = Signal(self, "north")
+
+        ## player ##
         self.player = Player(self)
 
-        ## screen center (player position in map) ##
-        self.view["x"] = (self.map.view["width"] / 2) - (self.view["width"] / 2)
-        self.view["y"] = (self.map.view["height"] / 2) - (self.view["height"] / 2)
+        ## make enemy ##
+        self.enemy = Enemy(self)
 
         ## init game loop ##
         self.loop()
+
+    ## method to allow external access to object values ##
+    def __getattr__(self, name):
+        if name == "view":
+            return self.view
+        elif name == "map":
+            return self.map
 
     ## method to player/screen movimentation ##
     def move(self):
@@ -133,6 +110,9 @@ class Main:
 
             ## update player ##
             self.player.update()
+
+            ## enemy update ##
+            self.enemy.update()
 
             ## call method responsible for move view to new destiny, if one exists ##
             self.move()

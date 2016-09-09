@@ -3,27 +3,29 @@ import sys
 import pygame
 
 class Map:
-    
-    ## main game object ##
-    main = None
 
-    ## map view ##
-    view = {
-        "width": None,
-        "height": None,
-        "x": None,
-        "y": None,
-    }
+    ## constructor ##
+    def __init__(self, main, width = 2048, height = 2048):
 
-    ## map surface ##
-    surface = None
+        ## game main ##
+        self.main = main
 
-    ## map colliders ##
-    colliders = {
-        "size": None,
-        "sprites": None,
-        "group": None,
-        "raw": {
+        ## map view ##
+        self.view = {}
+        self.view["width"] = width * self.main.view["scale"]
+        self.view["height"] = height * self.main.view["scale"]
+        self.view["x"] = 0
+        self.view["y"] = 0
+
+        ## map suface ##
+        self.surface = None
+
+        ## map colliders ##
+        self.colliders = {}
+        self.colliders["size"] = 64 * self.main.view["scale"]
+        self.colliders["sprites"] = {}
+        self.colliders["group"] = pygame.sprite.Group()
+        self.colliders["raw"] = {
             "1":  ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
             "2":  ' @                       @@@@@@@@',
             "3":  ' @                        @   @@@',
@@ -55,27 +57,17 @@ class Map:
             "29": ' @@                   @@@@@@    @',
             "30": ' @@@   @                        @',
             "31": ' @@@@@@@@                       @',
-            "32": ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@'
-        },
-    }
+            "32": ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
+        }
 
-
-    ## constructor ##
-    def __init__(self, main, width = 2048, height = 2048):
-
-        ## set init values ##
-        self.main = main
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        self.view["x"] = 0
-        self.view["y"] = 0
-        self.colliders["size"] = 64 * self.main.view["scale"]
-        self.colliders["sprites"] = {}
-        self.colliders["group"] = pygame.sprite.Group()
-        
         self.set_surface()
         self.set_colliders()
-    
+
+    ## method to allow external access to object values ##
+    def __getattr__(self, name):
+        if name == "view":
+            return self.view
+
     ## method to set map surface ##
     def set_surface(self):
 
@@ -118,7 +110,7 @@ class Map:
 
                 ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
                 sprite.image.fill((255, 0, 0))
-                #sprite.image.set_colorkey((255, 0, 0))
+                sprite.image.set_colorkey((255, 0, 0))
 
                 ## make sprite rect ##
                 sprite.rect = sprite.image.get_rect()

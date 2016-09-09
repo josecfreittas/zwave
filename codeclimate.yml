@@ -1,9 +1,6 @@
 engines:
   duplication:
     enabled: false
-    config:
-      languages:
-      - python
   fixme:
     enabled: true
   radon:

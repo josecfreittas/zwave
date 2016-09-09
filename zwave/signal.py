@@ -2,43 +2,34 @@ import os
 import pygame
 
 class Signal:
-
-    ## main game object ##
-    main = None
-    
-    ## signal point/position ##
-    point = None
-
-    ## signal color number ##
-    color = None
-
-    ## signal view ##
-    view = {
-        "width": None,
-        "height": None,
-        "x": None,
-        "y": None,
-    }
-
-    ## signal estructure ##
-    structure = {
-        "light": None,
-        "star": None,
-        "point": None,
-    }
         
     ## constructor ##
-    def __init__(self, main, point = 'north', color = '01', width = 128, height = 128):
+    def __init__(self, main, point, color = '01', width = 128, height = 128):
         
-        ## set init values ##
+        ## game main ##
         self.main = main
+
+        ## signal map point ##
         self.point = point
+
+        ## signal map color ##
         self.color = color
+
+        ## signal view ##
+        self.view = {}
+        self.view["width"] = width * main.view["scale"]
+        self.view["height"] = height * main.view["scale"]
         self.view["x"] = 0
         self.view["y"] = 0
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        
+        self.view["relative"] = {"x": 0, "y": 0} ## relative position to map
+
+        ## signal structure ##
+        self.structure = {}
+        self.structure["light"] = None
+        self.structure["star"] = None
+        self.structure["point"] = None
+
+        self.set_position()
         self.set_structure()
 
     ## method to set surfaces / structures of signal ##
@@ -55,6 +46,15 @@ class Signal:
         ## load and scale signal point image ##
         point = pygame.image.load(os.path.join("assets", "img", "signals", "point.png")).convert_alpha()
         self.structure["point"] = pygame.transform.scale(point, (self.view["width"], self.view["height"]))
+
+    ## set object position relative to map ##
+    def set_position(self):
+        if self.point == "north":
+            self.view["relative"]["x"] = 64 * self.main.view["scale"]
+            self.view["relative"]["y"] = 1856 * self.main.view["scale"]
+        else:
+            self.view["relative"]["x"] = 1856 * self.main.view["scale"]
+            self.view["relative"]["y"] = 64 * self.main.view["scale"]
 
     ## method to animate star of signal ##
     def animate_star(self):
@@ -94,15 +94,8 @@ class Signal:
     ## method to update signal view position ##
     def update_position(self):
 
-        ## if is north signal ##
-        if self.point == 'north':
-            self.view["x"] = (320 * self.main.view["scale"]) - self.main.view["x"]
-            self.view["y"] = (1600 * self.main.view["scale"]) - self.main.view["y"]
-
-        ## if is south signal ##
-        else:
-            self.view["x"] = (1600 * self.main.view["scale"]) - self.main.view["x"]
-            self.view["y"] = (320 * self.main.view["scale"]) - self.main.view["y"]
+        self.view["x"] = self.view["relative"]["x"] - self.main.view["x"]
+        self.view["y"] = self.view["relative"]["y"] - self.main.view["y"]
 
     def update(self):
 
