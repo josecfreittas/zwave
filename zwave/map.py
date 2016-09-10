@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import pygame
 
 class Map:
@@ -20,7 +21,6 @@ class Map:
         ## map suface ##
         self.surface = {}
         self.surface["ground"] = None
-        self.surface["shadows"] = None
         self.surface["walls"] = None
 
         ## map colliders ##
@@ -28,40 +28,10 @@ class Map:
         self.collider["size"] = 64 * self.main.view["scale"]
         self.collider["sprites"] = {}
         self.collider["walls"] = pygame.sprite.Group()
-        self.collider["raw"] = {
-            "1":  ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
-            "2":  ' @                       @@@@@@@@',
-            "3":  ' @                        @   @@@',
-            "4":  ' @    @@@@@@                   @@',
-            "5":  ' @                    @        @@',
-            "6":  ' @  @                 @        @@',
-            "7":  ' @  @                 @       @@@',
-            "8":  ' @  @                 @        @@',
-            "9":  ' @  @                           @',
-            "10": ' @  @                           @',
-            "11": ' @  @                    @@@@   @',
-            "12": ' @                              @',
-            "13": ' @                              @',
-            "14": ' @                              @',
-            "15": ' @                              @',
-            "16": ' @                              @',
-            "17": ' @                              @',
-            "18": ' @                              @',
-            "19": ' @                              @',
-            "20": ' @                              @',
-            "21": ' @                              @',
-            "22": ' @   @@@@                    @  @',
-            "23": ' @                           @  @',
-            "24": ' @                           @  @',
-            "25": ' @@        @                 @  @',
-            "26": ' @@@       @                 @  @',
-            "27": ' @@        @                 @  @',
-            "28": ' @@        @                    @',
-            "29": ' @@                   @@@@@@    @',
-            "30": ' @@@   @                        @',
-            "31": ' @@@@@@@@                       @',
-            "32": ' @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@',
-        }
+        self.collider["grass"] = pygame.sprite.Group()
+        self.collider["raw"] = [
+            "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "W", "W", "W", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "M", "W", "M", "M", "M", "M", "W", "W", "W", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "M", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "W", "W", "W", "W", "M", "M", "M", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "M", "M", "M", "W", "W", "W", "W", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "M", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "W", "W", "W", "M", "M", "M", "M", "W", "M", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "W", "W", "W", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"
+        ]
 
         self.set_surface()
         self.set_colliders()
@@ -72,59 +42,35 @@ class Map:
         self.surface["ground"] = pygame.image.load(os.path.join("assets", "img", "map", "ground.png")).convert_alpha()
         self.surface["ground"] = pygame.transform.scale(self.surface["ground"], (self.view["width"], self.view["height"]))
 
-        self.surface["shadows"] = pygame.image.load(os.path.join("assets", "img", "map", "shadows.png")).convert_alpha()
-        self.surface["shadows"] = pygame.transform.scale(self.surface["shadows"], (self.view["width"], self.view["height"]))
-
         self.surface["walls"] = pygame.image.load(os.path.join("assets", "img", "map", "walls.png")).convert_alpha()
         self.surface["walls"] = pygame.transform.scale(self.surface["walls"], (self.view["width"], self.view["height"]))
     
     def set_colliders(self):
 
-        ## map number of rows ##
-        rows = self.view["width"] / self.collider["size"]
-
-        ## map number of columns ##
-        columns = self.view["height"] / self.collider["size"]
-
-        ## current row, column and tile ##
-        row = 1
-        column = 0
-        tile = 0
-
         ## loop for all the tiles ##
-        while tile < (rows * columns):
+        for key, tile in enumerate(self.collider["raw"]):
 
-            ## increment current tile ##
-            tile += 1
+            ## make a generic sprite with size of map tiles  ##
+            sprite = pygame.sprite.Sprite()
+            sprite.image = pygame.Surface((self.collider["size"], self.collider["size"]))
 
-            ## increment current column or current row ##
-            if column < columns:
-                column += 1
-            else:
-                column = 1
-                row += 1
-            
-            ## check if in raw, current tile is a wall ##
-            if self.collider["raw"][str(row)][column] == '@':
+            ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
+            sprite.image.fill((255, 0, 0))
+            sprite.image.set_colorkey((255, 0, 0))
 
-                ## make a generic sprite with size of map tiles  ##
-                sprite = pygame.sprite.Sprite()
-                sprite.image = pygame.Surface((self.collider["size"], self.collider["size"]))
+            ## make sprite rect ##
+            sprite.rect = sprite.image.get_rect()
 
-                ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
-                sprite.image.fill((255, 0, 0))
-                sprite.image.set_colorkey((255, 0, 0))
+            ## add sprit to map colliders list (dict) ##
+            self.collider["sprites"][key] = sprite
 
-                ## make sprite rect ##
-                sprite.rect = sprite.image.get_rect()
+            ## if current tile is a wall, add in wall group ##
+            if tile == 'W':
+                self.collider["walls"].add(self.collider["sprites"][key])
 
-                ## add sprit to map colliders list (dict) ##
-                name = str(row) + "," + str(column)
-                self.collider["sprites"][name] = sprite
-
-                ## add new collider to colliders group ##
-                self.collider["walls"].add(self.collider["sprites"][name])
-
+            ## if current tile is grass, add in grass group ##
+            elif tile == 'G':
+                self.collider["grass"].add(self.collider["sprites"][key])
 
     ## method to update all colliders position acording to screen position ##
     def update_colliders(self):
@@ -135,17 +81,18 @@ class Map:
         else:
             items = self.collider["sprites"].items()
 
+        rows = self.view["width"] / self.collider["size"]
+
         ## loop for update all sprites ##
         for key, sprite in items:
 
             ## get row and column by dict key ##
-            point = key.split(",")
-            row = int(point[0])
-            column = int(point[1])
+            column = key % rows;
+            row = int(key / float(rows))
 
             ## calcule new position of collider ##
-            x = ((column - 1) * self.collider["size"]) - self.main.view["x"]
-            y = ((row - 1) * self.collider["size"])  - self.main.view["y"]
+            x = (column * self.collider["size"]) - self.main.view["x"]
+            y = (row * self.collider["size"])  - self.main.view["y"]
 
             ## set new position ##
             self.collider["sprites"][key].rect.x = x

@@ -1,7 +1,6 @@
 import pygame
 
 from zwave.map import *
-from zwave.signal import *
 from zwave.player import *
 from zwave.enemy import *
 
@@ -42,11 +41,6 @@ class Main:
         self.view["x"] = (self.map.view["width"] / 2) - (width / 2)
         self.view["y"] = (self.map.view["height"] / 2) - (height / 2)
 
-        ## make base signals ##
-        self.signal = {}
-        self.signal["south"] = Signal(self, "south")
-        self.signal["north"] = Signal(self, "north")
-
         ## player ##
         self.player = Player(self)
 
@@ -77,7 +71,7 @@ class Main:
     def move(self):
 
         ## check if had collision, if had, set last position of view ##
-        if self.player.check_collision("wall") or self.player.check_collision("enemies"):
+        if self.player.collision("walls") or self.player.collision("enemies"):
             self.view["x"] = self.view["last_x"]
             self.view["y"] = self.view["last_y"]
 
@@ -116,6 +110,8 @@ class Main:
         running = True
         while running:
 
+            pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
+
             ## call method responsible for move view to new destiny, if one exists ##
             self.move()
 
@@ -137,15 +133,8 @@ class Main:
 	        ## draw player ##
             self.screen.blit(self.player.surface["sprite"], (self.player.view['x'], self.player.view['y']))
 
-            ## draw map shadows ##
-            self.screen.blit(self.map.surface["shadows"], (self.map.view["x"], self.map.view["y"]))
-
-            ## draw map walls ##
+            ## draw map walls and shadows ##
             self.screen.blit(self.map.surface["walls"], (self.map.view["x"], self.map.view["y"]))
-
-            ## update base signals ##
-            self.signal["north"].update()
-            self.signal["south"].update()
 
             ## draw cursor ##
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))

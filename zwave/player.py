@@ -2,11 +2,12 @@ import os
 import math
 import random
 import pygame
+import zwave.main
 
 class Player:
 
     ## constructor ##
-    def __init__(self, main, model = '01', width = 65, height = 65):    
+    def __init__(self, main = None, model = '01', width = 65, height = 65):    
         
         ## main game object ##
         self.main = main
@@ -76,8 +77,8 @@ class Player:
         self.collider["touch"].add(self.collider["sprite"])
 
     ## method to check if exist collision ##
-    def check_collision(self, collider):
-        if collider == 'wall':
+    def collision(self, collider):
+        if collider == 'walls':
             collider = self.main.map.collider["walls"]
         if collider == 'enemies':
             collider = self.main.enemies["colliders"]

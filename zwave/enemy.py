@@ -5,17 +5,17 @@ import pygame
 
 class Enemy:
 
-    tiles = [
-        "7x7",
-        "8x27",
-        "10x3",
-        "12x20",
-        "17x28",
-        "19x6",
-        "20x11",
-        "27x8",
-        "27x19",
-        "29x22",
+    spaws = [
+        "2x2", "5x2", "8x2", "11x2", "14x2", "17x2", "20x2", "23x2", "26x2", "29x2",
+        "2x5", "5x5", "8x5", "11x5", "14x5", "17x5", "20x5", "23x5", "26x5", "29x5",
+        "2x8", "5x8", "8x8", "11x8", "14x8", "17x8", "20x8", "23x8", "26x8", "29x8",
+        "2x11", "5x11", "8x11", "11x11", "14x11", "17x11", "23x11", "26x11", "29x11",
+        "2x14", "5x14", "8x14", "11x14", "14x14", "20x14", "23x14", "26x14", "29x14",
+        "2x17", "5x17", "8x17", "11x17", "17x17", "20x17", "23x17", "26x17", "29x17",
+        "2x20", "5x20", "8x20", "14x20", "17x20", "20x20", "23x20", "26x20", "29x20",
+        "2x23", "5x23", "8x23", "11x23", "14x23", "17x23", "20x23", "23x23", "26x23", "29x23",
+        "2x26", "5x26", "8x26", "11x26", "14x26", "17x26", "20x26", "23x26", "26x26", "29x26",
+        "2x29", "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
     ## constructor ##
@@ -76,10 +76,10 @@ class Enemy:
     ## set object position relative to map ##
     def set_position(self):
 
-        tile = random.choice(self.tiles).split("x")
+        tile = random.choice(self.spaws).split("x")
+
         x = int(tile[0]) * self.main.map.collider["size"]
         y = int(tile[1]) * self.main.map.collider["size"]
-        print(str(x) + "x" + str(y))
         self.view["relative"]["x"] = x
         self.view["relative"]["y"] = y
 
@@ -131,7 +131,7 @@ class Enemy:
         self.collider["sprite2"].rect.y = y2
 
     ## method to check if exist collision ##
-    def check_collision(self, collider1, collider2 = 'touch'):
+    def collision(self, collider1, collider2 = 'touch'):
 
         ## check collider 1 ##
         if collider1 == 'walls':
@@ -194,6 +194,4 @@ class Enemy:
         self.set_angle()
         self.rotate()
         self.update_collider()
-        if self.check_collision("player"):
-            pass
         self.update_position()
