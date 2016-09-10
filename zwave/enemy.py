@@ -5,6 +5,16 @@ import pygame
 
 class Enemy:
 
+    tiles = [
+        "7x7",
+        "8x27",
+        "10x3",
+        "17x28",
+        "19x6",
+        "27x8",
+        "27x19",
+    ]
+
     ## constructor ##
     def __init__(self, main, model = '01', width = 65, height = 65):
 
@@ -62,8 +72,13 @@ class Enemy:
 
     ## set object position relative to map ##
     def set_position(self):
-        self.view["relative"]["x"] = 900 * self.main.view["scale"]
-        self.view["relative"]["y"] = 900 * self.main.view["scale"]
+
+        tile = random.choice(self.tiles).split("x")
+        x = int(tile[0]) * self.main.map.collider["size"]
+        y = int(tile[1]) * self.main.map.collider["size"]
+
+        self.view["relative"]["x"] = x * self.main.view["scale"]
+        self.view["relative"]["y"] = y * self.main.view["scale"]
 
     ## method to draw player collider ##
     def set_colliders(self):

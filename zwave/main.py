@@ -54,10 +54,16 @@ class Main:
         self.enemies = {}
         self.enemies["sprites"] = []
         self.enemies["sprites"].append(Enemy(self))
+        self.enemies["sprites"].append(Enemy(self))
+        self.enemies["sprites"].append(Enemy(self))
         self.enemies["group"] = pygame.sprite.Group()
-        self.enemies["group"].add(self.enemies["sprites"][0].surface["sprite"])
         self.enemies["colliders"] = pygame.sprite.Group()
+        self.enemies["group"].add(self.enemies["sprites"][0].surface["sprite"])
         self.enemies["colliders"].add(self.enemies["sprites"][0].collider["sprite1"])
+        self.enemies["group"].add(self.enemies["sprites"][1].surface["sprite"])
+        self.enemies["colliders"].add(self.enemies["sprites"][1].collider["sprite1"])
+        self.enemies["group"].add(self.enemies["sprites"][2].surface["sprite"])
+        self.enemies["colliders"].add(self.enemies["sprites"][2].collider["sprite1"])
 
         ## init game loop ##
         self.loop()
