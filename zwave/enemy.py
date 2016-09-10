@@ -7,7 +7,7 @@ class Enemy:
 
     ## constructor ##
     def __init__(self, main, model = '01', width = 65, height = 65):
-        
+
         ## game main ##
         self.main = main
 
@@ -15,7 +15,9 @@ class Enemy:
         self.model = model
 
         ## enemy surface ##
-        self.surface = None
+        self.surface = {}
+        self.surface["original"] = None
+        self.surface["sprite"] = pygame.sprite.Sprite()
 
         ## enemy collider ##
         self.collider = {}
@@ -35,27 +37,28 @@ class Enemy:
         
         self.set_position()
         self.set_surface()
+        self.rotate()
         self.set_colliders()
 
 
     ## methods to allow external access to object values ##
-    def __getattr__(self, name):
-        if name == "view":
-            return self.view
-        if name == "collider":
-            return self.collider
     def __getitem__(self, name):
         if name == 'view':
 	        return self.view
         if name == "collider":
             return self.collider
+        if name == "surface":
+            return self.surface
 
     ## method to set player surface ##
     def set_surface(self):
 
         ## load and scale player model image ##
-        model = pygame.image.load(os.path.join("assets", "img", "enemies", "%s.png" % self.model)).convert_alpha()
-        self.surface = pygame.transform.scale(model, (self.view["width"], self.view["height"]))
+        self.surface["original"] = pygame.image.load(os.path.join("assets", "img", "enemies", "%s.png" % self.model)).convert_alpha()
+        self.surface["original"] = pygame.transform.scale(self.surface["original"], (self.view["width"], self.view["height"]))
+
+        self.surface["sprite"].image = self.surface["original"]
+        self.surface["sprite"].rect = self.surface["original"].get_rect()
 
     ## set object position relative to map ##
     def set_position(self):
@@ -66,35 +69,35 @@ class Enemy:
     def set_colliders(self):
 
         ## calculate sizes of colliders based on enemy size ##
-        size1 = int(((self.view["width"] / 1.7) + (self.view["height"] / 1.7)) / 2)
+        size1 = int(((self.view["width"] / 2) + (self.view["height"] / 2)) / 2)
         size2 = int((self.view["width"] + self.view["height"]) / 2)
 
         ## make a generic sprite  ##
-        sprite1 = pygame.sprite.Sprite()
-        sprite1.image = pygame.Surface((size1, size1))
-        sprite2 = pygame.sprite.Sprite()
-        sprite2.image = pygame.Surface((size2, size2))
+        touch = pygame.sprite.Sprite()
+        touch.image = pygame.Surface((size1, size1))
+        damage = pygame.sprite.Sprite()
+        damage.image = pygame.Surface((size2, size2))
 
         ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
-        sprite1.image.fill((100, 0, 0))
-        sprite1.image.set_colorkey((100, 0, 0))
-        sprite2.image.fill((255, 0, 0))
-        sprite2.image.set_colorkey((255, 0, 0))
+        touch.image.fill((100, 0, 0))
+        touch.image.set_colorkey((100, 0, 0))
+        damage.image.fill((255, 0, 0))
+        damage.image.set_colorkey((255, 0, 0))
 
         ## make sprite rect ##
-        sprite1.rect = sprite1.image.get_rect()
-        sprite2.rect = sprite2.image.get_rect()
+        touch.rect = touch.image.get_rect()
+        damage.rect = damage.image.get_rect()
 
         ## set new position ##
-        sprite1.rect.x = 0
-        sprite1.rect.y = 0
-        sprite2.rect.x = 0
-        sprite2.rect.y = 0
+        touch.rect.x = 0
+        touch.rect.y = 0
+        damage.rect.x = 0
+        damage.rect.y = 0
 
 
         ## add new collider to colliders group ##
-        self.collider["sprite1"] = sprite1
-        self.collider["sprite2"] = sprite2
+        self.collider["sprite1"] = touch
+        self.collider["sprite2"] = damage
         self.collider["damage"].add(self.collider["sprite2"])
         self.collider["touch"].add(self.collider["sprite1"])
     
@@ -103,9 +106,6 @@ class Enemy:
         y1 = (self.view["y"] + (self.view["height"] / 2)) - (self.collider["sprite1"].rect.height / 2)
         x2 = (self.view["x"] + (self.view["width"] / 2)) - (self.collider["sprite2"].rect.width / 2)
         y2 = (self.view["y"] + (self.view["height"] / 2)) - (self.collider["sprite2"].rect.height / 2)
-
-        pygame.draw.rect(self.main.screen, (255, 0, 0), (x2, y2, self.collider["sprite2"].rect.width, self.collider["sprite2"].rect.height))
-        pygame.draw.rect(self.main.screen, (100, 0, 0), (x1, y1, self.collider["sprite1"].rect.width, self.collider["sprite1"].rect.height))
 
         self.collider["sprite1"].rect.x = x1
         self.collider["sprite1"].rect.y = y1
@@ -136,15 +136,15 @@ class Enemy:
         angle = self.view["angle"]
 
         ## get area of original light ##
-        area = self.surface.get_rect()
+        area = self.surface["original"].get_rect()
 
         ## make a copy of light with a new angle ##
-        new = pygame.transform.rotozoom(self.surface, angle, 1)
+        new = pygame.transform.rotozoom(self.surface["original"], angle, 1)
 
         ## define center of new copy ##
         area.center = new.get_rect().center
 
-        return new.subsurface(area).copy()
+        self.surface["sprite"].image = new.subsurface(area).copy()
 
     ## method to define angle for enemy rotation acording to enemy destination ##
     def set_angle(self):
@@ -162,14 +162,20 @@ class Enemy:
 
     ## method to update enemy view position relative to the map ##
     def update_position(self):
-        self.view["x"] = self.view["relative"]["x"] - self.main.view["x"]
-        self.view["y"] = self.view["relative"]["y"] - self.main.view["y"]
+        x = self.view["relative"]["x"] - self.main.view["x"]
+        y = self.view["relative"]["y"] - self.main.view["y"]
+
+        self.view["x"] = x
+        self.view["y"] = y
+
+        self.surface["sprite"].rect.x = self.view["x"]
+        self.surface["sprite"].rect.y = self.view["y"]
 
     ## method to update enemy ##
     def update(self):
         self.set_angle()
+        self.rotate()
         self.update_collider()
         if self.check_collision("player"):
             pass
         self.update_position()
-        self.main.screen.blit(self.rotate(), (self.view['x'], self.view['y']))

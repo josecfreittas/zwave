@@ -51,12 +51,21 @@ class Main:
         self.player = Player(self)
 
         ## make enemy ##
-        self.enemies = pygame.sprite.Group()
-        self.enemy1 = Enemy(self)
-        self.enemies.add(self.enemy1.collider["sprite1"])
+        self.enemies = {}
+        self.enemies["sprites"] = []
+        self.enemies["sprites"].append(Enemy(self))
+        self.enemies["group"] = pygame.sprite.Group()
+        self.enemies["group"].add(self.enemies["sprites"][0].surface["sprite"])
+        self.enemies["colliders"] = pygame.sprite.Group()
+        self.enemies["colliders"].add(self.enemies["sprites"][0].collider["sprite1"])
 
         ## init game loop ##
         self.loop()
+
+    ## method to update enemies ##
+    def update_enemies(self):
+        for enemy in self.enemies["sprites"]:
+            enemy.update()
 
     ## method to player/screen movimentation ##
     def move(self):
@@ -107,14 +116,21 @@ class Main:
             ## update map ##
             self.map.update()
 
+            ## update player ##
+            self.player.update()
+
+            ## enemy update ##
+            self.update_enemies()
+
             ## draw map ground ##
             self.screen.blit(self.map.surface["ground"], (self.map.view["x"], self.map.view["y"]))
 
-            ## enemy update ##
-            self.enemy1.update()
+            ## draw enemies ##
+            #self.screen.blit(self.enemy1.surface["sprite"], (self.enemy1.view['x'], self.enemy1.view['y']))
+            self.enemies["group"].draw(self.screen)
 
-            ## update player ##
-            self.player.update()
+	        ## draw player ##
+            self.screen.blit(self.player.surface["sprite"], (self.player.view['x'], self.player.view['y']))
 
             ## draw map shadows ##
             self.screen.blit(self.map.surface["shadows"], (self.map.view["x"], self.map.view["y"]))

@@ -15,7 +15,9 @@ class Player:
         self.model = model
         
         ## player surface ##
-        self.surface = None
+        self.surface = {}
+        self.surface["original"] = None
+        self.surface["sprite"] = None
 
         ## player collider ##
         self.collider = {}
@@ -35,21 +37,21 @@ class Player:
 
     ## methods to allow external access to object values ##
     def __getitem__(self, name):
-        if name == 'view':
+        if name == "view":
 	        return self.view
 
     ## method to set player surface ##
     def set_surface(self):
 
         ## load and scale player model image ##
-        model = pygame.image.load(os.path.join("assets", "img", "players", "%s.png" % self.model)).convert_alpha()
-        self.surface = pygame.transform.scale(model, (self.view["width"], self.view["height"]))
+        self.surface["original"] = pygame.image.load(os.path.join("assets", "img", "players", "%s.png" % self.model)).convert_alpha()
+        self.surface["original"] = pygame.transform.scale(self.surface["original"], (self.view["width"], self.view["height"]))
 
     ## method to draw player collider ##
     def set_collider(self):
 
         ## calculate size of collider based on player size ##
-        size = int(((self.view["width"] / 1.5) + (self.view["height"] / 1.5)) / 2)
+        size = int(((self.view["width"] / 1.7) + (self.view["height"] / 1.7)) / 2)
 
         x = (self.main.view["width"] / 2) - (size / 2)
         y = (self.main.view["height"] / 2) - (size / 2)
@@ -78,7 +80,7 @@ class Player:
         if collider == 'wall':
             collider = self.main.map.collider["walls"]
         if collider == 'enemies':
-            collider = self.main.enemies
+            collider = self.main.enemies["colliders"]
 
         if pygame.sprite.groupcollide(self.collider["touch"], collider, False, False):
             return True
@@ -92,15 +94,15 @@ class Player:
         angle = self.view["angle"]
 
         ## get area of original light ##
-        area = self.surface.get_rect()
+        area = self.surface["original"].get_rect()
 
         ## make a copy of light with a new angle ##
-        new = pygame.transform.rotozoom(self.surface, angle, 1)
+        new = pygame.transform.rotozoom(self.surface["original"], angle, 1)
 
         ## define center of new copy ##
         area.center = new.get_rect().center
 
-        return new.subsurface(area).copy()
+        self.surface["sprite"] = new.subsurface(area).copy()
 
     ## method to define angle for player rotation acording to the cursor position ##
     def set_angle(self):
@@ -117,4 +119,4 @@ class Player:
     ## method to update player ##
     def update(self):
         self.set_angle()
-        self.main.screen.blit(self.rotate(), (self.view['x'], self.view['y']))
+        self.rotate()
