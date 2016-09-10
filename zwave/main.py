@@ -132,7 +132,6 @@ class Main:
             self.screen.blit(self.map.surface["ground"], (self.map.view["x"], self.map.view["y"]))
 
             ## draw enemies ##
-            #self.screen.blit(self.enemy1.surface["sprite"], (self.enemy1.view['x'], self.enemy1.view['y']))
             self.enemies["group"].draw(self.screen)
 
 	        ## draw player ##

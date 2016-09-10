@@ -9,10 +9,13 @@ class Enemy:
         "7x7",
         "8x27",
         "10x3",
+        "12x20",
         "17x28",
         "19x6",
+        "20x11",
         "27x8",
         "27x19",
+        "29x22",
     ]
 
     ## constructor ##
@@ -76,9 +79,9 @@ class Enemy:
         tile = random.choice(self.tiles).split("x")
         x = int(tile[0]) * self.main.map.collider["size"]
         y = int(tile[1]) * self.main.map.collider["size"]
-
-        self.view["relative"]["x"] = x * self.main.view["scale"]
-        self.view["relative"]["y"] = y * self.main.view["scale"]
+        print(str(x) + "x" + str(y))
+        self.view["relative"]["x"] = x
+        self.view["relative"]["y"] = y
 
     ## method to draw player collider ##
     def set_colliders(self):
