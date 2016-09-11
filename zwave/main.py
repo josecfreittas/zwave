@@ -60,39 +60,36 @@ class Main:
         self.enemies["group"].add(self.enemies["sprites"][2].surface["sprite"])
         self.enemies["colliders"].add(self.enemies["sprites"][2].collider["sprite1"])
 
-        pygame.mixer.init(44100, -16, 2, 512)
-        pygame.mixer.set_num_channels(8)
-
-        self.sounds = {}
-        self.sounds["volume"] = {}
-        self.sounds["channels"] = {}
-        self.sounds["musics"] = {}
-        self.sounds["steps"] = {}
-
-        self.sounds["volume"]["geral"] = 0.8
-        self.sounds["volume"]["music"] = 0.5
-        self.sounds["volume"]["effects"] = 0.2
-
-        self.sounds["steps"]["last"] = None
-        self.sounds["steps"]["marble"] = None
-        self.sounds["channels"]["steps"] = pygame.mixer.Channel(2)
-
-        self.load_sounds()
-
-        ## init music ##
-        self.sounds["channels"]["steps"].set_volume(self.sounds["volume"]["effects"] * self.sounds["volume"]["geral"])
-        pygame.mixer.music.set_volume(self.sounds["volume"]["music"] * self.sounds["volume"]["geral"])
-        pygame.mixer.music.play()
+        ## game sound ##
+        self.sound = {}
+        self.sound["volume"] = {}
+        self.sound["volume"]["geral"] = 1
+        self.sound["volume"]["music"] = 0.5
+        self.sound["volume"]["effects"] = 0.8
 
         ## init game loop ##
+        self.sounds()
         self.loop()
 
     ## theme song ##
-    def load_sounds(self):
+    def sounds(self):
+
+        ## init pygame mixer and configure ##
+        pygame.mixer.init(44100, -16, 2, 512)
+        pygame.mixer.set_num_channels(8)
+
+        ## set channels ##
+        self.sound["channels"] = {}
+        self.sound["channels"]["steps"] = pygame.mixer.Channel(2)
+
+        ## load, set volume and init music background ##
         pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "02.ogg"))
-        self.sounds["steps"]["marble"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "steps", "marble.ogg"))
-        self.sounds["steps"]["sand"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "steps", "sand.ogg"))
-        self.sounds["steps"]["grass"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "steps", "grass.ogg"))
+        pygame.mixer.music.set_volume(self.sound["volume"]["music"] * self.sound["volume"]["geral"])
+        pygame.mixer.music.play(-1)
+
+        ## footsteps sound ##
+        self.sound["steps"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "footsteps.ogg"))
+        self.sound["channels"]["steps"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
 
     ## method to update enemies ##
     def update_enemies(self):
@@ -115,28 +112,10 @@ class Main:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
-            if self.player.collision("grass"):
-                if (not self.sounds["steps"]["last"] == "grass") and self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].stop()
-                elif not self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].play(self.sounds["steps"]["grass"])
-                    self.sounds["steps"]["last"] = "grass"
-
-            elif self.player.collision("marble"):
-                if (not self.sounds["steps"]["last"] == "marble") and self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].stop()
-                elif not self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].play(self.sounds["steps"]["marble"], True)
-                    self.sounds["steps"]["last"] = "marble"
-
-            elif self.player.collision("sand"):
-                if (not self.sounds["steps"]["last"] == "sand") and self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].stop()
-                elif not self.sounds["channels"]["steps"].get_busy():
-                    self.sounds["channels"]["steps"].play(self.sounds["steps"]["sand"], True)
-                    self.sounds["steps"]["last"] = "sand"
+            if not self.sound["channels"]["steps"].get_busy():
+                self.sound["channels"]["steps"].play(self.sound["steps"], -1)
         else:
-            self.sounds["channels"]["steps"].stop()
+            self.sound["channels"]["steps"].stop()
 
         ## speed to axes in diagonal movement ##
         if (keys[pygame.K_w] or keys[pygame.K_s]) and (keys[pygame.K_a] or keys[pygame.K_d]):
