@@ -81,6 +81,7 @@ class Main:
         ## set channels ##
         self.sound["channels"] = {}
         self.sound["channels"]["steps"] = pygame.mixer.Channel(2)
+        self.sound["channels"]["attacks"] = pygame.mixer.Channel(3)
 
         ## load, set volume and init music background ##
         pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "02.ogg"))
@@ -88,8 +89,12 @@ class Main:
         pygame.mixer.music.play(-1)
 
         ## footsteps sound ##
-        self.sound["steps"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "footsteps.ogg"))
         self.sound["channels"]["steps"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["steps"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "footsteps.ogg"))
+
+        ## gun shot sound ##
+        self.sound["channels"]["attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["gunshot"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "gunshot.ogg"))
 
     ## method to update enemies ##
     def update_enemies(self):
@@ -189,6 +194,10 @@ class Main:
                 ## qui event ##
                 if event.type == pygame.QUIT:
                     running = False
+            
+            ## check if the left mouse button is pressed ##
+            if pygame.mouse.get_pressed()[0]:
+                self.player.shot()
 
             ## increment or reset atual frame ##
             self.frame = (self.frame + 1) if self.frame < self.tick else 0

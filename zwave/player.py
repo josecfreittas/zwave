@@ -33,6 +33,12 @@ class Player:
         self.view["x"] = (self.main.view["width"] / 2) - (self.view["width"] / 2)
         self.view["y"] = (self.main.view["height"] / 2) - (self.view["height"] / 2)
 
+        ## player status ##
+        self.status = {}
+        self.status["attack"] = {}
+        self.status["attack"]["type"] = "gun"
+        self.status["attack"]["delay"] = 0
+
         self.set_surface()
         self.set_collider()
 
@@ -122,8 +128,28 @@ class Player:
             rads = math.atan2(-dy,dx)
             rads %= 2 * math.pi
             self.view["angle"] = math.degrees(rads)
-    
+
+    ## method to player shots ##    
+    def shot(self):
+
+        ## checks if delay for the shot is zero ##
+        if self.status["attack"]["delay"] == 0:
+
+            ## check if the type of weapon is gun ##
+            if self.status["attack"]["type"] == "gun":
+
+                ## gunshot sound ##
+                self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
+
+                ## add delay for next gunshot ##
+                self.status["attack"]["delay"] = 60
+
     ## method to update player ##
     def update(self):
+
+        ## update gunshot timer ##
+        if self.status["attack"]["delay"] > 0:
+            self.status["attack"]["delay"] -= 1
+
         self.set_angle()
         self.rotate()
