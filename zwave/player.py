@@ -78,9 +78,15 @@ class Player:
 
     ## method to check if exist collision ##
     def collision(self, collider):
-        if collider == 'walls':
+        if collider == "walls":
             collider = self.main.map.collider["walls"]
-        if collider == 'enemies':
+        if collider == "grass":
+            collider = self.main.map.collider["grass"]
+        if collider == "marble":
+            collider = self.main.map.collider["marble"]
+        if collider == "sand":
+            collider = self.main.map.collider["sand"]
+        if collider == "enemies":
             collider = self.main.enemies["colliders"]
 
         if pygame.sprite.groupcollide(self.collider["touch"], collider, False, False):
