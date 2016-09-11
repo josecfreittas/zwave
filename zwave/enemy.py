@@ -41,10 +41,13 @@ class Enemy:
 
         ## enemy view ##
         self.view = {}
+        self.view["last"] = {}
         self.view["width"] = width * self.main.view["scale"]
         self.view["height"] = height * self.main.view["scale"]
         self.view["x"] = 0
         self.view["y"] = 0
+        self.view["last"]["x"] = None
+        self.view["last"]["y"] = None
         self.view["relative"] = {"x": 0, "y": 0} ## relative position to map
         self.view["angle"] = 0
         
@@ -83,6 +86,9 @@ class Enemy:
         self.view["relative"]["x"] = x
         self.view["relative"]["y"] = y
 
+        self.view["last"]["x"] = self.view["relative"]["x"]
+        self.view["last"]["y"] = self.view["relative"]["y"]
+
     ## method to draw player collider ##
     def set_colliders(self):
 
@@ -112,7 +118,6 @@ class Enemy:
         damage.rect.x = 0
         damage.rect.y = 0
 
-
         ## add new collider to colliders group ##
         self.collider["sprite1"] = touch
         self.collider["sprite2"] = damage
@@ -134,12 +139,12 @@ class Enemy:
     def collision(self, collider1, collider2 = 'touch'):
 
         ## check collider 1 ##
-        if collider1 == 'walls':
+        if collider1 == "walls":
             collider1 = self.main.map.collider["walls"]
-        elif collider1 == 'player':
+        elif collider1 == "player":
             collider1 = self.main.player.collider["touch"]
 
-        ## check collider 2 ##
+        ## collider 2 ##
         collider2 = self.collider[collider2]
 
         if pygame.sprite.groupcollide(collider2, collider1, False, False):
@@ -180,6 +185,32 @@ class Enemy:
 
     ## method to update enemy view position relative to the map ##
     def update_position(self):
+        
+        ## TODO: find a way to check collisions with other "enemies" ##
+        ## check if had collision, if had, set last position of view ##
+        if self.collision("walls") or self.collision("player"):
+            self.view["relative"]["x"] = self.view["last"]["x"]
+            self.view["relative"]["y"] = self.view["last"]["y"]
+
+        self.view["last"]["x"] = self.view["relative"]["x"]
+        self.view["last"]["y"] = self.view["relative"]["y"]
+
+        ## calculate angle by two points, player position and enemy position ##
+        player = {
+            "x": (self.main.player["view"]["x"] + (self.main.player["view"]["width"] / 2)),
+            "y": (self.main.player["view"]["y"] + (self.main.player["view"]["height"] / 2)),
+        }
+
+        if self.view["x"] < player["x"]:
+            self.view["relative"]["x"] += 1
+        elif self.view["x"] > player["x"]:
+            self.view["relative"]["x"] -= 1
+
+        if self.view["y"] < player["y"]:
+            self.view["relative"]["y"] += 1
+        elif self.view["y"] > player["y"]:
+            self.view["relative"]["y"] -= 1
+
         x = self.view["relative"]["x"] - self.main.view["x"]
         y = self.view["relative"]["y"] - self.main.view["y"]
 

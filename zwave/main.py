@@ -26,6 +26,7 @@ class Main:
         ## game screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
 
+        ## TODO: Make a method to handle with the cursor ##
         ## cursor ##
         pygame.mouse.set_visible(False)
         self.cursor = {}
@@ -45,6 +46,7 @@ class Main:
         ## player ##
         self.player = Player(self)
 
+        ## TODO: Make a method to auto-make enemies dynamically ##
         ## make enemy ##
         self.enemies = {}
         self.enemies["sprites"] = []
