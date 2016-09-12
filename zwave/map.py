@@ -3,6 +3,7 @@ import sys
 import math
 import pygame
 import zwave.helper
+
 class Map:
 
     ## constructor ##

@@ -147,7 +147,7 @@ class Player:
                 self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
 
                 ## add delay for next gunshot ##
-                self.status["attack"]["delay"] = 60
+                self.status["attack"]["delay"] = 50
 
     ## method to update player ##
     def update(self):

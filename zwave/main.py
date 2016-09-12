@@ -22,7 +22,7 @@ class Main:
         self.center["y"] = self.view["height"] / 2
 
         ## framerate ##
-        self.tick = 60
+        self.tick = 50
         self.frame = 0
 
         ## game screen ##
