@@ -201,22 +201,14 @@ class Enemy:
         ## save last position ##
         self.view["last"]["x"] = self.view["relative"]["x"]
         self.view["last"]["y"] = self.view["relative"]["y"]
-
-        ## picks speed for each axis ##
-        velocity = zwave.helper.get_speed(1, self.main.player.center, 2)
-
-        ## move x ##
-        if self.main.player.center["x"] > self.center["x"]:
-            self.view["relative"]["x"] += velocity["x"]
-        elif self.main.player.center["x"] < self.center["x"]:
-            self.view["relative"]["x"] -= velocity["x"]
         
-        ## move y ##
-        if self.main.player.center["y"] > self.center["y"]:
-            self.view["relative"]["y"] += velocity["y"]
-        elif self.main.player.center["y"] < self.center["y"]:
-            self.view["relative"]["y"] -= velocity["y"]
-        
+        ## get 'x' and 'y' velocity based on enemy angle ##
+        velocity = zwave.helper.get_speed(1 * self.main.view["scale"], self.view["angle"], True)
+
+        ## move ##
+        self.view["relative"]["x"] += velocity["x"]
+        self.view["relative"]["y"] += velocity["y"]
+
         ## update view ##
         self.view["x"] = self.view["relative"]["x"] - self.main.view["x"]
         self.view["y"] = self.view["relative"]["y"] - self.main.view["y"]

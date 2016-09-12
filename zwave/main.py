@@ -203,4 +203,3 @@ class Main:
 
             ## update pygame screen ##
             pygame.display.update()
-

@@ -1,26 +1,21 @@
+import math
 import pygame
 
-def get_speed(speed, vars, Mode = 1):
+def get_speed(speed, var, angle = False):
 
-    if Mode == 1:
+    if not angle:
         ## speed to axes in diagonal movement ##
-        if (vars[pygame.K_a] or vars[pygame.K_d]) and (vars[pygame.K_w] or vars[pygame.K_s]):
+        if (var[pygame.K_a] or var[pygame.K_d]) and (var[pygame.K_w] or var[pygame.K_s]):
             velocity = speed * 0.7
 
         ## speed to axes in horizontal and vertical movements ##
         else:
             velocity = speed
-    elif Mode == 2:
+    else:
         velocity = {}
-        velocity["x"] = 0
-        velocity["y"] = 0
-        if vars["x"] > vars["y"]:
-            diference = float(vars["x"]) / float(vars["y"])
-            velocity["x"] = 2 - (2 / diference)
-            velocity["y"] = 2 / diference
-        elif vars["x"] < vars["y"]:
-            diference = float(vars["y"]) / float(vars["x"])
-            velocity["x"] = 2 / diference
-            velocity["y"] = 2 - (2 / diference)
+
+        ## algorithm to set velocity for 'x' and 'y' based on the angle of sprite ##
+        velocity["x"] = math.cos(math.radians(var))
+        velocity["y"] = (math.sin(math.radians(var)) * -1)
 
     return velocity
