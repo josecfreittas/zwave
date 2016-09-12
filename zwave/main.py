@@ -35,8 +35,8 @@ class Main:
         self.cursor["x"] = 0
         self.cursor["y"] = 0
         self.cursor["size"] = 35
-        self.cursor["image"] = pygame.image.load(os.path.join("assets", "img", "cursor.png")).convert_alpha()
-        self.cursor["image"] = pygame.transform.scale(self.cursor["image"], (self.cursor["size"], self.cursor["size"]))
+        self.cursor["image"] = os.path.join("assets", "img", "cursor.png")
+        self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
 
         ## game map ##
         self.map = Map(self)
@@ -128,7 +128,7 @@ class Main:
             self.sound["channels"]["steps"].stop()
         
         ## picks speed for each axis ##
-        velocity = zwave.helper.get_speed(2 * self.view["scale"], keys)
+        velocity = zwave.helper.velocity_by_keys(2 * self.view["scale"], keys)
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:

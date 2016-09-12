@@ -2,7 +2,7 @@ import os
 import sys
 import math
 import pygame
-
+import zwave.helper
 class Map:
 
     ## constructor ##
@@ -41,11 +41,13 @@ class Map:
     ## method to set/load and scale map surfaces ##
     def set_surface(self):
 
-        self.surface["ground"] = pygame.image.load(os.path.join("assets", "img", "map", "ground.png")).convert_alpha()
-        self.surface["ground"] = pygame.transform.scale(self.surface["ground"], (self.view["width"], self.view["height"]))
+        ## load and scale map ground ##
+        ground = os.path.join("assets", "img", "map", "ground.png")
+        self.surface["ground"] = zwave.helper.pygame_image(ground, self.view["width"], self.view["height"])
 
-        self.surface["walls"] = pygame.image.load(os.path.join("assets", "img", "map", "walls.png")).convert_alpha()
-        self.surface["walls"] = pygame.transform.scale(self.surface["walls"], (self.view["width"], self.view["height"]))
+        ## load and scale map walls ##
+        walls = os.path.join("assets", "img", "map", "walls.png")
+        self.surface["walls"] = zwave.helper.pygame_image(walls, self.view["width"], self.view["height"])
     
     def set_colliders(self):
 

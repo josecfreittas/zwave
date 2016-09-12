@@ -93,8 +93,8 @@ class Enemy:
     def set_surface(self):
 
         ## load and scale player model image ##
-        self.surface["original"] = pygame.image.load(os.path.join("assets", "img", "enemies", "%s.png" % self.model)).convert_alpha()
-        self.surface["original"] = pygame.transform.scale(self.surface["original"], (self.view["width"], self.view["height"]))
+        image = os.path.join("assets", "img", "enemies", "%s.png" % self.model)
+        self.surface["original"] = zwave.helper.pygame_image(image, self.view["width"], self.view["height"])
 
         self.surface["sprite"].image = self.surface["original"]
         self.surface["sprite"].rect = self.surface["original"].get_rect()
@@ -197,13 +197,13 @@ class Enemy:
         if self.collision("walls") or self.collision("player"):
             self.view["relative"]["x"] = self.view["last"]["x"]
             self.view["relative"]["y"] = self.view["last"]["y"]
-        
+
         ## save last position ##
         self.view["last"]["x"] = self.view["relative"]["x"]
         self.view["last"]["y"] = self.view["relative"]["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.get_speed(1 * self.main.view["scale"], self.view["angle"], True)
+        velocity = zwave.helper.velocity_by_angle(1 * self.main.view["scale"], self.view["angle"])
 
         ## move ##
         self.view["relative"]["x"] += velocity["x"]

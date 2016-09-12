@@ -56,8 +56,8 @@ class Player:
     def set_surface(self):
 
         ## load and scale player model image ##
-        self.surface["original"] = pygame.image.load(os.path.join("assets", "img", "players", "%s.png" % self.model)).convert_alpha()
-        self.surface["original"] = pygame.transform.scale(self.surface["original"], (self.view["width"], self.view["height"]))
+        image = os.path.join("assets", "img", "players", "%s.png" % self.model)
+        self.surface["original"] = zwave.helper.pygame_image(image, self.view["width"], self.view["height"])
 
     ## method to draw player collider ##
     def set_collider(self):
