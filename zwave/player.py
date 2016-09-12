@@ -32,6 +32,9 @@ class Player:
         self.view["height"] = height * self.main.view["scale"]
         self.view["x"] = (self.main.view["width"] / 2) - (self.view["width"] / 2)
         self.view["y"] = (self.main.view["height"] / 2) - (self.view["height"] / 2)
+        self.center = {}
+        self.center["x"] = self.main.map.view["x"] + (self.main.view["width"] / 2)
+        self.center["y"] = self.main.map.view["x"] + (self.main.view["height"] / 2)
 
         ## player status ##
         self.status = {}
@@ -46,6 +49,8 @@ class Player:
     def __getitem__(self, name):
         if name == "view":
 	        return self.view
+        if name == "center":
+	        return self.center
 
     ## method to set player surface ##
     def set_surface(self):

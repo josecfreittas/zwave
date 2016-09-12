@@ -1,6 +1,7 @@
 import os
 import pygame
 
+import zwave.helper
 from zwave.map import *
 from zwave.player import *
 from zwave.enemy import *
@@ -15,9 +16,10 @@ class Main:
         self.view["scale"] = scale
         self.view["width"] = width
         self.view["height"] = height
-        self.view["last_x"] = 0
-        self.view["last_y"] = 0
-
+        self.view["last"] = 0
+        self.center = {}
+        self.center["x"] = self.view["width"] / 2
+        self.center["y"] = self.view["height"] / 2
 
         ## framerate ##
         self.tick = 60
@@ -118,19 +120,15 @@ class Main:
         ## make 'keys' variable with pressed keys
         keys = pygame.key.get_pressed()
 
+        ## footsteps sound if the player is walking ##
         if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
             if not self.sound["channels"]["steps"].get_busy():
                 self.sound["channels"]["steps"].play(self.sound["steps"], -1)
         else:
             self.sound["channels"]["steps"].stop()
-
-        ## speed to axes in diagonal movement ##
-        if (keys[pygame.K_w] or keys[pygame.K_s]) and (keys[pygame.K_a] or keys[pygame.K_d]):
-            velocity = 1.5 * self.view["scale"]
-
-        ## speed to axes in horizontal and vertical movements ##
-        else:
-            velocity = 2 * self.view["scale"]
+        
+        ## picks speed for each axis ##
+        velocity = zwave.helper.get_speed(2 * self.view["scale"], keys)
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:
@@ -141,7 +139,6 @@ class Main:
             self.view["x"] -= velocity
         if keys[pygame.K_d]:
             self.view["x"] += velocity
-
 
     ## method from game loop ##
     def loop(self):
@@ -181,9 +178,6 @@ class Main:
             ## draw cursor ##
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
 
-            ## update pygame screen ##
-            pygame.display.update()
-
             ## cursor x position ##
             self.cursor["x"] = pygame.mouse.get_pos()[0]
 
@@ -206,3 +200,7 @@ class Main:
 
             ## pygame clock tick ##
             clock.tick(self.tick)
+
+            ## update pygame screen ##
+            pygame.display.update()
+

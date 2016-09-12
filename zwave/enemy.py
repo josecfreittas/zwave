@@ -2,9 +2,11 @@ import os
 import math
 import random
 import pygame
+import zwave.helper
 
 class Enemy:
 
+    ## spaw points ##
     spaws = [
         "2x2", "5x2", "8x2", "11x2", "14x2", "17x2", "20x2", "23x2", "26x2", "29x2",
         "2x5", "5x5", "8x5", "11x5", "14x5", "17x5", "20x5", "23x5", "26x5", "29x5",
@@ -41,15 +43,18 @@ class Enemy:
 
         ## enemy view ##
         self.view = {}
-        self.view["last"] = {}
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
+        self.view["angle"] = 0
         self.view["x"] = 0
         self.view["y"] = 0
+        self.view["width"] = width * self.main.view["scale"]
+        self.view["height"] = height * self.main.view["scale"]
+        self.view["last"] = {}
         self.view["last"]["x"] = None
         self.view["last"]["y"] = None
         self.view["relative"] = {"x": 0, "y": 0} ## relative position to map
-        self.view["angle"] = 0
+        self.center = {}
+        self.center["x"] = None
+        self.center["y"] = None
         
         self.set_position()
         self.set_surface()
@@ -66,6 +71,24 @@ class Enemy:
         if name == "surface":
             return self.surface
 
+    ## set object position relative to map ##
+    def set_position(self):
+
+        ## get a random spaw of lis ##
+        tile = random.choice(self.spaws).split("x")
+
+        ## calculates the axes ##
+        x = int(tile[0]) * self.main.map.collider["size"]
+        y = int(tile[1]) * self.main.map.collider["size"]
+
+        ## set relative position ##
+        self.view["relative"]["x"] = x
+        self.view["relative"]["y"] = y
+
+        ## saves the actual position of the enemy, relative to game screen ##
+        self.center["x"] = self.view["relative"]["x"] - (self.view["width"] / 2)
+        self.center["y"] = self.view["relative"]["y"] - (self.view["height"] / 2)
+
     ## method to set player surface ##
     def set_surface(self):
 
@@ -75,19 +98,6 @@ class Enemy:
 
         self.surface["sprite"].image = self.surface["original"]
         self.surface["sprite"].rect = self.surface["original"].get_rect()
-
-    ## set object position relative to map ##
-    def set_position(self):
-
-        tile = random.choice(self.spaws).split("x")
-
-        x = int(tile[0]) * self.main.map.collider["size"]
-        y = int(tile[1]) * self.main.map.collider["size"]
-        self.view["relative"]["x"] = x
-        self.view["relative"]["y"] = y
-
-        self.view["last"]["x"] = self.view["relative"]["x"]
-        self.view["last"]["y"] = self.view["relative"]["y"]
 
     ## method to draw player collider ##
     def set_colliders(self):
@@ -173,12 +183,8 @@ class Enemy:
     def set_angle(self):
 
         ## calculate angle by two points, player position and enemy position ##
-        player = {
-            "x": (self.main.player["view"]["x"] + (self.main.player["view"]["width"] / 2)),
-            "y": (self.main.player["view"]["y"] + (self.main.player["view"]["height"] / 2)),
-        }
-        dx =  player["x"] - (self.view["x"] + (self.view["width"] / 2))
-        dy =  player["y"] - (self.view["y"] + (self.view["height"] / 2))
+        dx =  self.main.player.center["x"] - (self.view["x"] + (self.view["width"] / 2))
+        dy =  self.main.player.center["y"] - (self.view["y"] + (self.view["height"] / 2))
         rads = math.atan2(-dy,dx)
         rads %= 2 * math.pi
         self.view["angle"] = math.degrees(rads)
@@ -191,32 +197,35 @@ class Enemy:
         if self.collision("walls") or self.collision("player"):
             self.view["relative"]["x"] = self.view["last"]["x"]
             self.view["relative"]["y"] = self.view["last"]["y"]
-
+        
+        ## save last position ##
         self.view["last"]["x"] = self.view["relative"]["x"]
         self.view["last"]["y"] = self.view["relative"]["y"]
 
-        ## calculate angle by two points, player position and enemy position ##
-        player = {
-            "x": (self.main.player["view"]["x"] + (self.main.player["view"]["width"] / 2)),
-            "y": (self.main.player["view"]["y"] + (self.main.player["view"]["height"] / 2)),
-        }
+        ## picks speed for each axis ##
+        velocity = zwave.helper.get_speed(1, self.main.player.center, 2)
 
-        if self.view["x"] < player["x"]:
-            self.view["relative"]["x"] += 1
-        elif self.view["x"] > player["x"]:
-            self.view["relative"]["x"] -= 1
+        ## move x ##
+        if self.main.player.center["x"] > self.center["x"]:
+            self.view["relative"]["x"] += velocity["x"]
+        elif self.main.player.center["x"] < self.center["x"]:
+            self.view["relative"]["x"] -= velocity["x"]
+        
+        ## move y ##
+        if self.main.player.center["y"] > self.center["y"]:
+            self.view["relative"]["y"] += velocity["y"]
+        elif self.main.player.center["y"] < self.center["y"]:
+            self.view["relative"]["y"] -= velocity["y"]
+        
+        ## update view ##
+        self.view["x"] = self.view["relative"]["x"] - self.main.view["x"]
+        self.view["y"] = self.view["relative"]["y"] - self.main.view["y"]
 
-        if self.view["y"] < player["y"]:
-            self.view["relative"]["y"] += 1
-        elif self.view["y"] > player["y"]:
-            self.view["relative"]["y"] -= 1
+        ## update enemy center point ##
+        self.center["x"] =  self.view["x"] + (self.view["width"] / 2)
+        self.center["y"] =  self.view["y"] + (self.view["height"] / 2)
 
-        x = self.view["relative"]["x"] - self.main.view["x"]
-        y = self.view["relative"]["y"] - self.main.view["y"]
-
-        self.view["x"] = x
-        self.view["y"] = y
-
+        ## update sprite position ##
         self.surface["sprite"].rect.x = self.view["x"]
         self.surface["sprite"].rect.y = self.view["y"]
 
