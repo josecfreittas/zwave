@@ -134,6 +134,41 @@ class Player:
             rads %= 2 * math.pi
             self.view["angle"] = math.degrees(rads)
 
+    ## method to player/screen movimentation ##
+    def move(self):
+
+        ## check if had collision, if had, set last position of view ##
+        if self.collision("walls") or self.collision("enemies"):
+            self.main.view["x"] = self.main.view["last_x"]
+            self.main.view["y"] = self.main.view["last_y"]
+
+        ## save current positon of view for future use ##
+        self.main.view["last_x"] = self.main.view["x"]
+        self.main.view["last_y"] = self.main.view["y"]
+
+        ## make 'keys' variable with pressed keys
+        keys = pygame.key.get_pressed()
+
+        ## footsteps sound if the player is walking ##
+        if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
+            if not self.main.sound["channels"]["steps"].get_busy():
+                self.main.sound["channels"]["steps"].play(self.main.sound["steps"], -1)
+        else:
+            self.main.sound["channels"]["steps"].stop()
+        
+        ## picks speed for each axis ##
+        velocity = zwave.helper.velocity_by_keys(2 * self.main.view["scale"], keys)
+
+        ## movement according to keys down ##
+        if keys[pygame.K_w]:
+            self.main.view["y"] -= velocity
+        if keys[pygame.K_s]:
+            self.main.view["y"] += velocity
+        if keys[pygame.K_a]:
+            self.main.view["x"] -= velocity
+        if keys[pygame.K_d]:
+            self.main.view["x"] += velocity
+
     ## method to player shots ##    
     def shot(self):
 
@@ -158,3 +193,4 @@ class Player:
 
         self.set_angle()
         self.rotate()
+        self.move()

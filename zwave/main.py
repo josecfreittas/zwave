@@ -28,15 +28,9 @@ class Main:
         ## game screen ##
         self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
 
-        ## TODO: Make a method to handle with the cursor ##
         ## cursor ##
-        pygame.mouse.set_visible(False)
         self.cursor = {}
-        self.cursor["x"] = 0
-        self.cursor["y"] = 0
-        self.cursor["size"] = 35
-        self.cursor["image"] = os.path.join("assets", "img", "cursor.png")
-        self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
+        self.set_cursor()
 
         ## game map ##
         self.map = Map(self)
@@ -99,46 +93,20 @@ class Main:
         ## gun shot sound ##
         self.sound["channels"]["attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
         self.sound["gunshot"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "gunshot.ogg"))
+    
+
+    def set_cursor(self):
+        pygame.mouse.set_visible(False)
+        self.cursor["x"] = 0
+        self.cursor["y"] = 0
+        self.cursor["size"] = 35
+        self.cursor["image"] = os.path.join("assets", "img", "cursor.png")
+        self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
 
     ## method to update enemies ##
     def update_enemies(self):
         for enemy in self.enemies["sprites"]:
             enemy.update()
-
-    ## method to player/screen movimentation ##
-    def move(self):
-
-        ## check if had collision, if had, set last position of view ##
-        if self.player.collision("walls") or self.player.collision("enemies"):
-            self.view["x"] = self.view["last_x"]
-            self.view["y"] = self.view["last_y"]
-
-        ## save current positon of view for future use ##
-        self.view["last_x"] = self.view["x"]
-        self.view["last_y"] = self.view["y"]
-
-        ## make 'keys' variable with pressed keys
-        keys = pygame.key.get_pressed()
-
-        ## footsteps sound if the player is walking ##
-        if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
-            if not self.sound["channels"]["steps"].get_busy():
-                self.sound["channels"]["steps"].play(self.sound["steps"], -1)
-        else:
-            self.sound["channels"]["steps"].stop()
-        
-        ## picks speed for each axis ##
-        velocity = zwave.helper.velocity_by_keys(2 * self.view["scale"], keys)
-
-        ## movement according to keys down ##
-        if keys[pygame.K_w]:
-            self.view["y"] -= velocity
-        if keys[pygame.K_s]:
-            self.view["y"] += velocity
-        if keys[pygame.K_a]:
-            self.view["x"] -= velocity
-        if keys[pygame.K_d]:
-            self.view["x"] += velocity
 
     ## method from game loop ##
     def loop(self):
@@ -151,43 +119,24 @@ class Main:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
 
-            ## call method responsible for move view to new destiny, if one exists ##
-            self.move()
-
-            ## update map ##
+            ## update map, player, enemies ##
             self.map.update()
-
-            ## update player ##
             self.player.update()
-
-            ## enemy update ##
             self.update_enemies()
 
-            ## draw map ground ##
+            ## draw map ground, enemies, player, map walls and cursor ##
             self.screen.blit(self.map.surface["ground"], (self.map.view["x"], self.map.view["y"]))
-
-            ## draw enemies ##
             self.enemies["group"].draw(self.screen)
-
-	        ## draw player ##
             self.screen.blit(self.player.surface["sprite"], (self.player.view['x'], self.player.view['y']))
-
-            ## draw map walls and shadows ##
             self.screen.blit(self.map.surface["walls"], (self.map.view["x"], self.map.view["y"]))
-
-            ## draw cursor ##
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
 
             ## cursor x position ##
             self.cursor["x"] = pygame.mouse.get_pos()[0]
-
-            ## cursor y position ##
             self.cursor["y"] = pygame.mouse.get_pos()[1]
 
             ## events hunter ##
             for event in pygame.event.get():
-
-                ## qui event ##
                 if event.type == pygame.QUIT:
                     running = False
             
