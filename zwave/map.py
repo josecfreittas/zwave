@@ -17,6 +17,9 @@ class Map:
         self.height = height * self.main.scale
         self.x = 0
         self.y = 0
+        self.center = {}
+        self.center["x"] = self.width / 2
+        self.center["y"] = self.height / 2
 
         ## map suface ##
         self.surface = {}

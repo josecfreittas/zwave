@@ -31,13 +31,17 @@ class Player:
         self.height = height * self.main.scale
         self.x = (self.main.width / 2) - (self.width / 2)
         self.y = (self.main.height / 2) - (self.height / 2)
-        self.center = {}
-        self.center["x"] = self.main.width / 2
-        self.center["y"] = self.main.height / 2
+        self.center = self.main.center
 
         ## player status ##
         self.status = {}
         self.status["attack"] = {}
+        self.status["attack"]["bullets"] = {}
+        image = os.path.join("assets", "img", "bullet.png")
+        self.status["attack"]["bullets"]["model"] = zwave.helper.pygame_image(image, 10 * self.main.scale)
+        self.status["attack"]["bullets"]["angles"] = []
+        self.status["attack"]["bullets"]["sprites"] = []
+        self.status["attack"]["bullets"]["groups"] = []
         self.status["attack"]["type"] = "gun"
         self.status["attack"]["delay"] = 0
 
@@ -150,11 +154,46 @@ class Player:
             ## check if the type of weapon is gun ##
             if self.status["attack"]["type"] == "gun":
 
+                angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
+                size = 10 * self.main.scale
+
+                ## make new bullet ##
+                image = zwave.helper.pygame_rotate(self.status["attack"]["bullets"]["model"], angle)
+                sprite = zwave.helper.pygame_sprite_by_image(image, size)
+
+                ## center bullet on screen ##
+                sprite.rect.x = self.center["x"] - (size / 2)
+                sprite.rect.y = self.center["y"] - (size / 2)
+
+                group = pygame.sprite.GroupSingle(sprite)
+                self.status["attack"]["bullets"]["angles"].append(angle)
+                self.status["attack"]["bullets"]["sprites"].append(sprite)
+                self.status["attack"]["bullets"]["groups"].append(pygame.sprite.GroupSingle(sprite))
+
                 ## gunshot sound ##
                 self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
 
                 ## add delay for next gunshot ##
                 self.status["attack"]["delay"] = 50
+
+    def update_bullets(self):
+        i = 0
+        for bullet in self.status["attack"]["bullets"]["sprites"]:
+
+            ## angle of bullet ##
+            angle = (self.status["attack"]["bullets"]["angles"][i]) + 180
+
+            ## velocity by angle ##
+            velocity = zwave.helper.velocity_by_angle(50, angle)
+
+            ## move bullet on screen ##
+            bullet.rect.x = bullet.rect.x - velocity["x"]
+            bullet.rect.y = bullet.rect.y - velocity["y"]
+
+            ## draw on screen ##
+            self.status["attack"]["bullets"]["groups"][i].draw(self.main.screen)
+            
+            i += 1
 
     ## method to update player ##
     def update(self):

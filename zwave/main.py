@@ -19,7 +19,6 @@ class Main:
         self.scale = scale
         self.width = width
         self.height = height
-
         self.center = {}
         self.center["x"] = self.width / 2
         self.center["y"] = self.height / 2
@@ -39,8 +38,8 @@ class Main:
         self.map = Map(self)
 
         ## game view x and y ##
-        self.x = (self.map.width / 2) - (width / 2)
-        self.y = (self.map.height / 2) - (height / 2)
+        self.x = self.map.center["x"] - self.center["x"]
+        self.y = self.map.center["y"] - self.center["y"]
 
         ## player ##
         self.player = Player(self)
@@ -130,6 +129,7 @@ class Main:
             ## draw map ground, enemies, player, map walls and cursor ##
             self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
             self.enemies["group"].draw(self.screen)
+            self.player.update_bullets()
             self.screen.blit(self.player.surface["sprite"], (self.player.x, self.player.y))
             self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
