@@ -13,11 +13,10 @@ class Map:
         self.main = main
 
         ## map view ##
-        self.view = {}
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        self.view["x"] = 0
-        self.view["y"] = 0
+        self.width = width * self.main.scale
+        self.height = height * self.main.scale
+        self.x = 0
+        self.y = 0
 
         ## map suface ##
         self.surface = {}
@@ -26,7 +25,7 @@ class Map:
 
         ## map colliders ##
         self.collider = {}
-        self.collider["size"] = 64 * self.main.view["scale"]
+        self.collider["size"] = 64 * self.main.scale
         self.collider["sprites"] = {}
         self.collider["walls"] = pygame.sprite.Group()
         self.collider["grass"] = pygame.sprite.Group()
@@ -44,11 +43,11 @@ class Map:
 
         ## load and scale map ground ##
         ground = os.path.join("assets", "img", "map", "ground.png")
-        self.surface["ground"] = zwave.helper.pygame_image(ground, self.view["width"], self.view["height"])
+        self.surface["ground"] = zwave.helper.pygame_image(ground, self.width, self.height)
 
         ## load and scale map walls ##
         walls = os.path.join("assets", "img", "map", "walls.png")
-        self.surface["walls"] = zwave.helper.pygame_image(walls, self.view["width"], self.view["height"])
+        self.surface["walls"] = zwave.helper.pygame_image(walls, self.width, self.height)
     
     def set_colliders(self):
 
@@ -94,7 +93,7 @@ class Map:
         else:
             items = self.collider["sprites"].items()
 
-        rows = self.view["width"] / self.collider["size"]
+        rows = self.width / self.collider["size"]
 
         ## loop for update all sprites ##
         for key, sprite in items:
@@ -104,8 +103,8 @@ class Map:
             row = int(key / float(rows))
 
             ## calcule new position of collider ##
-            x = (column * self.collider["size"]) - self.main.view["x"]
-            y = (row * self.collider["size"])  - self.main.view["y"]
+            x = (column * self.collider["size"]) - self.main.x
+            y = (row * self.collider["size"])  - self.main.y
 
             ## set new position ##
             self.collider["sprites"][key].rect.x = x
@@ -113,8 +112,8 @@ class Map:
 
     ## method to update map view position ##
     def update_position(self):
-        self.view["x"] = self.main.view["x"] * -1
-        self.view["y"] = self.main.view["y"] * -1
+        self.x = self.main.x * -1
+        self.y = self.main.y * -1
 
     ## method to update map ##
     def update(self):

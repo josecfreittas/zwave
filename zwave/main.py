@@ -1,6 +1,6 @@
 import os
+import math
 import pygame
-
 import zwave.helper
 from zwave.map import *
 from zwave.player import *
@@ -11,24 +11,27 @@ class Main:
     ## constructor ##
     def __init__(self, scale = 1, width = 1024, height = 512):
 
+        ## game status ##
+        self.wave = 1
+
         ## game view ##
-        self.view = {}
-        self.view["scale"] = scale
-        self.view["width"] = width
-        self.view["height"] = height
-        self.view["last"] = 0
+        self.last = {}
+        self.scale = scale
+        self.width = width
+        self.height = height
+
         self.center = {}
-        self.center["x"] = self.view["width"] / 2
-        self.center["y"] = self.view["height"] / 2
+        self.center["x"] = self.width / 2
+        self.center["y"] = self.height / 2
 
         ## framerate ##
         self.tick = 50
         self.frame = 0
 
         ## game screen ##
-        self.screen = pygame.display.set_mode((self.view["width"], self.view["height"]))
+        self.screen = pygame.display.set_mode((self.width, self.height))
 
-        ## cursor ##
+        ## game cursor ##
         self.cursor = {}
         self.set_cursor()
 
@@ -36,41 +39,28 @@ class Main:
         self.map = Map(self)
 
         ## game view x and y ##
-        self.view["x"] = (self.map.view["width"] / 2) - (width / 2)
-        self.view["y"] = (self.map.view["height"] / 2) - (height / 2)
+        self.x = (self.map.width / 2) - (width / 2)
+        self.y = (self.map.height / 2) - (height / 2)
 
         ## player ##
         self.player = Player(self)
 
-        ## TODO: Make a method to auto-make enemies dynamically ##
-        ## make enemy ##
+        ## game enemies ##
         self.enemies = {}
-        self.enemies["sprites"] = []
-        self.enemies["sprites"].append(Enemy(self))
-        self.enemies["sprites"].append(Enemy(self))
-        self.enemies["sprites"].append(Enemy(self))
-        self.enemies["group"] = pygame.sprite.Group()
-        self.enemies["colliders"] = pygame.sprite.Group()
-        self.enemies["group"].add(self.enemies["sprites"][0].surface["sprite"])
-        self.enemies["colliders"].add(self.enemies["sprites"][0].collider["sprite1"])
-        self.enemies["group"].add(self.enemies["sprites"][1].surface["sprite"])
-        self.enemies["colliders"].add(self.enemies["sprites"][1].collider["sprite1"])
-        self.enemies["group"].add(self.enemies["sprites"][2].surface["sprite"])
-        self.enemies["colliders"].add(self.enemies["sprites"][2].collider["sprite1"])
+        self.set_enemies()
 
-        ## game sound ##
+        ## game sounds ##
         self.sound = {}
+        self.set_sounds()
+
+        self.loop()
+
+    def set_sounds(self):
+
         self.sound["volume"] = {}
         self.sound["volume"]["geral"] = 1
         self.sound["volume"]["music"] = 0.5
         self.sound["volume"]["effects"] = 0.8
-
-        ## init game loop ##
-        self.sounds()
-        self.loop()
-
-    ## theme song ##
-    def sounds(self):
 
         ## init pygame mixer and configure ##
         pygame.mixer.init(44100, -16, 2, 512)
@@ -103,6 +93,19 @@ class Main:
         self.cursor["image"] = os.path.join("assets", "img", "cursor.png")
         self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
 
+    def set_enemies(self):
+
+        self.enemies["sprites"] = []
+        self.enemies["group"] = pygame.sprite.Group()
+        self.enemies["colliders"] = pygame.sprite.Group()
+
+        amount = math.ceil(self.wave * (self.wave / 2))
+
+        for enemy in range(amount):
+            self.enemies["sprites"].append(Enemy(self))
+            self.enemies["group"].add(self.enemies["sprites"][enemy].surface["sprite"])
+            self.enemies["colliders"].add(self.enemies["sprites"][enemy].collider["sprite1"])
+
     ## method to update enemies ##
     def update_enemies(self):
         for enemy in self.enemies["sprites"]:
@@ -125,10 +128,10 @@ class Main:
             self.update_enemies()
 
             ## draw map ground, enemies, player, map walls and cursor ##
-            self.screen.blit(self.map.surface["ground"], (self.map.view["x"], self.map.view["y"]))
+            self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
             self.enemies["group"].draw(self.screen)
-            self.screen.blit(self.player.surface["sprite"], (self.player.view['x'], self.player.view['y']))
-            self.screen.blit(self.map.surface["walls"], (self.map.view["x"], self.map.view["y"]))
+            self.screen.blit(self.player.surface["sprite"], (self.player.x, self.player.y))
+            self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
 
             ## cursor x position ##

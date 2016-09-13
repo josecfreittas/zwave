@@ -26,15 +26,14 @@ class Player:
         self.collider["touch"] = pygame.sprite.Group()
 
         ## player view ##
-        self.view = {}
-        self.view["angle"] = 0
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        self.view["x"] = (self.main.view["width"] / 2) - (self.view["width"] / 2)
-        self.view["y"] = (self.main.view["height"] / 2) - (self.view["height"] / 2)
+        self.angle = 0
+        self.width = width * self.main.scale
+        self.height = height * self.main.scale
+        self.x = (self.main.width / 2) - (self.width / 2)
+        self.y = (self.main.height / 2) - (self.height / 2)
         self.center = {}
-        self.center["x"] = self.main.map.view["x"] + (self.main.view["width"] / 2)
-        self.center["y"] = self.main.map.view["x"] + (self.main.view["height"] / 2)
+        self.center["x"] = self.main.map.x + (self.main.width / 2)
+        self.center["y"] = self.main.map.x + (self.main.height / 2)
 
         ## player status ##
         self.status = {}
@@ -57,16 +56,16 @@ class Player:
 
         ## load and scale player model image ##
         image = os.path.join("assets", "img", "players", "%s.png" % self.model)
-        self.surface["original"] = zwave.helper.pygame_image(image, self.view["width"], self.view["height"])
+        self.surface["original"] = zwave.helper.pygame_image(image, self.width, self.height)
 
     ## method to draw player collider ##
     def set_collider(self):
 
         ## calculate size of collider based on player size ##
-        size = int(((self.view["width"] / 1.7) + (self.view["height"] / 1.7)) / 2)
+        size = int(((self.width / 1.7) + (self.height / 1.7)) / 2)
 
-        x = (self.main.view["width"] / 2) - (size / 2)
-        y = (self.main.view["height"] / 2) - (size / 2)
+        x = (self.main.width / 2) - (size / 2)
+        y = (self.main.height / 2) - (size / 2)
 
         ## make a generic sprite  ##
         sprite = pygame.sprite.Sprite()
@@ -109,7 +108,7 @@ class Player:
     def rotate(self):
 
         ## set angle of rotation based on current frame ##
-        angle = self.view["angle"]
+        angle = self.angle
 
         ## get area of original light ##
         area = self.surface["original"].get_rect()
@@ -128,23 +127,23 @@ class Player:
         if (self.main.cursor['x'] > 0) or (self.main.cursor['y'] > 0):
 
             ## calculate angle by two points, cursor position and player position ##
-            dx = self.main.cursor["x"] - (self.view["x"] + (self.view["width"] / 2))
-            dy = self.main.cursor["y"] - (self.view["y"] + (self.view["height"] / 2))
+            dx = self.main.cursor["x"] - (self.x + (self.width / 2))
+            dy = self.main.cursor["y"] - (self.y + (self.height / 2))
             rads = math.atan2(-dy,dx)
             rads %= 2 * math.pi
-            self.view["angle"] = math.degrees(rads)
+            self.angle = math.degrees(rads)
 
     ## method to player/screen movimentation ##
     def move(self):
 
         ## check if had collision, if had, set last position of view ##
         if self.collision("walls") or self.collision("enemies"):
-            self.main.view["x"] = self.main.view["last_x"]
-            self.main.view["y"] = self.main.view["last_y"]
+            self.main.x = self.main.last["x"]
+            self.main.y = self.main.last["y"]
 
         ## save current positon of view for future use ##
-        self.main.view["last_x"] = self.main.view["x"]
-        self.main.view["last_y"] = self.main.view["y"]
+        self.main.last["x"] = self.main.x
+        self.main.last["y"] = self.main.y
 
         ## make 'keys' variable with pressed keys
         keys = pygame.key.get_pressed()
@@ -157,17 +156,17 @@ class Player:
             self.main.sound["channels"]["steps"].stop()
         
         ## picks speed for each axis ##
-        velocity = zwave.helper.velocity_by_keys(2 * self.main.view["scale"], keys)
+        velocity = zwave.helper.velocity_by_keys(2 * self.main.scale, keys)
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:
-            self.main.view["y"] -= velocity
+            self.main.y -= velocity
         if keys[pygame.K_s]:
-            self.main.view["y"] += velocity
+            self.main.y += velocity
         if keys[pygame.K_a]:
-            self.main.view["x"] -= velocity
+            self.main.x -= velocity
         if keys[pygame.K_d]:
-            self.main.view["x"] += velocity
+            self.main.x += velocity
 
     ## method to player shots ##    
     def shot(self):

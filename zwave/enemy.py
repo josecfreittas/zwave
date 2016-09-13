@@ -42,16 +42,15 @@ class Enemy:
         self.collider["damage"] = pygame.sprite.Group()
 
         ## enemy view ##
-        self.view = {}
-        self.view["angle"] = 0
-        self.view["x"] = 0
-        self.view["y"] = 0
-        self.view["width"] = width * self.main.view["scale"]
-        self.view["height"] = height * self.main.view["scale"]
-        self.view["last"] = {}
-        self.view["last"]["x"] = None
-        self.view["last"]["y"] = None
-        self.view["relative"] = {"x": 0, "y": 0} ## relative position to map
+        self.angle = 0
+        self.x = 0
+        self.y = 0
+        self.width = width * self.main.scale
+        self.height = height * self.main.scale
+        self.last = {}
+        self.last["x"] = None
+        self.last["y"] = None
+        self.relative = {"x": 0, "y": 0} ## relative position to map
         self.center = {}
         self.center["x"] = None
         self.center["y"] = None
@@ -82,19 +81,19 @@ class Enemy:
         y = int(tile[1]) * self.main.map.collider["size"]
 
         ## set relative position ##
-        self.view["relative"]["x"] = x
-        self.view["relative"]["y"] = y
+        self.relative["x"] = x
+        self.relative["y"] = y
 
         ## saves the actual position of the enemy, relative to game screen ##
-        self.center["x"] = self.view["relative"]["x"] - (self.view["width"] / 2)
-        self.center["y"] = self.view["relative"]["y"] - (self.view["height"] / 2)
+        self.center["x"] = self.relative["x"] - (self.width / 2)
+        self.center["y"] = self.relative["y"] - (self.height / 2)
 
     ## method to set player surface ##
     def set_surface(self):
 
         ## load and scale player model image ##
         image = os.path.join("assets", "img", "enemies", "%s.png" % self.model)
-        self.surface["original"] = zwave.helper.pygame_image(image, self.view["width"], self.view["height"])
+        self.surface["original"] = zwave.helper.pygame_image(image, self.width, self.height)
 
         self.surface["sprite"].image = self.surface["original"]
         self.surface["sprite"].rect = self.surface["original"].get_rect()
@@ -103,8 +102,8 @@ class Enemy:
     def set_colliders(self):
 
         ## calculate sizes of colliders based on enemy size ##
-        size1 = int(((self.view["width"] / 2) + (self.view["height"] / 2)) / 2)
-        size2 = int((self.view["width"] + self.view["height"]) / 2)
+        size1 = int(((self.width / 2) + (self.height / 2)) / 2)
+        size2 = int((self.width + self.height) / 2)
 
         ## make a generic sprite  ##
         touch = pygame.sprite.Sprite()
@@ -135,10 +134,10 @@ class Enemy:
         self.collider["touch"].add(self.collider["sprite1"])
     
     def update_collider(self):
-        x1 = (self.view["x"] + (self.view["width"] / 2)) - (self.collider["sprite1"].rect.width / 2)
-        y1 = (self.view["y"] + (self.view["height"] / 2)) - (self.collider["sprite1"].rect.height / 2)
-        x2 = (self.view["x"] + (self.view["width"] / 2)) - (self.collider["sprite2"].rect.width / 2)
-        y2 = (self.view["y"] + (self.view["height"] / 2)) - (self.collider["sprite2"].rect.height / 2)
+        x1 = (self.x + (self.width / 2)) - (self.collider["sprite1"].rect.width / 2)
+        y1 = (self.y + (self.height / 2)) - (self.collider["sprite1"].rect.height / 2)
+        x2 = (self.x + (self.width / 2)) - (self.collider["sprite2"].rect.width / 2)
+        y2 = (self.y + (self.height / 2)) - (self.collider["sprite2"].rect.height / 2)
 
         self.collider["sprite1"].rect.x = x1
         self.collider["sprite1"].rect.y = y1
@@ -166,7 +165,7 @@ class Enemy:
     def rotate(self):
 
         ## set angle of rotation based on current frame ##
-        angle = self.view["angle"]
+        angle = self.angle
 
         ## get area of original light ##
         area = self.surface["original"].get_rect()
@@ -183,11 +182,11 @@ class Enemy:
     def set_angle(self):
 
         ## calculate angle by two points, player position and enemy position ##
-        dx =  self.main.player.center["x"] - (self.view["x"] + (self.view["width"] / 2))
-        dy =  self.main.player.center["y"] - (self.view["y"] + (self.view["height"] / 2))
+        dx =  self.main.player.center["x"] - (self.x + (self.width / 2))
+        dy =  self.main.player.center["y"] - (self.y + (self.height / 2))
         rads = math.atan2(-dy,dx)
         rads %= 2 * math.pi
-        self.view["angle"] = math.degrees(rads)
+        self.angle = math.degrees(rads)
 
     ## method to update enemy view position relative to the map ##
     def update_position(self):
@@ -195,31 +194,31 @@ class Enemy:
         ## TODO: find a way to check collisions with other "enemies" ##
         ## check if had collision, if had, set last position of view ##
         if self.collision("walls") or self.collision("player"):
-            self.view["relative"]["x"] = self.view["last"]["x"]
-            self.view["relative"]["y"] = self.view["last"]["y"]
+            self.relative["x"] = self.last["x"]
+            self.relative["y"] = self.last["y"]
 
         ## save last position ##
-        self.view["last"]["x"] = self.view["relative"]["x"]
-        self.view["last"]["y"] = self.view["relative"]["y"]
+        self.last["x"] = self.relative["x"]
+        self.last["y"] = self.relative["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.velocity_by_angle(1 * self.main.view["scale"], self.view["angle"])
+        velocity = zwave.helper.velocity_by_angle(1 * self.main.scale, self.angle)
 
         ## move ##
-        self.view["relative"]["x"] += velocity["x"]
-        self.view["relative"]["y"] += velocity["y"]
+        self.relative["x"] += velocity["x"]
+        self.relative["y"] += velocity["y"]
 
         ## update view ##
-        self.view["x"] = self.view["relative"]["x"] - self.main.view["x"]
-        self.view["y"] = self.view["relative"]["y"] - self.main.view["y"]
+        self.x = self.relative["x"] - self.main.x
+        self.y = self.relative["y"] - self.main.y
 
         ## update enemy center point ##
-        self.center["x"] =  self.view["x"] + (self.view["width"] / 2)
-        self.center["y"] =  self.view["y"] + (self.view["height"] / 2)
+        self.center["x"] =  self.x + (self.width / 2)
+        self.center["y"] =  self.y + (self.height / 2)
 
         ## update sprite position ##
-        self.surface["sprite"].rect.x = self.view["x"]
-        self.surface["sprite"].rect.y = self.view["y"]
+        self.surface["sprite"].rect.x = self.x
+        self.surface["sprite"].rect.y = self.y
 
     ## method to update enemy ##
     def update(self):
