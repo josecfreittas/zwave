@@ -32,8 +32,8 @@ class Player:
         self.x = (self.main.width / 2) - (self.width / 2)
         self.y = (self.main.height / 2) - (self.height / 2)
         self.center = {}
-        self.center["x"] = self.main.map.x + (self.main.width / 2)
-        self.center["y"] = self.main.map.x + (self.main.height / 2)
+        self.center["x"] = self.main.width / 2
+        self.center["y"] = self.main.height / 2
 
         ## player status ##
         self.status = {}
@@ -46,8 +46,6 @@ class Player:
 
     ## methods to allow external access to object values ##
     def __getitem__(self, name):
-        if name == "view":
-	        return self.view
         if name == "center":
 	        return self.center
 
@@ -104,34 +102,9 @@ class Player:
         else:
             return False
 
-    ## method to rotate player ##
     def rotate(self):
-
-        ## set angle of rotation based on current frame ##
-        angle = self.angle
-
-        ## get area of original light ##
-        area = self.surface["original"].get_rect()
-
-        ## make a copy of light with a new angle ##
-        new = pygame.transform.rotozoom(self.surface["original"], angle, 1)
-
-        ## define center of new copy ##
-        area.center = new.get_rect().center
-
-        self.surface["sprite"] = new.subsurface(area).copy()
-
-    ## method to define angle for player rotation acording to the cursor position ##
-    def set_angle(self):
-
-        if (self.main.cursor['x'] > 0) or (self.main.cursor['y'] > 0):
-
-            ## calculate angle by two points, cursor position and player position ##
-            dx = self.main.cursor["x"] - (self.x + (self.width / 2))
-            dy = self.main.cursor["y"] - (self.y + (self.height / 2))
-            rads = math.atan2(-dy,dx)
-            rads %= 2 * math.pi
-            self.angle = math.degrees(rads)
+        angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
+        self.surface["sprite"] = zwave.helper.pygame_rotate(self.surface["original"], angle)
 
     ## method to player/screen movimentation ##
     def move(self):
@@ -190,6 +163,5 @@ class Player:
         if self.status["attack"]["delay"] > 0:
             self.status["attack"]["delay"] -= 1
 
-        self.set_angle()
         self.rotate()
         self.move()

@@ -57,14 +57,12 @@ class Enemy:
         
         self.set_position()
         self.set_surface()
-        self.rotate()
         self.set_colliders()
+        self.rotate()
 
 
     ## methods to allow external access to object values ##
     def __getitem__(self, name):
-        if name == 'view':
-	        return self.view
         if name == "collider":
             return self.collider
         if name == "surface":
@@ -161,32 +159,9 @@ class Enemy:
         else:
             return False
 
-    ## method to rotate enemy ##
     def rotate(self):
-
-        ## set angle of rotation based on current frame ##
-        angle = self.angle
-
-        ## get area of original light ##
-        area = self.surface["original"].get_rect()
-
-        ## make a copy of light with a new angle ##
-        new = pygame.transform.rotozoom(self.surface["original"], angle, 1)
-
-        ## define center of new copy ##
-        area.center = new.get_rect().center
-
-        self.surface["sprite"].image = new.subsurface(area).copy()
-
-    ## method to define angle for enemy rotation acording to enemy destination ##
-    def set_angle(self):
-
-        ## calculate angle by two points, player position and enemy position ##
-        dx =  self.main.player.center["x"] - (self.x + (self.width / 2))
-        dy =  self.main.player.center["y"] - (self.y + (self.height / 2))
-        rads = math.atan2(-dy,dx)
-        rads %= 2 * math.pi
-        self.angle = math.degrees(rads)
+        self.angle = zwave.helper.angle_by_two_points(self.center, self.main.player.center)
+        self.surface["sprite"].image = zwave.helper.pygame_rotate(self.surface["original"], self.angle)
 
     ## method to update enemy view position relative to the map ##
     def update_position(self):
@@ -222,7 +197,6 @@ class Enemy:
 
     ## method to update enemy ##
     def update(self):
-        self.set_angle()
         self.rotate()
         self.update_collider()
         self.update_position()
