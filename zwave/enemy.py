@@ -1,8 +1,11 @@
-import os
 import math
+import os
 import random
+
 import pygame
+
 import zwave.helper
+
 
 class Enemy:
 

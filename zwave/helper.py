@@ -1,5 +1,7 @@
 import math
+
 import pygame
+
 
 def velocity_by_keys(speed, keys):
 

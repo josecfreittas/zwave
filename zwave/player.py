@@ -1,8 +1,9 @@
 import os
-import math
-import random
+
 import pygame
+
 import zwave.main
+
 
 class Player:
 
@@ -36,14 +37,9 @@ class Player:
         ## player status ##
         self.status = {}
         self.status["attack"] = {}
-        self.status["attack"]["bullets"] = {}
-        image = os.path.join("assets", "img", "bullet.png")
-        self.status["attack"]["bullets"]["model"] = zwave.helper.pygame_image(image, 10 * self.main.scale)
-        self.status["attack"]["bullets"]["angles"] = []
-        self.status["attack"]["bullets"]["sprites"] = []
-        self.status["attack"]["bullets"]["groups"] = []
         self.status["attack"]["type"] = "gun"
         self.status["attack"]["delay"] = 0
+        self.status["attack"]["bullets"] = []
 
         self.set_surface()
         self.set_collider()
@@ -51,7 +47,7 @@ class Player:
     ## methods to allow external access to object values ##
     def __getitem__(self, name):
         if name == "center":
-	        return self.center
+            return self.center
 
     ## method to set player surface ##
     def set_surface(self):
@@ -80,7 +76,7 @@ class Player:
         ## make sprite rect ##
         sprite.rect = sprite.image.get_rect()
 
-	    ## set new position ##
+        ## set new position ##
         sprite.rect.x = x
         sprite.rect.y = y
 
@@ -89,19 +85,22 @@ class Player:
         self.collider["touch"].add(self.collider["sprite"])
 
     ## method to check if exist collision ##
-    def collision(self, collider):
-        if collider == "walls":
-            collider = self.main.map.collider["walls"]
-        if collider == "grass":
-            collider = self.main.map.collider["grass"]
-        if collider == "marble":
-            collider = self.main.map.collider["marble"]
-        if collider == "sand":
-            collider = self.main.map.collider["sand"]
-        if collider == "enemies":
-            collider = self.main.enemies["colliders"]
+    def collision(self, collider1, collider2 = "touch"):
+        if collider1 == "walls":
+            collider1 = self.main.map.collider["walls"]
+        elif collider1 == "grass":
+            collider1 = self.main.map.collider["grass"]
+        elif collider1 == "marble":
+            collider1 = self.main.map.collider["marble"]
+        elif collider1 == "sand":
+            collider1 = self.main.map.collider["sand"]
+        elif collider1 == "enemies":
+            collider1 = self.main.enemies["colliders"]
 
-        if pygame.sprite.groupcollide(self.collider["touch"], collider, False, False):
+        if collider2 == "touch":
+            collider2 = self.collider["touch"]
+
+        if pygame.sprite.groupcollide(collider2, collider1, False, False):
             return True
         else:
             return False
@@ -155,20 +154,10 @@ class Player:
             if self.status["attack"]["type"] == "gun":
 
                 angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
-                size = 10 * self.main.scale
 
-                ## make new bullet ##
-                image = zwave.helper.pygame_rotate(self.status["attack"]["bullets"]["model"], angle)
-                sprite = zwave.helper.pygame_sprite_by_image(image, size)
+                bullet = Bullet(angle, self.main)
 
-                ## center bullet on screen ##
-                sprite.rect.x = self.center["x"] - (size / 2)
-                sprite.rect.y = self.center["y"] - (size / 2)
-
-                group = pygame.sprite.GroupSingle(sprite)
-                self.status["attack"]["bullets"]["angles"].append(angle)
-                self.status["attack"]["bullets"]["sprites"].append(sprite)
-                self.status["attack"]["bullets"]["groups"].append(pygame.sprite.GroupSingle(sprite))
+                self.status["attack"]["bullets"].append(bullet)
 
                 ## gunshot sound ##
                 self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
@@ -177,23 +166,20 @@ class Player:
                 self.status["attack"]["delay"] = 50
 
     def update_bullets(self):
-        i = 0
-        for bullet in self.status["attack"]["bullets"]["sprites"]:
+        for sprite in self.status["attack"]["bullets"]:
 
-            ## angle of bullet ##
-            angle = (self.status["attack"]["bullets"]["angles"][i]) + 180
+            group = sprite.collider()
 
-            ## velocity by angle ##
-            velocity = zwave.helper.velocity_by_angle(50, angle)
+            ## check collisions ##
+            if self.collision("walls", group):
+                self.status["attack"]["bullets"].remove(sprite)
+            elif self.collision("enemies", group):
+                self.status["attack"]["bullets"].remove(sprite)
+            else:
 
-            ## move bullet on screen ##
-            bullet.rect.x = bullet.rect.x - velocity["x"]
-            bullet.rect.y = bullet.rect.y - velocity["y"]
-
-            ## draw on screen ##
-            self.status["attack"]["bullets"]["groups"][i].draw(self.main.screen)
-            
-            i += 1
+                ## move bullet and draw on screen ##
+                sprite.update()
+                group.draw(self.main.screen)
 
     ## method to update player ##
     def update(self):
@@ -204,3 +190,29 @@ class Player:
 
         self.rotate()
         self.move()
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self, angle, main):
+        super().__init__()
+
+        self.angle = angle - 180
+
+        self.size = 10 * main.scale
+
+        path = os.path.join("assets", "img", "bullet.png")
+        self.image = zwave.helper.pygame_image(path, self.size)
+        self.image = zwave.helper.pygame_rotate(self.image, angle)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = main.player.center["x"] - (self.size / 2)
+        self.rect.y = main.player.center["y"] - (self.size / 2)
+
+        self.velocity = zwave.helper.velocity_by_angle(30, self.angle)
+        self.sgroup = pygame.sprite.GroupSingle(self)
+
+    def update(self):
+        self.rect.x -= self.velocity["x"]
+        self.rect.y -= self.velocity["y"]
+
+    def collider(self):
+        return self.sgroup

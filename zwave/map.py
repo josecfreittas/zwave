@@ -1,8 +1,11 @@
+import math
 import os
 import sys
-import math
+
 import pygame
+
 import zwave.helper
+
 
 class Map:
 

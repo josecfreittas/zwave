@@ -1,10 +1,13 @@
-import os
 import math
+import os
+
 import pygame
+
 import zwave.helper
+from zwave.enemy import *
 from zwave.map import *
 from zwave.player import *
-from zwave.enemy import *
+
 
 class Main:
 
@@ -128,8 +131,8 @@ class Main:
 
             ## draw map ground, enemies, player, map walls and cursor ##
             self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
-            self.enemies["group"].draw(self.screen)
             self.player.update_bullets()
+            self.enemies["group"].draw(self.screen)
             self.screen.blit(self.player.surface["sprite"], (self.player.x, self.player.y))
             self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
@@ -142,7 +145,7 @@ class Main:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-            
+
             ## check if the left mouse button is pressed ##
             if pygame.mouse.get_pressed()[0]:
                 self.player.shot()
