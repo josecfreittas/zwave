@@ -6,10 +6,11 @@
  - [x] Map view
  - [x] Player rotation
  - [x] Player movement
+ - [x] Footsteps sound, on player movement
  - [x] Player collision with walls and enemies
+ - [x] Player Gun shots
+ - [x] Player Gun shot sound
  - [x] Enemies rotation
  - [x] Enemies movement
  - [x] Enemies collision with walls and player
  - [x] Background music
- - [x] Footsteps sound, on player move
- - [x] Shotgun sound, on mouse click
