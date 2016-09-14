@@ -51,8 +51,8 @@ class Enemy(pygame.sprite.Sprite):
         tile = random.choice(self.spaws).split("x")
 
         ## calculates the axes ##
-        x = int(tile[0]) * self.main.map.collider["size"]
-        y = int(tile[1]) * self.main.map.collider["size"]
+        x = int(tile[0]) * (64 * self.main.scale)
+        y = int(tile[1]) * (64 * self.main.scale)
 
         ## set relative position ##
         self.relative["x"] = x

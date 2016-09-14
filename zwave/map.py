@@ -1,6 +1,4 @@
-import math
 import os
-import sys
 
 import pygame
 
@@ -8,14 +6,10 @@ import zwave.helper
 
 
 class Map:
-
-    ## constructor ##
     def __init__(self, main, width = 2048, height = 2048):
 
-        ## game main ##
+        ## init values ##
         self.main = main
-
-        ## map view ##
         self.width = width * self.main.scale
         self.height = height * self.main.scale
         self.x = 0
@@ -31,12 +25,7 @@ class Map:
 
         ## map colliders ##
         self.collider = {}
-        self.collider["size"] = 64 * self.main.scale
         self.collider["sprites"] = {}
-        self.collider["walls"] = pygame.sprite.Group()
-        self.collider["grass"] = pygame.sprite.Group()
-        self.collider["marble"] = pygame.sprite.Group()
-        self.collider["sand"] = pygame.sprite.Group()
         self.collider["raw"] = [
             "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "W", "W", "W", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "M", "W", "M", "M", "M", "M", "W", "W", "W", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "M", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "M", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "M", "M", "M", "M", "M", "M", "M", "M", "W", "W", "G", "G", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "W", "W", "W", "W", "M", "M", "M", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "G", "G", "G", "G", "G", "G", "G", "G", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "M", "M", "M", "W", "W", "W", "W", "S", "S", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "S", "S", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "M", "S", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "W", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "M", "M", "M", "M", "M", "M", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "G", "G", "G", "G", "W", "W", "W", "M", "M", "M", "M", "W", "M", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "W", "W", "W", "M", "M", "M", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "G", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W"
         ]
@@ -44,7 +33,6 @@ class Map:
         self.set_surface()
         self.set_colliders()
 
-    ## method to set/load and scale map surfaces ##
     def set_surface(self):
 
         ## load and scale map ground ##
@@ -56,22 +44,17 @@ class Map:
         self.surface["walls"] = zwave.helper.pygame_image(walls, self.width, self.height)
     
     def set_colliders(self):
+        
+        self.collider["walls"] = pygame.sprite.Group()
+        self.collider["grass"] = pygame.sprite.Group()
+        self.collider["marble"] = pygame.sprite.Group()
+        self.collider["sand"] = pygame.sprite.Group()
 
         ## loop for all the tiles ##
         for key, tile in enumerate(self.collider["raw"]):
 
             ## make a generic sprite with size of map tiles  ##
-            sprite = pygame.sprite.Sprite()
-            sprite.image = pygame.Surface((self.collider["size"], self.collider["size"]))
-
-            ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
-            sprite.image.fill((255, 0, 0))
-            sprite.image.set_colorkey((255, 0, 0))
-
-            ## make sprite rect ##
-            sprite.rect = sprite.image.get_rect()
-
-            ## add sprit to map colliders list (dict) ##
+            sprite = Tile(self.main, key, 32)
             self.collider["sprites"][key] = sprite
 
             ## if current tile is a wall, add in wall group ##
@@ -90,45 +73,47 @@ class Map:
             elif tile == 'S':
                 self.collider["sand"].add(self.collider["sprites"][key])
 
-    ## method to update all colliders position acording to screen position ##
     def update_colliders(self):
 
-        ## check version of python 2 or 3, and set var 'items' with the appropriate syntax for each version ##
-        if sys.version_info.major == 2:
-            items = self.collider["sprites"].iteritems()
-        else:
-            items = self.collider["sprites"].items()
-
-        rows = self.width / self.collider["size"]
-
         ## loop for update all sprites ##
-        for key, sprite in items:
+        for key in self.collider["sprites"].keys():
+            self.collider["sprites"][key].update()
 
-            ## get row and column by dict key ##
-            column = key % rows;
-            row = int(key / float(rows))
-
-            ## calcule new position of collider ##
-            x = (column * self.collider["size"]) - self.main.x
-            y = (row * self.collider["size"])  - self.main.y
-
-            ## set new position ##
-            self.collider["sprites"][key].rect.x = x
-            self.collider["sprites"][key].rect.y = y
-
-    ## method to update map view position ##
     def update_position(self):
         self.x = self.main.x * -1
         self.y = self.main.y * -1
 
-    ## method to update map ##
     def update(self):
-
-        ## call method to update position ##
         self.update_position()
-
-        ## call method to update colliders ##
         self.update_colliders()
-
-        ## draw invisible colliders ##
         self.collider["walls"].draw(self.main.screen)
+
+class Tile(pygame.sprite.Sprite):
+    def __init__(self, main, position, columns):
+        super().__init__()
+
+        self.main =  main
+        self.size =  64 * self.main.scale
+
+        self.image = pygame.surface.Surface((self.size, self.size))
+        self.image.fill((255, 0, 0))
+        self.image.set_colorkey((255, 0, 0))
+
+        self.rect = self.image.get_rect()
+        self.generate_position(position, columns)
+
+    def generate_position(self, position, columns):
+
+        column = position % columns
+        row = int(position / float(columns))
+
+        ## set new position ##
+        self.x = column * self.size
+        self.y = row * self.size
+
+    def update_position(self):
+        self.rect.x = self.x - self.main.x
+        self.rect.y = self.y - self.main.y
+
+    def update(self):
+        self.update_position()

@@ -166,11 +166,11 @@ class Player(pygame.sprite.Sprite):
                 sprite.update()
 
     def draw(self):
-        self.collider1.draw(self.main.screen)
-        self.collider2.draw(self.main.screen)
         for sprite in self.status["attack"]["bullets"]:
             group = sprite.collider()
             group.draw(self.main.screen)
+        self.collider1.draw(self.main.screen)
+        self.collider2.draw(self.main.screen)
 
     def update(self):
         ## update gunshot timer ##
@@ -186,8 +186,8 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, angle, main):
         super().__init__()
 
+        ## init values ##
         self.angle = angle - 180
-
         self.size = 10 * main.scale
 
         path = os.path.join("assets", "img", "bullet.png")
