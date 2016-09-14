@@ -24,6 +24,18 @@ class Enemy(pygame.sprite.Sprite):
     def __init__(self, main, model = "01"):
         super().__init__()
 
+        
+        self.status = {}
+
+        self.status["delay"] = 52 + (-2 * main.wave)
+        self.status["timer"] = 0
+        self.status["damage"] = [23, 43]
+        self.status["damage"][0] += (2 * main.wave)
+        self.status["damage"][1] += (2 * main.wave)
+
+        self.status["life"] = 80 + (20 * main.wave)
+        self.status["speed"] = 0.9 + (0.15 * main.wave)
+
         ## init values ##
         self.main = main
         self.model = model
@@ -131,6 +143,10 @@ class Enemy(pygame.sprite.Sprite):
         self.center["y"] =  self.rect.y + (self.size / 2)
 
     def update(self):
+        if self.status["life"] <= 0:
+            self.touch.kill()
+            self.kill()
+
         self.update_angle()
         self.update_position()
         self.update_colliders()

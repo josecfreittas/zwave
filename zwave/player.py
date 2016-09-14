@@ -1,4 +1,5 @@
 import os
+import random
 
 import pygame
 
@@ -10,6 +11,19 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, main, model = "01"):
         super().__init__()
 
+        
+        self.status = {}
+
+        self.status["weapon"] = {}
+        self.status["weapon"]["type"] = "gun"
+        self.status["weapon"]["delay"] = 50
+        self.status["weapon"]["timer"] = 0
+        self.status["weapon"]["damage"] = [35, 65]
+        self.status["weapon"]["bullets"] = []
+
+        self.status["life"] = 100
+        self.status["speed"] = 2
+
         ## init values ##
         self.main = main
         self.model = model
@@ -17,12 +31,6 @@ class Player(pygame.sprite.Sprite):
         self.angle = 0
         self.center = {}
         self.last = {}
-
-        self.status = {}
-        self.status["attack"] = {}
-        self.status["attack"]["type"] = "gun"
-        self.status["attack"]["delay"] = 0
-        self.status["attack"]["bullets"] = []
 
         self.generate_position()
 
@@ -111,7 +119,7 @@ class Player(pygame.sprite.Sprite):
             self.main.sound["channels"]["steps"].stop()
         
         ## picks speed for each axis ##
-        velocity = zwave.helper.velocity_by_keys(2 * self.main.scale, keys)
+        velocity = zwave.helper.velocity_by_keys(self.status["speed"] * self.main.scale, keys)
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:
@@ -125,28 +133,29 @@ class Player(pygame.sprite.Sprite):
   
     def shot(self):
 
-        ## checks if delay for the shot is zero ##
-        if self.status["attack"]["delay"] == 0:
+        ## checks if timer for the shot is zero ##
+        if self.status["weapon"]["timer"] == 0:
 
             ## check if the type of weapon is gun ##
-            if self.status["attack"]["type"] == "gun":
+            if self.status["weapon"]["type"] == "gun":
 
                 angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
 
                 bullet = Bullet(angle, self.main)
 
-                self.status["attack"]["bullets"].append(bullet)
+                self.status["weapon"]["bullets"].append(bullet)
 
                 ## gunshot sound ##
                 self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
 
-                ## add delay for next gunshot ##
-                self.status["attack"]["delay"] = 50
+                ## add timer for next gunshot ##
+                self.status["weapon"]["timer"] = self.status["weapon"]["delay"]
 
     def update_bullets(self):
+        damage = random.randint(self.status["weapon"]["damage"][0], self.status["weapon"]["damage"][1])
 
         ## get all bullets instances ##
-        for sprite in self.status["attack"]["bullets"]:
+        for sprite in self.status["weapon"]["bullets"]:
 
             group = sprite.collider()
 
@@ -154,28 +163,41 @@ class Player(pygame.sprite.Sprite):
             if self.collision("walls", group):
 
                 ## if collide with a wall ##
-                self.status["attack"]["bullets"].remove(sprite)
+                self.status["weapon"]["bullets"].remove(sprite)
             elif self.collision("enemies", group):
 
                 ## if collide with a enemy ##
-                collision = self.collision("enemies", group)
-                self.status["attack"]["bullets"].remove(sprite)
+                enemy = self.collision("enemies", group)
+                enemy[sprite][0].up.status["life"] -= damage
+
+                print(enemy[sprite][0].up.status["life"])
+                self.status["weapon"]["bullets"].remove(sprite)
             else:
 
                 ## move bullet and draw on screen ##
                 sprite.update()
 
     def draw(self):
-        for sprite in self.status["attack"]["bullets"]:
+        for sprite in self.status["weapon"]["bullets"]:
             group = sprite.collider()
             group.draw(self.main.screen)
         self.collider1.draw(self.main.screen)
         self.collider2.draw(self.main.screen)
 
+    def wave_update(self):
+
+        self.status["weapon"]["damage"][0] += 2
+        self.status["weapon"]["damage"][1] += 2
+        self.status["weapon"]["delay"] -= 2
+
+        self.status["life"] += 10
+        self.status["speed"] += 0.1
+
     def update(self):
+
         ## update gunshot timer ##
-        if self.status["attack"]["delay"] > 0:
-            self.status["attack"]["delay"] -= 1
+        if self.status["weapon"]["timer"] > 0:
+            self.status["weapon"]["timer"] -= 1
 
         self.update_bullets()
         self.update_angle()
