@@ -33,8 +33,8 @@ class Enemy(pygame.sprite.Sprite):
         self.status["damage"][0] += (2 * main.wave)
         self.status["damage"][1] += (2 * main.wave)
 
-        self.status["life"] = 80 + (20 * main.wave)
-        self.status["speed"] = 0.9 + (0.15 * main.wave)
+        self.status["life"] = 80 + (15 * main.wave)
+        self.status["speed"] = 1 + (0.15 * main.wave)
 
         ## init values ##
         self.main = main
@@ -69,6 +69,8 @@ class Enemy(pygame.sprite.Sprite):
         ## set relative position ##
         self.relative["x"] = x
         self.relative["y"] = y
+        self.last["x"] = self.relative["x"]
+        self.last["y"] = self.relative["y"]
 
         ## saves the actual position of the enemy, relative to game screen ##
         self.center["x"] = self.relative["x"] - (self.size / 2)

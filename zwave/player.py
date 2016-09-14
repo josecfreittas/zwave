@@ -16,7 +16,7 @@ class Player(pygame.sprite.Sprite):
 
         self.status["weapon"] = {}
         self.status["weapon"]["type"] = "gun"
-        self.status["weapon"]["delay"] = 50
+        self.status["weapon"]["delay"] = 40
         self.status["weapon"]["timer"] = 0
         self.status["weapon"]["damage"] = [35, 65]
         self.status["weapon"]["bullets"] = []
@@ -152,35 +152,33 @@ class Player(pygame.sprite.Sprite):
                 self.status["weapon"]["timer"] = self.status["weapon"]["delay"]
 
     def update_bullets(self):
+
+        ## random damage by weapon damage range ##
         damage = random.randint(self.status["weapon"]["damage"][0], self.status["weapon"]["damage"][1])
 
         ## get all bullets instances ##
-        for sprite in self.status["weapon"]["bullets"]:
+        for bullet in self.status["weapon"]["bullets"]:
+            collider = bullet.collider()
 
-            group = sprite.collider()
+            ## check collision with walls ##
+            if self.collision("walls", collider):
+                bullet.kill()
+            
+            ## check collision with enemies ##
+            elif self.collision("enemies", collider):
+                enemy = self.collision("enemies", collider)[bullet][0].up
+                enemy.status["life"] -= damage
+                bullet.kill()
 
-            ## check collisions ##
-            if self.collision("walls", group):
-
-                ## if collide with a wall ##
-                self.status["weapon"]["bullets"].remove(sprite)
-            elif self.collision("enemies", group):
-
-                ## if collide with a enemy ##
-                enemy = self.collision("enemies", group)
-                enemy[sprite][0].up.status["life"] -= damage
-
-                print(enemy[sprite][0].up.status["life"])
-                self.status["weapon"]["bullets"].remove(sprite)
+            ## if had no collision ##
             else:
-
-                ## move bullet and draw on screen ##
-                sprite.update()
+                bullet.update()
 
     def draw(self):
-        for sprite in self.status["weapon"]["bullets"]:
-            group = sprite.collider()
+        for bullet in self.status["weapon"]["bullets"]:
+            group = bullet.collider()
             group.draw(self.main.screen)
+
         self.collider1.draw(self.main.screen)
         self.collider2.draw(self.main.screen)
 

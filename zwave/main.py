@@ -10,8 +10,6 @@ from zwave.player import *
 
 
 class Main:
-
-    ## constructor ##
     def __init__(self, scale = 1, width = 1024, height = 512):
 
         ## game status ##
@@ -27,7 +25,7 @@ class Main:
         self.center["y"] = self.height / 2
 
         ## framerate ##
-        self.tick = 50
+        self.tick = 40
         self.frame = 0
 
         ## game screen ##
@@ -105,12 +103,14 @@ class Main:
             self.enemies["sprites"].add(enemy)
             self.enemies["colliders"].add(enemy.collider2)
 
-    ## method to update enemies ##
     def update_enemies(self):
         for enemy in self.enemies["sprites"].sprites():
             enemy.update()
+        if not self.enemies["sprites"].sprites():
+            self.wave += 1
+            self.set_enemies()
+            self.player.wave_update()
 
-    ## method from game loop ##
     def loop(self):
 
         ## set pygame clock ##
