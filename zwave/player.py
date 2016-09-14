@@ -5,114 +5,94 @@ import pygame
 import zwave.main
 
 
-class Player:
+class Player(pygame.sprite.Sprite):
 
-    ## constructor ##
-    def __init__(self, main = None, model = '01', width = 65, height = 65):    
-        
-        ## main game object ##
+    def __init__(self, main, model = "01"):
+        super().__init__()
+
+        ## init values ##
         self.main = main
-        
-        ## visual model of player ##
         self.model = model
-        
-        ## player surface ##
-        self.surface = {}
-        self.surface["original"] = None
-        self.surface["sprite"] = None
-
-        ## player collider ##
-        self.collider = {}
-        self.collider["sprite"] = None
-        self.collider["touch"] = pygame.sprite.Group()
-
-        ## player view ##
+        self.size = 65 * main.scale
         self.angle = 0
-        self.width = width * self.main.scale
-        self.height = height * self.main.scale
-        self.x = (self.main.width / 2) - (self.width / 2)
-        self.y = (self.main.height / 2) - (self.height / 2)
-        self.center = self.main.center
+        self.center = {}
+        self.last = {}
 
-        ## player status ##
         self.status = {}
         self.status["attack"] = {}
         self.status["attack"]["type"] = "gun"
         self.status["attack"]["delay"] = 0
         self.status["attack"]["bullets"] = []
 
-        self.set_surface()
-        self.set_collider()
+        self.generate_position()
 
-    ## methods to allow external access to object values ##
-    def __getitem__(self, name):
-        if name == "center":
-            return self.center
+        path = os.path.join("assets", "img", "players", "%s.png" % self.model)
+        self.image_base = zwave.helper.pygame_image(path, self.size)
+        self.image = self.image_base
 
-    ## method to set player surface ##
-    def set_surface(self):
+        self.rect = self.image.get_rect()
+        self.rect.x = self.x
+        self.rect.y = self.y
 
-        ## load and scale player model image ##
-        image = os.path.join("assets", "img", "players", "%s.png" % self.model)
-        self.surface["original"] = zwave.helper.pygame_image(image, self.width, self.height)
+        self.set_colliders()
 
-    ## method to draw player collider ##
-    def set_collider(self):
+    def generate_position(self):
 
-        ## calculate size of collider based on player size ##
-        size = int(((self.width / 1.7) + (self.height / 1.7)) / 2)
+        ## set position ##
+        self.x = self.main.center["x"] - (self.size / 2)
+        self.y = self.main.center["y"] - (self.size / 2)
 
-        x = (self.main.width / 2) - (size / 2)
-        y = (self.main.height / 2) - (size / 2)
+        ## saves the actual position of the enemy, relative to game screen ##
+        self.center["x"] = self.main.center["x"]
+        self.center["y"] = self.main.center["y"]
 
-        ## make a generic sprite  ##
-        sprite = pygame.sprite.Sprite()
-        sprite.image = pygame.Surface((size, size))
+    def set_colliders(self):
 
-        ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
-        sprite.image.fill((255, 0, 0))
-        sprite.image.set_colorkey((255, 0, 0))
+        ## default collider, with same size of sprite image ##
+        self.collider1 = pygame.sprite.GroupSingle(self)
 
-        ## make sprite rect ##
-        sprite.rect = sprite.image.get_rect()
+        ## touch/collider2 is a small collider for player, that simulates a better "touch" for the player, ##
+        ## without the large original image edges ##
+        self.touch = pygame.sprite.Sprite()
+        self.touch.up = self
+        self.touch.size = int(self.size / 2)
 
-        ## set new position ##
-        sprite.rect.x = x
-        sprite.rect.y = y
+        self.touch.image = pygame.surface.Surface((self.touch.size, self.touch.size))
+        self.touch.image.fill((255, 0, 0))
+        self.touch.image.set_colorkey((255, 0, 0))
 
-        ## add new collider to colliders group ##
-        self.collider["sprite"] = sprite
-        self.collider["touch"].add(self.collider["sprite"])
+        self.touch.rect = self.touch.image.get_rect()
+        self.touch.rect.x = self.center["x"] - (self.touch.size / 2)
+        self.touch.rect.y = self.center["y"] - (self.touch.size / 2)
 
-    ## method to check if exist collision ##
-    def collision(self, collider1, collider2 = "touch"):
+        self.collider2 = pygame.sprite.GroupSingle(self.touch)
+
+    def update_colliders(self):
+
+        ## update position of the second collider of enemy ##
+        self.touch.rect.x = self.center["x"] - (self.touch.size / 2)
+        self.touch.rect.y = self.center["y"] - (self.touch.size / 2)
+
+    def collision(self, collider1, collider2):
+
+        ## check collider 1 ##
         if collider1 == "walls":
             collider1 = self.main.map.collider["walls"]
-        elif collider1 == "grass":
-            collider1 = self.main.map.collider["grass"]
-        elif collider1 == "marble":
-            collider1 = self.main.map.collider["marble"]
-        elif collider1 == "sand":
-            collider1 = self.main.map.collider["sand"]
         elif collider1 == "enemies":
             collider1 = self.main.enemies["colliders"]
-        elif collider1 == "enemies2":
-            collider1 = self.main.enemies["sprites"]
-
-        if collider2 == "touch":
-            collider2 = self.collider["touch"]
 
         return pygame.sprite.groupcollide(collider2, collider1, False, False)
 
-    def rotate(self):
-        angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
-        self.surface["sprite"] = zwave.helper.pygame_rotate(self.surface["original"], angle)
+    def update_angle(self):
 
-    ## method to player/screen movimentation ##
-    def move(self):
+        ## update enemy angle based in player location ##
+        self.angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
+        self.image = zwave.helper.pygame_rotate(self.image_base, self.angle)
+
+    def update_position(self):
 
         ## check if had collision, if had, set last position of view ##
-        if self.collision("walls") or self.collision("enemies"):
+        if self.collision("walls", self.collider2) or self.collision("enemies", self.collider2):
             self.main.x = self.main.last["x"]
             self.main.y = self.main.last["y"]
 
@@ -142,8 +122,7 @@ class Player:
             self.main.x -= velocity
         if keys[pygame.K_d]:
             self.main.x += velocity
-
-    ## method to player shots ##    
+  
     def shot(self):
 
         ## checks if delay for the shot is zero ##
@@ -165,32 +144,43 @@ class Player:
                 self.status["attack"]["delay"] = 50
 
     def update_bullets(self):
+
+        ## get all bullets instances ##
         for sprite in self.status["attack"]["bullets"]:
 
             group = sprite.collider()
 
             ## check collisions ##
             if self.collision("walls", group):
+
+                ## if collide with a wall ##
                 self.status["attack"]["bullets"].remove(sprite)
             elif self.collision("enemies", group):
-                co = self.collision("enemies", group)
-                print(co[sprite][0].up)
+
+                ## if collide with a enemy ##
+                collision = self.collision("enemies", group)
                 self.status["attack"]["bullets"].remove(sprite)
             else:
 
                 ## move bullet and draw on screen ##
                 sprite.update()
-                group.draw(self.main.screen)
 
-    ## method to update player ##
+    def draw(self):
+        self.collider1.draw(self.main.screen)
+        self.collider2.draw(self.main.screen)
+        for sprite in self.status["attack"]["bullets"]:
+            group = sprite.collider()
+            group.draw(self.main.screen)
+
     def update(self):
-
         ## update gunshot timer ##
         if self.status["attack"]["delay"] > 0:
             self.status["attack"]["delay"] -= 1
 
-        self.rotate()
-        self.move()
+        self.update_bullets()
+        self.update_angle()
+        self.update_position()
+        self.update_colliders()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, angle, main):
