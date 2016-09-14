@@ -96,14 +96,13 @@ class Player:
             collider1 = self.main.map.collider["sand"]
         elif collider1 == "enemies":
             collider1 = self.main.enemies["colliders"]
+        elif collider1 == "enemies2":
+            collider1 = self.main.enemies["sprites"]
 
         if collider2 == "touch":
             collider2 = self.collider["touch"]
 
-        if pygame.sprite.groupcollide(collider2, collider1, False, False):
-            return True
-        else:
-            return False
+        return pygame.sprite.groupcollide(collider2, collider1, False, False)
 
     def rotate(self):
         angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
@@ -174,6 +173,8 @@ class Player:
             if self.collision("walls", group):
                 self.status["attack"]["bullets"].remove(sprite)
             elif self.collision("enemies", group):
+                co = self.collision("enemies", group)
+                print(co[sprite][0].up)
                 self.status["attack"]["bullets"].remove(sprite)
             else:
 

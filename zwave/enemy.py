@@ -1,4 +1,3 @@
-import math
 import os
 import random
 
@@ -6,8 +5,7 @@ import pygame
 
 import zwave.helper
 
-
-class Enemy:
+class Enemy(pygame.sprite.Sprite):
 
     ## spaw points ##
     spaws = [
@@ -23,56 +21,31 @@ class Enemy:
         "2x29", "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    ## constructor ##
-    def __init__(self, main, model = '01', width = 65, height = 65):
+    def __init__(self, main, model = "01"):
+        super().__init__()
 
-        ## game main ##
+        ## init values ##
         self.main = main
-
-        ## enemy model ##
         self.model = model
-
-        ## enemy surface ##
-        self.surface = {}
-        self.surface["original"] = None
-        self.surface["sprite"] = pygame.sprite.Sprite()
-
-        ## enemy collider ##
-        self.collider = {}
-        self.collider["sprite1"] = None
-        self.collider["sprite2"] = None
-        self.collider["touch"] = pygame.sprite.Group()
-        self.collider["damage"] = pygame.sprite.Group()
-
-        ## enemy view ##
+        self.size = 65 * main.scale
         self.angle = 0
-        self.x = 0
-        self.y = 0
-        self.width = width * self.main.scale
-        self.height = height * self.main.scale
-        self.last = {}
-        self.last["x"] = None
-        self.last["y"] = None
-        self.relative = {"x": 0, "y": 0} ## relative position to map
+        self.relative = {}
         self.center = {}
-        self.center["x"] = None
-        self.center["y"] = None
-        
-        self.set_position()
-        self.set_surface()
+        self.last = {}
+
+        self.generate_position()
+
+        path = os.path.join("assets", "img", "enemies", "%s.png" % self.model)
+        self.image_base = zwave.helper.pygame_image(path, self.size)
+        self.image = self.image_base
+
+        self.rect = self.image.get_rect()
+        self.rect.x = self.relative["x"]
+        self.rect.y = self.relative["y"]
+
         self.set_colliders()
-        self.rotate()
 
-
-    ## methods to allow external access to object values ##
-    def __getitem__(self, name):
-        if name == "collider":
-            return self.collider
-        if name == "surface":
-            return self.surface
-
-    ## set object position relative to map ##
-    def set_position(self):
+    def generate_position(self):
 
         ## get a random spaw of lis ##
         tile = random.choice(self.spaws).split("x")
@@ -86,67 +59,41 @@ class Enemy:
         self.relative["y"] = y
 
         ## saves the actual position of the enemy, relative to game screen ##
-        self.center["x"] = self.relative["x"] - (self.width / 2)
-        self.center["y"] = self.relative["y"] - (self.height / 2)
+        self.center["x"] = self.relative["x"] - (self.size / 2)
+        self.center["y"] = self.relative["y"] - (self.size / 2)
 
-    ## method to set player surface ##
-    def set_surface(self):
-
-        ## load and scale player model image ##
-        image = os.path.join("assets", "img", "enemies", "%s.png" % self.model)
-        self.surface["original"] = zwave.helper.pygame_image(image, self.width, self.height)
-
-        self.surface["sprite"].image = self.surface["original"]
-        self.surface["sprite"].rect = self.surface["original"].get_rect()
-
-    ## method to draw player collider ##
     def set_colliders(self):
 
-        ## calculate sizes of colliders based on enemy size ##
-        size1 = int(((self.width / 2) + (self.height / 2)) / 2)
-        size2 = int((self.width + self.height) / 2)
+        touch = {}
+        touch["size"] = int(self.size / 2)
+        touch["position"] = {}
+        touch["position"]["x"] = self.center["x"] - (touch["size"] / 2)
+        touch["position"]["y"] = self.center["y"] - (touch["size"] / 2)
 
-        ## make a generic sprite  ##
-        touch = pygame.sprite.Sprite()
-        touch.image = pygame.Surface((size1, size1))
-        damage = pygame.sprite.Sprite()
-        damage.image = pygame.Surface((size2, size2))
+        self.touch = pygame.sprite.Sprite()
+        self.touch.image = pygame.surface.Surface((touch["size"], touch["size"]))
+        self.touch.image.fill((255, 0, 0))
+        self.touch.image.set_colorkey((255, 0, 0))
+        self.touch.rect = self.touch.image.get_rect()
+        self.touch.rect.x = touch["position"]["x"]
+        self.touch.rect.y = touch["position"]["y"]
+        self.touch.up = self
 
-        ## fill the sprite with red and after that make colorkey with red, making the sprite transparent ##
-        touch.image.fill((100, 0, 0))
-        touch.image.set_colorkey((100, 0, 0))
-        damage.image.fill((255, 0, 0))
-        damage.image.set_colorkey((255, 0, 0))
+        self.collider1 = pygame.sprite.GroupSingle(self)
+        self.collider2 = pygame.sprite.GroupSingle(self.touch)
 
-        ## make sprite rect ##
-        touch.rect = touch.image.get_rect()
-        damage.rect = damage.image.get_rect()
+    def update_colliders(self):
 
-        ## set new position ##
-        touch.rect.x = 0
-        touch.rect.y = 0
-        damage.rect.x = 0
-        damage.rect.y = 0
+        touch = {}
+        touch["size"] = int(self.size / 2)
+        touch["position"] = {}
+        touch["position"]["x"] = self.center["x"] - (touch["size"] / 2)
+        touch["position"]["y"] = self.center["y"] - (touch["size"] / 2)
 
-        ## add new collider to colliders group ##
-        self.collider["sprite1"] = touch
-        self.collider["sprite2"] = damage
-        self.collider["damage"].add(self.collider["sprite2"])
-        self.collider["touch"].add(self.collider["sprite1"])
-    
-    def update_collider(self):
-        x1 = (self.x + (self.width / 2)) - (self.collider["sprite1"].rect.width / 2)
-        y1 = (self.y + (self.height / 2)) - (self.collider["sprite1"].rect.height / 2)
-        x2 = (self.x + (self.width / 2)) - (self.collider["sprite2"].rect.width / 2)
-        y2 = (self.y + (self.height / 2)) - (self.collider["sprite2"].rect.height / 2)
+        self.touch.rect.x = touch["position"]["x"]
+        self.touch.rect.y = touch["position"]["y"]
 
-        self.collider["sprite1"].rect.x = x1
-        self.collider["sprite1"].rect.y = y1
-        self.collider["sprite2"].rect.x = x2
-        self.collider["sprite2"].rect.y = y2
-
-    ## method to check if exist collision ##
-    def collision(self, collider1, collider2 = 'touch'):
+    def collision(self, collider1, collider2 = "touch"):
 
         ## check collider 1 ##
         if collider1 == "walls":
@@ -155,21 +102,19 @@ class Enemy:
             collider1 = self.main.player.collider["touch"]
 
         ## collider 2 ##
-        collider2 = self.collider[collider2]
-
-        if pygame.sprite.groupcollide(collider2, collider1, False, False):
-            return True
+        if collider2 == "touch":
+            collider2 = self.collider2
         else:
-            return False
+            collider2 = self.collider1
 
-    def rotate(self):
+        return pygame.sprite.groupcollide(collider2, collider1, False, False)
+
+    def update_angle(self):
         self.angle = zwave.helper.angle_by_two_points(self.center, self.main.player.center)
-        self.surface["sprite"].image = zwave.helper.pygame_rotate(self.surface["original"], self.angle)
+        self.image = zwave.helper.pygame_rotate(self.image_base, self.angle)
 
-    ## method to update enemy view position relative to the map ##
     def update_position(self):
-        
-        ## TODO: find a way to check collisions with other "enemies" ##
+
         ## check if had collision, if had, set last position of view ##
         if self.collision("walls") or self.collision("player"):
             self.relative["x"] = self.last["x"]
@@ -187,19 +132,14 @@ class Enemy:
         self.relative["y"] += velocity["y"]
 
         ## update view ##
-        self.x = self.relative["x"] - self.main.x
-        self.y = self.relative["y"] - self.main.y
+        self.rect.x = self.relative["x"] - self.main.x
+        self.rect.y = self.relative["y"] - self.main.y
 
         ## update enemy center point ##
-        self.center["x"] =  self.x + (self.width / 2)
-        self.center["y"] =  self.y + (self.height / 2)
+        self.center["x"] =  self.rect.x + (self.size / 2)
+        self.center["y"] =  self.rect.y + (self.size / 2)
 
-        ## update sprite position ##
-        self.surface["sprite"].rect.x = self.x
-        self.surface["sprite"].rect.y = self.y
-
-    ## method to update enemy ##
     def update(self):
-        self.rotate()
-        self.update_collider()
+        self.update_angle()
         self.update_position()
+        self.update_colliders()

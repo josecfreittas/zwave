@@ -96,21 +96,18 @@ class Main:
         self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
 
     def set_enemies(self):
-
-        self.enemies["sprites"] = []
-        self.enemies["group"] = pygame.sprite.Group()
+        self.enemies["sprites"] = pygame.sprite.Group()
         self.enemies["colliders"] = pygame.sprite.Group()
 
         amount = math.ceil(self.wave * (self.wave / 2))
-
-        for enemy in range(amount):
-            self.enemies["sprites"].append(Enemy(self))
-            self.enemies["group"].add(self.enemies["sprites"][enemy].surface["sprite"])
-            self.enemies["colliders"].add(self.enemies["sprites"][enemy].collider["sprite1"])
+        for i in range(amount):
+            enemy = Enemy(self)
+            self.enemies["sprites"].add(enemy)
+            self.enemies["colliders"].add(enemy.collider2)
 
     ## method to update enemies ##
     def update_enemies(self):
-        for enemy in self.enemies["sprites"]:
+        for enemy in self.enemies["sprites"].sprites():
             enemy.update()
 
     ## method from game loop ##
@@ -132,7 +129,8 @@ class Main:
             ## draw map ground, enemies, player, map walls and cursor ##
             self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
             self.player.update_bullets()
-            self.enemies["group"].draw(self.screen)
+            self.enemies["sprites"].draw(self.screen)
+            self.enemies["colliders"].draw(self.screen)
             self.screen.blit(self.player.surface["sprite"], (self.player.x, self.player.y))
             self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
             self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
