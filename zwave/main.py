@@ -103,7 +103,7 @@ class Main:
         self.enemies["sprites"] = pygame.sprite.Group()
         self.enemies["colliders"] = pygame.sprite.Group()
 
-        amount = int(math.ceil(self.wave * (self.wave / 2)))
+        amount = int(math.ceil(self.wave * (self.wave / 2.0)))
         for i in range(amount):
             enemy = Enemy(self)
             self.enemies["sprites"].add(enemy)
@@ -229,7 +229,7 @@ class Hub:
 
     def converter(self, part, total, ctype = "percentage"):
         if ctype == "percentage":
-            return (part / total) * 100
+            return (float(part) / float(total)) * 100.0
 
     def draw_lifebar(self):
 
