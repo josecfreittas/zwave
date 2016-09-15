@@ -9,7 +9,7 @@ import zwave.main
 class Player(pygame.sprite.Sprite):
 
     def __init__(self, main, model = "01"):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
 
         
         self.status = {}
@@ -222,7 +222,7 @@ class Player(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, angle, main):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
 
         ## init values ##
         self.angle = angle - 180
@@ -236,7 +236,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x = main.player.center["x"] - (self.size / 2)
         self.rect.y = main.player.center["y"] - (self.size / 2)
 
-        self.velocity = zwave.helper.velocity_by_angle(30, self.angle)
+        self.velocity = zwave.helper.velocity_by_angle(45, self.angle)
         self.sgroup = pygame.sprite.GroupSingle(self)
 
     def update(self):

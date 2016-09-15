@@ -92,7 +92,7 @@ class Map:
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, main, position, columns):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
 
         self.main =  main
         self.size =  64 * self.main.scale

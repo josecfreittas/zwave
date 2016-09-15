@@ -22,7 +22,7 @@ class Enemy(pygame.sprite.Sprite):
     ]
 
     def __init__(self, main, model = "random"):
-        super().__init__()
+        pygame.sprite.Sprite.__init__(self)
 
         if model == "random":
             models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]

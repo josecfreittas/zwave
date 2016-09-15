@@ -3,6 +3,9 @@ import zwave
 
 text = {
     "score": "Score",
-    "life": "Life"
+    "life": "Life",
+    "wave": "Wave",
+    "enemies": "Enemies",
 }
+
 zwave.init(text)
