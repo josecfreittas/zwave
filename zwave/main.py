@@ -53,6 +53,7 @@ class Main:
         self.sound = {}
         self.set_sounds()
 
+        self.hub = Hub(self)
         self.loop()
 
     def set_sounds(self):
@@ -135,7 +136,6 @@ class Main:
             self.player.draw()
 
             self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
-            self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
 
             ## cursor x position ##
             self.cursor["x"] = pygame.mouse.get_pos()[0]
@@ -149,6 +149,12 @@ class Main:
             ## check if the left mouse button is pressed ##
             if pygame.mouse.get_pressed()[0]:
                 self.player.shot()
+            
+            ## draw hub ##
+            self.hub.draw()
+
+            ## draw cursor ##
+            self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
 
             ## increment or reset atual frame ##
             self.frame = (self.frame + 1) if self.frame < self.tick else 0
@@ -158,3 +164,62 @@ class Main:
 
             ## update pygame screen ##
             pygame.display.update()
+
+class Hub:
+    def __init__(self, main):
+
+        ## init values ##
+        self.main = main
+
+        self.avatar = {}
+        self.avatar["width"] = 107
+        self.avatar["height"] = 107
+        self.avatar["x"] = 10
+        self.avatar["y"] = 10
+        self.avatar["image"] = []
+
+        self.lifebar = {}
+        self.lifebar["width"] = 203
+        self.lifebar["height"] = 36
+        self.lifebar["x"] = 63
+        self.lifebar["y"] = 76
+        self.lifebar["bg"] = None
+
+        self.set_surfaces()
+
+    def set_surfaces(self):
+
+        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_01.png")
+        self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
+        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_02.png")
+        self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
+        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_03.png")
+        self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
+
+        self.lifebar["bg"] = pygame.surface.Surface((self.lifebar["width"], self.lifebar["height"]))
+        self.lifebar["bg"].set_alpha(127)
+        self.lifebar["bg"].fill(( 0, 0, 0))
+
+    def converter(self, part, total):
+        return (part / total) * 100
+
+    def draw(self):
+
+        life_percentage = self.converter(self.main.player.status["life"], self.main.player.status["total_life"])
+
+        if life_percentage < 35:
+            avatar = self.avatar["image"][2]
+            color = (195, 100, 70)
+        elif life_percentage < 65:
+            avatar = self.avatar["image"][1]
+            color = (195, 175, 70)
+        else:
+            avatar = self.avatar["image"][0]
+            color = (45, 200, 100)
+
+        self.main.screen.blit(self.lifebar["bg"], (self.lifebar["x"], self.lifebar["y"]))
+
+        pygame.draw.rect(self.main.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, life_percentage * 2, 30))
+
+
+        self.main.screen.blit(avatar, (self.avatar["x"], self.avatar["y"]))

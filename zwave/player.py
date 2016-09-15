@@ -22,7 +22,8 @@ class Player(pygame.sprite.Sprite):
         self.status["weapon"]["bullets"] = []
 
         self.status["life"] = 100
-        self.status["speed"] = 2
+        self.status["total_life"] = 100
+        self.status["speed"] = 2.5
 
         ## init values ##
         self.main = main
@@ -34,7 +35,7 @@ class Player(pygame.sprite.Sprite):
 
         self.generate_position()
 
-        path = os.path.join("assets", "img", "players", "%s.png" % self.model)
+        path = os.path.join("assets", "img", "players", self.model, "sprite.png")
         self.image_base = zwave.helper.pygame_image(path, self.size)
         self.image = self.image_base
 
@@ -184,12 +185,24 @@ class Player(pygame.sprite.Sprite):
 
     def wave_update(self):
 
-        self.status["weapon"]["damage"][0] += 2
-        self.status["weapon"]["damage"][1] += 2
-        self.status["weapon"]["delay"] -= 2
+        if self.status["weapon"]["damage"][0] < 100:
+            self.status["weapon"]["damage"][0] += 10
+            self.status["weapon"]["damage"][1] += 20
 
-        self.status["life"] += 10
-        self.status["speed"] += 0.1
+        if self.status["weapon"]["delay"] > 10:
+            self.status["weapon"]["delay"] -= 2
+
+        if self.status["total_life"] < 300:
+            self.status["total_life"] += 10
+
+        if self.status["life"] < self.status["total_life"]:
+            if (self.status["total_life"] - self.status["life"]) >= 10:
+                self.status["life"] += 10
+            else:
+                self.status["life"] += self.status["total_life"] - self.status["life"]
+
+        if self.status["speed"] < 4: 
+            self.status["speed"] += 0.1
 
     def update(self):
 

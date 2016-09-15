@@ -10,7 +10,12 @@
  - [x] Player collision with walls and enemies
  - [x] Player Gun shots
  - [x] Player Gun shot sound
+ - [x] Player atributes: life, speed, attack speed, damage
+ - [x] Dynamic growth of the attributes of the player, according to the current game wave
  - [x] Enemies rotation
  - [x] Enemies movement
  - [x] Enemies collision with walls and player
+ - [x] Enemies collision with walls and player
+ - [x] Enemies atributes: life, speed, attack speed, damage
+ - [x] Dynamic growth of the attributes of the enemies, according to the current game wave
  - [x] Background music

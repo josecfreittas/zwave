@@ -28,13 +28,26 @@ class Enemy(pygame.sprite.Sprite):
         self.status = {}
 
         self.status["delay"] = 52 + (-2 * main.wave)
+        if self.status["delay"] < 10:
+            self.status["delay"] = 10
+
         self.status["timer"] = 0
         self.status["damage"] = [23, 43]
         self.status["damage"][0] += (2 * main.wave)
         self.status["damage"][1] += (2 * main.wave)
+        if self.status["damage"][0] > 100:
+            self.status["damage"][0] = 100
+            self.status["damage"][1] = 120
 
         self.status["life"] = 80 + (15 * main.wave)
+        if self.status["life"] > 500:
+            self.status["life"] = 500
+            self.status["total_life"] = 500
+        self.status["total_life"] = self.status["life"]
+
         self.status["speed"] = 1 + (0.15 * main.wave)
+        if self.status["speed"] > 3.5:
+            self.status["speed"] = 3.5
 
         ## init values ##
         self.main = main
@@ -130,7 +143,7 @@ class Enemy(pygame.sprite.Sprite):
         self.last["y"] = self.relative["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.velocity_by_angle(1 * self.main.scale, self.angle)
+        velocity = zwave.helper.velocity_by_angle(self.status["speed"] * self.main.scale, self.angle)
 
         ## move ##
         self.relative["x"] += velocity["x"]
