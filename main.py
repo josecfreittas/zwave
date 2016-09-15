@@ -1,4 +1,8 @@
 #--*-- conding: utf-8 --*--
 import zwave
 
-zwave.init()
+text = {
+    "score": "Score",
+    "life": "Life"
+}
+zwave.init(text)

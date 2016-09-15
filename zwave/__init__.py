@@ -1,4 +1,4 @@
 import zwave.main
 
-def init():
-    zwave.main.Main()
+def init(text):
+    zwave.main.Main(text)

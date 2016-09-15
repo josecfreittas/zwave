@@ -24,6 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.status["life"] = 100
         self.status["total_life"] = 100
         self.status["speed"] = 2.5
+        self.status["score"] = 0
 
         ## init values ##
         self.main = main
@@ -205,6 +206,10 @@ class Player(pygame.sprite.Sprite):
             self.status["speed"] += 0.1
 
     def update(self):
+
+        if self.status["life"] <= 0:
+            self.touch.kill()
+            self.kill()
 
         ## update gunshot timer ##
         if self.status["weapon"]["timer"] > 0:

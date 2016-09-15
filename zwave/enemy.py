@@ -21,13 +21,17 @@ class Enemy(pygame.sprite.Sprite):
         "2x29", "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    def __init__(self, main, model = "01"):
+    def __init__(self, main, model = "random"):
         super().__init__()
 
-        
+        if model == "random":
+            models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
+            model = random.choice(models)
+
         self.status = {}
 
-        self.status["delay"] = 52 + (-2 * main.wave)
+        self.status["delay"] = 62 + (-2 * main.wave)
+        self.status["timer"] = 0
         if self.status["delay"] < 10:
             self.status["delay"] = 10
 
@@ -43,11 +47,18 @@ class Enemy(pygame.sprite.Sprite):
         if self.status["life"] > 500:
             self.status["life"] = 500
             self.status["total_life"] = 500
-        self.status["total_life"] = self.status["life"]
 
         self.status["speed"] = 1 + (0.15 * main.wave)
         if self.status["speed"] > 3.5:
             self.status["speed"] = 3.5
+
+        if model == "headcrab":
+            self.status["speed"] *= 3
+            self.status["life"] = int(0.5 * self.status["life"])
+            self.status["damage"][0] = int(0.5 * self.status["damage"][0])
+            self.status["damage"][1] = int(0.5 * self.status["damage"][1])
+
+        self.status["total_life"] = self.status["life"]
 
         ## init values ##
         self.main = main
@@ -60,7 +71,8 @@ class Enemy(pygame.sprite.Sprite):
 
         self.generate_position()
 
-        path = os.path.join("assets", "img", "enemies", "%s.png" % self.model)
+        color = random.randint(1, 9)
+        path = os.path.join("assets", "img", "enemies", model, "%i.png" % color)
         self.image_base = zwave.helper.pygame_image(path, self.size)
         self.image = self.image_base
 
@@ -156,11 +168,36 @@ class Enemy(pygame.sprite.Sprite):
         ## update enemy center point ##
         self.center["x"] =  self.rect.x + (self.size / 2)
         self.center["y"] =  self.rect.y + (self.size / 2)
+    
+    def attack(self):
+
+        ## random damage by weapon damage range ##
+        damage = random.randint(self.status["damage"][0], self.status["damage"][1])
+
+        ## check if has collision with player ##
+        if self.collision("player", self.collider1):
+
+            ## decrease player life and set timer for next attack ##
+            self.main.player.status["life"] -= damage
+            self.status["timer"] = self.status["delay"]
+
+            self.main.sound["channels"]["enemies_attacks"].play(self.main.sound["bite"], 0)
 
     def update(self):
+
+        ## kill if enemy has no life ##
         if self.status["life"] <= 0:
             self.touch.kill()
             self.kill()
+
+            ## increse player score ##
+            self.main.player.status["score"] += 100
+
+        ## update gunshot timer ##
+        if self.status["timer"] > 0:
+            self.status["timer"] -= 1
+        else:
+            self.attack()
 
         self.update_angle()
         self.update_position()

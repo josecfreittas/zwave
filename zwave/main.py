@@ -10,8 +10,9 @@ from zwave.player import *
 
 
 class Main:
-    def __init__(self, scale = 1, width = 1024, height = 512):
+    def __init__(self, text, scale = 1, width = 1024, height = 512):
 
+        self.text = text
         ## game status ##
         self.wave = 1
 
@@ -71,9 +72,10 @@ class Main:
         self.sound["channels"] = {}
         self.sound["channels"]["steps"] = pygame.mixer.Channel(2)
         self.sound["channels"]["attacks"] = pygame.mixer.Channel(3)
+        self.sound["channels"]["enemies_attacks"] = pygame.mixer.Channel(4)
 
         ## load, set volume and init music background ##
-        pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "02.ogg"))
+        pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "1.ogg"))
         pygame.mixer.music.set_volume(self.sound["volume"]["music"] * self.sound["volume"]["geral"])
         pygame.mixer.music.play(-1)
 
@@ -84,7 +86,10 @@ class Main:
         ## gun shot sound ##
         self.sound["channels"]["attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
         self.sound["gunshot"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "gunshot.ogg"))
-    
+
+        ## enemy attack sound ##
+        self.sound["channels"]["enemies_attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["bite"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "bite.ogg"))
 
     def set_cursor(self):
         pygame.mouse.set_visible(False)
@@ -168,6 +173,10 @@ class Main:
 class Hub:
     def __init__(self, main):
 
+        pygame.font.init()
+        self.font = {}
+        self.font["default"] = pygame.font.Font(pygame.font.get_default_font(), 14)
+
         ## init values ##
         self.main = main
 
@@ -184,6 +193,14 @@ class Hub:
         self.lifebar["x"] = 63
         self.lifebar["y"] = 76
         self.lifebar["bg"] = None
+        self.lifebar["text"] = None
+
+        self.score = {}
+        self.score["height"] = 36
+        self.score["x"] = 80
+        self.score["y"] = 30
+        self.score["bg"] = None
+        self.score["text"] = None
 
         self.set_surfaces()
 
@@ -221,5 +238,26 @@ class Hub:
 
         pygame.draw.rect(self.main.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, life_percentage * 2, 30))
 
+        self.lifebar["text"] = self.font["default"].render(
+            "%s: %i / %i" % (self.main.text["life"].upper(), self.main.player.status["life"], self.main.player.status["total_life"]),
+             1,
+             (255,255,255)
+        )
+        surface = pygame.Surface((self.lifebar["width"] - 6, self.lifebar["height"] - 12))
+        surface.fill((0, 0, 0))
+        surface.blit(self.lifebar["text"], pygame.Rect(60, 5, self.lifebar["text"].get_rect().width, self.lifebar["text"].get_rect().height))
+        surface.set_alpha(150)
+        self.main.screen.blit(surface, (self.lifebar["x"], self.lifebar["y"] + 6))
+
+        self.score["text"] = self.font["default"].render(
+            "%s: %i" % (self.main.text["score"].upper(), self.main.player.status["score"]),
+             1,
+             (255,255,255)
+        )
+        surface = pygame.Surface((self.score["text"].get_rect().width + 60, self.score["height"] - 6))
+        surface.fill((0, 0, 0))
+        surface.blit(self.score["text"], pygame.Rect(43, 8, self.score["text"].get_rect().width, self.score["text"].get_rect().height))
+        surface.set_alpha(150)
+        self.main.screen.blit(surface, (self.score["x"], self.score["y"] + 6))
 
         self.main.screen.blit(avatar, (self.avatar["x"], self.avatar["y"]))

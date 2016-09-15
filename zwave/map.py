@@ -53,14 +53,15 @@ class Map:
         ## loop for all the tiles ##
         for key, tile in enumerate(self.collider["raw"]):
 
-            ## make a generic sprite with size of map tiles  ##
-            sprite = Tile(self.main, key, 32)
-            self.collider["sprites"][key] = sprite
-
             ## if current tile is a wall, add in wall group ##
             if tile == 'W':
-                self.collider["walls"].add(self.collider["sprites"][key])
 
+                ## make a generic sprite with size of map tiles  ##
+                sprite = Tile(self.main, key, 32)
+                self.collider["sprites"][key] = sprite
+                self.collider["walls"].add(self.collider["sprites"][key])
+            
+            '''
             ## if current tile is grass, add in grass group ##
             elif tile == 'G':
                 self.collider["grass"].add(self.collider["sprites"][key])
@@ -72,6 +73,7 @@ class Map:
             ## if current tile is sand, add in sand group ##
             elif tile == 'S':
                 self.collider["sand"].add(self.collider["sprites"][key])
+            '''
 
     def update_colliders(self):
 
