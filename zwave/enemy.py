@@ -29,47 +29,40 @@ class Enemy(pygame.sprite.Sprite):
             models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
             model = random.choice(models)
 
-        self.status = {}
+        self.delay = 62 + (-2 * main.wave)
+        self.timer = 0
+        if self.delay < 10:
+            self.delay = 10
 
-        self.status["delay"] = 62 + (-2 * main.wave)
-        self.status["timer"] = 0
-        if self.status["delay"] < 10:
-            self.status["delay"] = 10
+        self.timer = 0
+        self.damage = [23, 43]
+        self.damage[0] += (2 * main.wave)
+        self.damage[1] += (2 * main.wave)
+        if self.damage[0] > 100:
+            self.damage[0] = 100
+            self.damage[1] = 120
 
-        self.status["timer"] = 0
-        self.status["damage"] = [23, 43]
-        self.status["damage"][0] += (2 * main.wave)
-        self.status["damage"][1] += (2 * main.wave)
-        if self.status["damage"][0] > 100:
-            self.status["damage"][0] = 100
-            self.status["damage"][1] = 120
+        self.life = 80 + (15 * main.wave)
+        if self.life > 500:
+            self.life = 500
+            self.total_life = 500
 
-        self.status["life"] = 80 + (15 * main.wave)
-        if self.status["life"] > 500:
-            self.status["life"] = 500
-            self.status["total_life"] = 500
-
-        self.status["speed"] = 1 + (0.15 * main.wave)
-        if self.status["speed"] > 3.5:
-            self.status["speed"] = 3.5
+        self.speed = 1 + (0.15 * main.wave)
+        if self.speed > 3.5:
+            self.speed = 3.5
 
         if model == "headcrab":
-            self.status["speed"] *= 3
-            self.status["life"] = int(0.5 * self.status["life"])
-            self.status["damage"][0] = int(0.5 * self.status["damage"][0])
-            self.status["damage"][1] = int(0.5 * self.status["damage"][1])
+            self.speed *= 3
+            self.life = int(0.5 * self.life)
+            self.damage[0] = int(0.5 * self.damage[0])
+            self.damage[1] = int(0.5 * self.damage[1])
 
-        self.status["total_life"] = self.status["life"]
+        self.total_life = self.life
 
         ## init values ##
         self.main = main
         self.model = model
-
         if self.model == "zombie":
-            print("")
-            print(channel + 1)
-            print(pygame.mixer.get_num_channels())
-            print("")
             self.channel = pygame.mixer.Channel(channel + 1)
 
         self.player_distance = None
@@ -165,7 +158,7 @@ class Enemy(pygame.sprite.Sprite):
         self.last["y"] = self.relative["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.velocity_by_angle(self.status["speed"] * self.main.scale, self.angle)
+        velocity = zwave.helper.velocity_by_angle(self.speed * self.main.scale, self.angle)
 
         ## move ##
         self.relative["x"] += velocity["x"]
@@ -184,14 +177,14 @@ class Enemy(pygame.sprite.Sprite):
     def attack(self):
 
         ## random damage by weapon damage range ##
-        damage = random.randint(self.status["damage"][0], self.status["damage"][1])
+        damage = random.randint(self.damage[0], self.damage[1])
 
         ## check if has collision with player ##
         if self.collision("player", self.collider1):
 
             ## decrease player life and set timer for next attack ##
-            self.main.player.status["life"] -= damage
-            self.status["timer"] = self.status["delay"]
+            self.main.player.life -= damage
+            self.timer = self.delay
 
             self.main.sound["channels"]["enemies_attacks"].play(self.main.sound["bite"], 0)
 
@@ -212,8 +205,8 @@ class Enemy(pygame.sprite.Sprite):
     def update(self):
 
         ## update gunshot timer ##
-        if self.status["timer"] > 0:
-            self.status["timer"] -= 1
+        if self.timer > 0:
+            self.timer -= 1
         else:
             self.attack()
 
@@ -225,9 +218,9 @@ class Enemy(pygame.sprite.Sprite):
             self.sound()
 
         ## kill if enemy has no life ##
-        if self.status["life"] <= 0:
+        if self.life <= 0:
             ## increse player score ##
-            self.main.player.status["score"] += 100
+            self.main.player.score += 100
 
             if self.model == "zombie":
                 self.channel.stop()

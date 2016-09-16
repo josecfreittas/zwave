@@ -28,11 +28,21 @@ def angle_by_two_points(point1, point2):
 	rads %= 2 * math.pi
 	return math.degrees(rads)
 
-def pygame_image(image, width, height = False):
+def pygame_image(image, width, height = False, alpha = True):
+
+    ## if the height was not informed, it will be equal to the width ##
     if not height:
         height = width
-    image = pygame.image.load(image).convert_alpha()
+
+    ## load image ##
+    image = pygame.image.load(image)
+
+    ## convet with alpha or not ##
+    image = image.convert_alpha() if alpha else image.convert()
+
+    ## scale image ##
     image = pygame.transform.scale(image, (width, height))
+
     return image
 
 def pygame_sprite_by_image(image, width, height = False):
@@ -47,9 +57,16 @@ def pygame_sprite_by_image(image, width, height = False):
 
     return sprite
 
-def pygame_rotate(sprite, angle):
+def pygame_rotate(image, angle):
 
-    area = sprite.get_rect()
-    new = pygame.transform.rotozoom(sprite, angle, 1)
+    ## new rect from original image rect ##
+    area = image.get_rect()
+
+    ## make new image already rotated ##
+    new = pygame.transform.rotozoom(image, angle, 1)
+
+    ## center new rect with new rotated image ##
     area.center = new.get_rect().center
+
+    ## return a copy of the new rotated image, centralized in the correct position ##
     return new.subsurface(area).copy()

@@ -12,7 +12,9 @@ from zwave.player import *
 class Main:
     def __init__(self, text, scale = 1, width = 1024, height = 512):
 
+        ## language load ##
         self.text = text
+
         ## game status ##
         self.wave = 1
 
@@ -189,9 +191,11 @@ class Hub:
     def __init__(self, main):
 
         pygame.font.init()
+
         self.font = {}
-        self.font["default"] = pygame.font.Font(pygame.font.get_default_font(), 14)
-        self.font["big"] = pygame.font.Font(pygame.font.get_default_font(), 50)
+        path = os.path.join("assets", "fonts", "Renogare.ttf")
+        self.font["default"] = pygame.font.Font(path, 14)
+        self.font["big"] = pygame.font.Font(path, 50)
 
         ## init values ##
         self.main = main
@@ -218,13 +222,18 @@ class Hub:
 
         self.wave = {}
         self.wave["height"] = 30
-        self.wave["x"] = self.main.width - 10
-        self.wave["y"] = 10
+        self.wave["x"] = self.main.width - 15
+        self.wave["y"] = 50
 
         self.enemies = {}
         self.enemies["height"] = 30
-        self.enemies["x"] = self.main.width - 10
-        self.enemies["y"] = 45
+        self.enemies["x"] = self.main.width - 15
+        self.enemies["y"] = 15
+
+        self.attributes = {}
+        self.attributes["height"] = 30
+        self.attributes["x"] = self.main.width - 15
+        self.attributes["y"] = self.main.height - 15
 
         self.set_surfaces()
 
@@ -264,13 +273,13 @@ class Hub:
         pygame.draw.rect(self.main.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life_percentage * 2, 30))
 
         ## lifebar text ##
-        text = "%s: %i / %i" % (self.main.text["life"].upper(), self.main.player.status["life"], self.main.player.status["total_life"])
+        text = "%s: %i / %i" % (self.main.text["life"].upper(), self.main.player.life, self.main.player.total_life)
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## lifebar text background ##
         surface = pygame.Surface((self.lifebar["width"] - 6, self.lifebar["height"] - 12))
         surface.fill((0, 0, 0))
-        surface.blit(text, pygame.Rect(60, 5, text.get_rect().width, text.get_rect().height))
+        surface.blit(text, pygame.Rect(60, 6, text.get_rect().width, text.get_rect().height))
         surface.set_alpha(150)
 
         ## draw text and text background ##
@@ -279,13 +288,13 @@ class Hub:
     def draw_score(self):
 
         ## score text ##
-        text = "%s: %i" % (self.main.text["score"].upper(), self.main.player.status["score"])
+        text = "%s: %i" % (self.main.text["score"].upper(), self.main.player.score)
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## score background ##
         surface = pygame.Surface((text.get_rect().width + 60, self.score["height"]))
         surface.fill((0, 0, 0))
-        surface.blit(text, pygame.Rect(43, 8, text.get_rect().width, text.get_rect().height))
+        surface.blit(text, pygame.Rect(43, 9, text.get_rect().width, text.get_rect().height))
         surface.set_alpha(150)
 
         ## draw score ##
@@ -313,7 +322,7 @@ class Hub:
         ## wave background ##
         surface = pygame.Surface((text.get_rect().width + 16, self.wave["height"]))
         surface.fill((0, 0, 0))
-        surface.blit(text, pygame.Rect(8, 8, text.get_rect().width, text.get_rect().height))
+        surface.blit(text, pygame.Rect(8, 9, text.get_rect().width, text.get_rect().height))
         surface.set_alpha(150)
 
         ## draw wave ##
@@ -328,7 +337,7 @@ class Hub:
         ## enemies background ##
         surface = pygame.Surface((text.get_rect().width + 16, self.enemies["height"]))
         surface.fill((0, 0, 0))
-        surface.blit(text, pygame.Rect(8, 8, text.get_rect().width, text.get_rect().height))
+        surface.blit(text, pygame.Rect(8, 9, text.get_rect().width, text.get_rect().height))
         surface.set_alpha(150)
 
         ## draw enemies ##
@@ -347,9 +356,9 @@ class Hub:
             text = self.font["big"].render(text, 1, (255,255,255))
 
             ## timer background ##
-            surface = pygame.Surface((text.get_rect().width + 16, text.get_rect().height + 6))
+            surface = pygame.Surface((100, text.get_rect().height + 6))
             surface.fill((0, 0, 0))
-            surface.blit(text, pygame.Rect(8, 8, text.get_rect().width, text.get_rect().height))
+            surface.blit(text, pygame.Rect(50 - (text.get_rect().width / 2), 9, text.get_rect().width, text.get_rect().height))
             surface.set_alpha(150)
 
             ## draw timer ##
@@ -357,14 +366,36 @@ class Hub:
             y = self.main.center["y"] - (surface.get_rect().height * 3)
             self.main.screen.blit(surface, (x, y))
 
+    def draw_attributes(self):
+
+        ## timer text ##
+        speed = "%s: %.1f" % (self.main.text["speed"], self.main.player.speed)
+        attackspeed = "%s: %.1f" % (self.main.text["attack_speed"], self.main.player.weapon["delay"] / float(self.main.tick))
+        damage = "%i - %i" % (self.main.player.weapon["damage"][0], self.main.player.weapon["damage"][1])
+        damage = "%s: [%s]" % (self.main.text["damage"], damage)
+        text = "%s  |  %s  |  %s" % (speed, attackspeed, damage)
+        text = self.font["default"].render(text.upper(), 1, (255,255,255))
+
+        ## timer background ##
+        surface = pygame.Surface((text.get_rect().width + 16, text.get_rect().height + 12))
+        surface.fill((0, 0, 0))
+        surface.blit(text, pygame.Rect(8, 7, text.get_rect().width, text.get_rect().height))
+        surface.set_alpha(150)
+
+        ## draw timer ##
+        x = self.attributes["x"] - surface.get_rect().width
+        y = self.attributes["y"] - surface.get_rect().height
+        self.main.screen.blit(surface, (x, y))
+
     def draw(self):
         self.draw_lifebar()
         self.draw_score()
         self.draw_avatar()
         self.draw_wave()
         self.draw_enemies()
+        self.draw_attributes()
         self.draw_wave_timer()
 
     def update(self):
-        self.life_percentage = self.converter(self.main.player.status["life"], self.main.player.status["total_life"])
+        self.life_percentage = self.converter(self.main.player.life, self.main.player.total_life)
         self.draw()
