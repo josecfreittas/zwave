@@ -17,5 +17,7 @@
  - [x] Enemies collision with walls and player
  - [x] Enemies collision with walls and player
  - [x] Enemies atributes: life, speed, attack speed, damage
+ - [x] Enemies sounds
  - [x] Dynamic growth of the attributes of the enemies, according to the current game wave
  - [x] Background music
+ - [x] Game interface
