@@ -21,7 +21,8 @@ class Enemy(pygame.sprite.Sprite):
         "2x29", "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    def __init__(self, main, model = "random"):
+    def __init__(self, main, channel, model = "random"):
+
         pygame.sprite.Sprite.__init__(self)
 
         if model == "random":
@@ -63,6 +64,15 @@ class Enemy(pygame.sprite.Sprite):
         ## init values ##
         self.main = main
         self.model = model
+
+        if self.model == "zombie":
+            print("")
+            print(channel + 1)
+            print(pygame.mixer.get_num_channels())
+            print("")
+            self.channel = pygame.mixer.Channel(channel + 1)
+
+        self.player_distance = None
         self.size = 65 * main.scale
         self.angle = 0
         self.relative = {}
@@ -72,7 +82,7 @@ class Enemy(pygame.sprite.Sprite):
         self.generate_position()
 
         color = random.randint(1, 9)
-        path = os.path.join("assets", "img", "enemies", model, "%i.png" % color)
+        path = os.path.join("assets", "img", "enemies", self.model, "%i.png" % color)
         self.image_base = zwave.helper.pygame_image(path, self.size)
         self.image = self.image_base
 
@@ -168,7 +178,9 @@ class Enemy(pygame.sprite.Sprite):
         ## update enemy center point ##
         self.center["x"] =  self.rect.x + (self.size / 2)
         self.center["y"] =  self.rect.y + (self.size / 2)
-    
+
+        self.player_distance = (((self.main.player.center["x"] - self.center["x"]) ** 2) + ((self.main.player.center["y"] - self.center["y"]) ** 2)) ** 0.5
+
     def attack(self):
 
         ## random damage by weapon damage range ##
@@ -183,15 +195,21 @@ class Enemy(pygame.sprite.Sprite):
 
             self.main.sound["channels"]["enemies_attacks"].play(self.main.sound["bite"], 0)
 
+    def sound(self):
+        if not self.channel.get_busy():
+            sound = "enemy" + str(random.randint(1, 4))
+            self.channel.play(self.main.sound[sound], 0)
+        
+        volume_distance = (100 - (self.player_distance / 5)) * 0.01
+        volume_geral = self.main.sound["volume"]["effects"] * self.main.sound["volume"]["geral"]
+        volume = (volume_geral * volume_distance) * 0.8
+
+        if volume < 0:
+            volume = 0
+
+        self.channel.set_volume(volume)
+
     def update(self):
-
-        ## kill if enemy has no life ##
-        if self.status["life"] <= 0:
-            self.touch.kill()
-            self.kill()
-
-            ## increse player score ##
-            self.main.player.status["score"] += 100
 
         ## update gunshot timer ##
         if self.status["timer"] > 0:
@@ -202,3 +220,18 @@ class Enemy(pygame.sprite.Sprite):
         self.update_angle()
         self.update_position()
         self.update_colliders()
+
+        if self.model == "zombie":
+            self.sound()
+
+        ## kill if enemy has no life ##
+        if self.status["life"] <= 0:
+            ## increse player score ##
+            self.main.player.status["score"] += 100
+
+            if self.model == "zombie":
+                self.channel.stop()
+                self.channel = None
+
+            self.touch.kill()
+            self.kill()

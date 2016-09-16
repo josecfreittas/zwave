@@ -28,9 +28,14 @@ class Main:
         ## framerate ##
         self.tick = 40
         self.frame = 0
+        self.timer = 241
 
         ## game screen ##
         self.screen = pygame.display.set_mode((self.width, self.height))
+
+        ## game sounds ##
+        self.sound = {}
+        self.set_sounds()
 
         ## game cursor ##
         self.cursor = {}
@@ -50,10 +55,6 @@ class Main:
         self.enemies = {}
         self.set_enemies()
 
-        ## game sounds ##
-        self.sound = {}
-        self.set_sounds()
-
         self.hub = Hub(self)
         self.loop()
 
@@ -61,21 +62,22 @@ class Main:
 
         self.sound["volume"] = {}
         self.sound["volume"]["geral"] = 1
-        self.sound["volume"]["music"] = 0.5
+        self.sound["volume"]["music"] = 0.2
         self.sound["volume"]["effects"] = 0.8
 
         ## init pygame mixer and configure ##
-        pygame.mixer.init(44100, -16, 2, 512)
-        pygame.mixer.set_num_channels(8)
+        pygame.mixer.init(22050, -16, 1, 512)
+        pygame.mixer.buffersize = 512
+        pygame.mixer.set_num_channels(34)
 
         ## set channels ##
         self.sound["channels"] = {}
-        self.sound["channels"]["steps"] = pygame.mixer.Channel(2)
-        self.sound["channels"]["attacks"] = pygame.mixer.Channel(3)
-        self.sound["channels"]["enemies_attacks"] = pygame.mixer.Channel(4)
+        self.sound["channels"]["steps"] = pygame.mixer.Channel(31)
+        self.sound["channels"]["attacks"] = pygame.mixer.Channel(32)
+        self.sound["channels"]["enemies_attacks"] = pygame.mixer.Channel(33)
 
         ## load, set volume and init music background ##
-        pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "1.ogg"))
+        pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "2.ogg"))
         pygame.mixer.music.set_volume(self.sound["volume"]["music"] * self.sound["volume"]["geral"])
         pygame.mixer.music.play(-1)
 
@@ -91,6 +93,12 @@ class Main:
         self.sound["channels"]["enemies_attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
         self.sound["bite"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "bite.ogg"))
 
+        ## zombies sounds ##
+        self.sound["enemy1"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "enemies", "zombies", "1.ogg"))
+        self.sound["enemy2"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "enemies", "zombies", "2.ogg"))
+        self.sound["enemy3"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "enemies", "zombies", "3.ogg"))
+        self.sound["enemy4"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "enemies", "zombies", "4.ogg"))
+
     def set_cursor(self):
         pygame.mouse.set_visible(False)
         self.cursor["x"] = 0
@@ -104,8 +112,10 @@ class Main:
         self.enemies["colliders"] = pygame.sprite.Group()
 
         amount = int(math.ceil(self.wave * (self.wave / 2.0)))
+        if amount > 30:
+            amount = 30
         for i in range(amount):
-            enemy = Enemy(self)
+            enemy = Enemy(self, i)
             self.enemies["sprites"].add(enemy)
             self.enemies["colliders"].add(enemy.collider2)
 
@@ -113,9 +123,13 @@ class Main:
         for enemy in self.enemies["sprites"].sprites():
             enemy.update()
         if not self.enemies["sprites"].sprites():
-            self.wave += 1
-            self.set_enemies()
-            self.player.wave_update()
+            if self.timer > 0:
+                self.timer -= 1
+            else:
+                self.wave += 1
+                self.set_enemies()
+                self.player.wave_update()
+                self.timer = 241
 
     def loop(self):
 
@@ -126,6 +140,7 @@ class Main:
         while running:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
+            self.screen.fill((100, 125, 130))
 
             ## update map, player, enemies ##
             self.map.update()
@@ -176,6 +191,7 @@ class Hub:
         pygame.font.init()
         self.font = {}
         self.font["default"] = pygame.font.Font(pygame.font.get_default_font(), 14)
+        self.font["big"] = pygame.font.Font(pygame.font.get_default_font(), 50)
 
         ## init values ##
         self.main = main
@@ -318,12 +334,36 @@ class Hub:
         ## draw enemies ##
         self.main.screen.blit(surface, (self.enemies["x"] - surface.get_rect().width, self.enemies["y"]))
 
+    def draw_wave_timer(self):
+
+        ## checks if the timer is being modified ##
+        if self.main.timer < 241:
+
+            ## get seconds ##
+            timer = int(self.main.timer / self.main.tick)
+
+            ## timer text ##
+            text = "%i" % (timer)
+            text = self.font["big"].render(text, 1, (255,255,255))
+
+            ## timer background ##
+            surface = pygame.Surface((text.get_rect().width + 16, text.get_rect().height + 6))
+            surface.fill((0, 0, 0))
+            surface.blit(text, pygame.Rect(8, 8, text.get_rect().width, text.get_rect().height))
+            surface.set_alpha(150)
+
+            ## draw timer ##
+            x = self.main.center["x"] - (surface.get_rect().width / 2)
+            y = self.main.center["y"] - (surface.get_rect().height * 3)
+            self.main.screen.blit(surface, (x, y))
+
     def draw(self):
         self.draw_lifebar()
         self.draw_score()
         self.draw_avatar()
         self.draw_wave()
         self.draw_enemies()
+        self.draw_wave_timer()
 
     def update(self):
         self.life_percentage = self.converter(self.main.player.status["life"], self.main.player.status["total_life"])

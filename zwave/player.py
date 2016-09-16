@@ -236,7 +236,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x = main.player.center["x"] - (self.size / 2)
         self.rect.y = main.player.center["y"] - (self.size / 2)
 
-        self.velocity = zwave.helper.velocity_by_angle(45, self.angle)
+        self.velocity = zwave.helper.velocity_by_angle(35, self.angle)
         self.sgroup = pygame.sprite.GroupSingle(self)
 
     def update(self):
