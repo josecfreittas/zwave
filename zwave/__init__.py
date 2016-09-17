@@ -1,4 +1,4 @@
 import zwave.main
 
-def init(text):
-    zwave.main.Main(text)
+def init(text, scale, width, height, fullscreen):
+    zwave.main.Main(text, scale, width, height, fullscreen)

@@ -10,19 +10,16 @@ from zwave.player import *
 
 
 class Main:
-    def __init__(self, text, scale = 1, width = 1024, height = 512):
+    def __init__(self, text, scale, width, height, fullscreen):
 
-        ## language load ##
+        ## init values ##
+        self.fullscreen = fullscreen
         self.text = text
-
-        ## game status ##
-        self.wave = 1
-
-        ## game view ##
         self.last = {}
         self.scale = scale
         self.width = width
         self.height = height
+        self.wave = 1
         self.center = {}
         self.center["x"] = self.width / 2
         self.center["y"] = self.height / 2
@@ -33,7 +30,11 @@ class Main:
         self.timer = 241
 
         ## game screen ##
-        self.screen = pygame.display.set_mode((self.width, self.height))
+
+        if self.fullscreen:
+            self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
+        else:
+            self.screen = pygame.display.set_mode((self.width, self.height))
 
         ## game sounds ##
         self.sound = {}
@@ -163,7 +164,11 @@ class Main:
             self.cursor["x"] = pygame.mouse.get_pos()[0]
             self.cursor["y"] = pygame.mouse.get_pos()[1]
 
-            ## events hunter ##
+            ## game quit ##
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE] and self.fullscreen:
+                running = False
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
