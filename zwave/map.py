@@ -60,7 +60,7 @@ class Map:
                 sprite = Tile(self.main, key, 32)
                 self.collider["sprites"][key] = sprite
                 self.collider["walls"].add(self.collider["sprites"][key])
-            
+
             '''
             FOR FUTURE USE:
 

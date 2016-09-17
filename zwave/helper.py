@@ -45,7 +45,7 @@ def pygame_image(image, width, height = False, alpha = True):
 
     return image
 
-def pygame_sprite_by_image(image, width, height = False):
+def pygame_sprite_by_image(image):
 
     ## make a generic sprite  ##
     sprite = pygame.sprite.Sprite()
@@ -70,3 +70,26 @@ def pygame_rotate(image, angle):
 
     ## return a copy of the new rotated image, centralized in the correct position ##
     return new.subsurface(area).copy()
+
+def pygame_button(text, font, x, y, color = (0, 0, 0), center = False):
+
+    ## start game button ##
+    text = font.render(text, 1, (255,255,255))
+    surface = pygame.Surface((text.get_rect().width + 50, text.get_rect().height + 20))
+    surface.fill(color)
+
+    x1 = ((text.get_rect().width + 50) / 2) - (text.get_rect().width / 2)
+    y1 = 15
+
+    surface.blit(text, pygame.Rect(x1, y1, text.get_rect().width, text.get_rect().height))
+    surface.set_alpha(150)
+
+    button = pygame_sprite_by_image(surface)
+
+    if center:
+        x2 = x - (surface.get_rect().width / 2)
+        y2 = y - (surface.get_rect().height / 2)
+
+    button.rect.x = x2
+    button.rect.y = y2
+    return pygame.sprite.GroupSingle(button)

@@ -5,5 +5,8 @@
     "enemies": "Inimigos",
     "speed": "Velocidade",
     "attack_speed": "Velocidade de ataque",
-    "damage": "Dano"
+    "damage": "Dano",
+    "start": "Começar novo jogo",
+    "exit": "Fechar",
+    "settings": "Configurações"
 }
