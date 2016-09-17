@@ -254,7 +254,10 @@ class Hub:
 
     def converter(self, part, total, ctype = "percentage"):
         if ctype == "percentage":
-            return (float(part) / float(total)) * 100.0
+            value = (float(part) / total) * 100.0
+            if value < 0:
+                value = 0
+            return value
 
     def draw_lifebar(self):
 
@@ -370,7 +373,8 @@ class Hub:
 
         ## timer text ##
         speed = "%s: %.1f" % (self.main.text["speed"], self.main.player.speed)
-        attackspeed = "%s: %.1f" % (self.main.text["attack_speed"], self.main.player.weapon["delay"] / float(self.main.tick))
+        attackspeed = 1 + (1 - (self.main.player.weapon["delay"] / float(self.main.tick)))
+        attackspeed = "%s: %.1f" % (self.main.text["attack_speed"], attackspeed)
         damage = "%i - %i" % (self.main.player.weapon["damage"][0], self.main.player.weapon["damage"][1])
         damage = "%s: [%s]" % (self.main.text["damage"], damage)
         text = "%s  |  %s  |  %s" % (speed, attackspeed, damage)

@@ -189,15 +189,15 @@ class Player(pygame.sprite.Sprite):
             self.weapon["damage"][0] += 10
             self.weapon["damage"][1] += 20
 
-        if self.weapon["delay"] > 10:
-            self.weapon["delay"] -= 2
+        if self.weapon["delay"] > 20:
+            self.weapon["delay"] -= 3
 
         if self.total_life < 300:
             self.total_life += 10
 
         if self.life < self.total_life:
-            if (self.total_life - self.life) >= 10:
-                self.life += 10
+            if (self.total_life - self.life) >= 25:
+                self.life += 25
             else:
                 self.life += self.total_life - self.life
 
