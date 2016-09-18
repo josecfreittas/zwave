@@ -1,4 +1,5 @@
-#--*-- conding: utf-8 --*--
+# -*- conding: utf-8 -*-
+
 import zwave.lobby
 
 zwave.lobby.Lobby()

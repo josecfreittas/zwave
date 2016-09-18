@@ -1,7 +1,7 @@
 {
-    "fullscreen": false, 
-    "scale": 1, 
-    "width": 1024, 
-    "language": "pt-br", 
-    "height": 512
+    "fullscreen": false,
+    "language": "en-us",
+    "height": 512,
+    "scale": 1,
+    "width": 1024
 }

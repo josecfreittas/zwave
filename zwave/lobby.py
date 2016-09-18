@@ -1,3 +1,5 @@
+# -*- conding: utf-8 -*-
+
 import json
 import os
 
@@ -46,7 +48,7 @@ class Lobby:
         self.settings = json.loads(open("data/settings.json").read())
 
     def load_language(self):
-        self.text = json.loads(open("data/languages/%s.json" % self.settings["language"]).read())
+        self.text = json.loads(open("data/languages/%s.json" % self.settings["language"], encoding="utf-8").read())
 
     def save_settings(self):
         with open("data/settings.json", "w") as outfile:
@@ -91,7 +93,7 @@ class Lobby:
         self.bt_start["hover"] = zwave.helper.pygame_button(self.text["start"].upper(), self.font, x, y, (0, 140, 90), "center")
         self.bt_start["draw"] =  self.bt_start["normal"]
 
-        ## exit button #
+        ## settings button #
         x = 1024 / 2
         y = (512 / 2)
         self.bt_settings["normal"] = zwave.helper.pygame_button(self.text["settings"].upper(), self.font, x, y, (50, 50, 50), "center")

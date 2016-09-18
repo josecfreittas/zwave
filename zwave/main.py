@@ -134,13 +134,19 @@ class Main:
                 self.player.wave_update()
                 self.timer = 241
 
+    def back_to_lobby(self):
+        self.running = False
+        pygame.mixer.stop()
+        pygame.display.quit()
+        zwave.lobby.Lobby()
+
     def loop(self):
 
         ## set pygame clock ##
         clock = pygame.time.Clock()
 
-        running = True
-        while running:
+        self.running = True
+        while self.running:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
             self.screen.fill((100, 125, 130))
@@ -164,17 +170,6 @@ class Main:
             self.cursor["x"] = pygame.mouse.get_pos()[0]
             self.cursor["y"] = pygame.mouse.get_pos()[1]
 
-            ## game quit ##
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_ESCAPE] and self.fullscreen:
-                running = False
-                zwave.lobby.Lobby()
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                    zwave.lobby.Lobby()
-
             ## check if the left mouse button is pressed ##
             if pygame.mouse.get_pressed()[0]:
                 self.player.shot()
@@ -193,6 +188,15 @@ class Main:
 
             ## update pygame screen ##
             pygame.display.update()
+
+            ## game quit ##
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE] and self.fullscreen:
+                self.back_to_lobby()
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.back_to_lobby()
 
 class Hub:
     def __init__(self, main):
