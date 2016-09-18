@@ -68,6 +68,7 @@ class Enemy(pygame.sprite.Sprite):
         self.player_distance = None
         self.size = 65 * main.scale
         self.angle = 0
+        self.movement = "x"
         self.relative = {}
         self.center = {}
         self.last = {}
@@ -158,11 +159,15 @@ class Enemy(pygame.sprite.Sprite):
         self.last["y"] = self.relative["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.velocity_by_angle(self.speed * self.main.scale, self.angle)
+        velocity = zwave.helper.velocity_by_angle((self.speed * self.main.scale) * 2, self.angle)
 
         ## move ##
-        self.relative["x"] += velocity["x"]
-        self.relative["y"] += velocity["y"]
+        if self.movement == "x":
+            self.relative["x"] += velocity["x"]
+            self.movement = "y"
+        elif self.movement == "y":
+            self.relative["y"] += velocity["y"]
+            self.movement = "x"
 
         ## update view ##
         self.rect.x = self.relative["x"] - self.main.x
