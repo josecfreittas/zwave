@@ -4,6 +4,7 @@ import os
 import pygame
 
 import zwave.helper
+import zwave.lobby
 from zwave.enemy import *
 from zwave.map import *
 from zwave.player import *
@@ -70,7 +71,6 @@ class Main:
 
         ## init pygame mixer and configure ##
         pygame.mixer.init(22050, -16, 1, 512)
-        pygame.mixer.buffersize = 512
         pygame.mixer.set_num_channels(34)
 
         ## set channels ##
@@ -168,10 +168,12 @@ class Main:
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE] and self.fullscreen:
                 running = False
+                zwave.lobby.Lobby()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                    zwave.lobby.Lobby()
 
             ## check if the left mouse button is pressed ##
             if pygame.mouse.get_pressed()[0]:

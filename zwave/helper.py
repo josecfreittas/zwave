@@ -24,9 +24,9 @@ def velocity_by_angle(speed, angle):
 
 def angle_by_two_points(point1, point2):
 
-	rads = math.atan2((point2["y"] - point1["y"]) * -1, point2["x"] - point1["x"])
-	rads %= 2 * math.pi
-	return math.degrees(rads)
+    rads = math.atan2((point2["y"] - point1["y"]) * -1, point2["x"] - point1["x"])
+    rads %= 2 * math.pi
+    return math.degrees(rads)
 
 def pygame_image(image, width, height = False, alpha = True):
 
@@ -47,9 +47,8 @@ def pygame_image(image, width, height = False, alpha = True):
 
 def pygame_sprite_by_image(image):
 
-    ## make a generic sprite  ##
+    ## make a generic sprite and set image  ##
     sprite = pygame.sprite.Sprite()
-
     sprite.image = image
 
     ## make sprite rect ##
@@ -71,25 +70,35 @@ def pygame_rotate(image, angle):
     ## return a copy of the new rotated image, centralized in the correct position ##
     return new.subsurface(area).copy()
 
-def pygame_button(text, font, x, y, color = (0, 0, 0), center = False):
+def pygame_button(text, font, x, y, color = (0, 0, 0), alignment = None):
 
-    ## start game button ##
+    ## text button ##
     text = font.render(text, 1, (255,255,255))
+
+    ## surface that contain text ##
     surface = pygame.Surface((text.get_rect().width + 50, text.get_rect().height + 20))
+
+    ## background color #
     surface.fill(color)
 
-    x1 = ((text.get_rect().width + 50) / 2) - (text.get_rect().width / 2)
-    y1 = 15
-
+    ## insert text inside surface ##
+    x1, y1 = ((text.get_rect().width + 50) / 2) - (text.get_rect().width / 2), 15
     surface.blit(text, pygame.Rect(x1, y1, text.get_rect().width, text.get_rect().height))
-    surface.set_alpha(150)
 
+    ## set button transparency ##
+    surface.set_alpha(200)
+
+    ## transform burron surface in a sprite ##
     button = pygame_sprite_by_image(surface)
 
-    if center:
+    ## set sprite position ##
+    x2, y2 = x, y
+    if alignment == "center":
         x2 = x - (surface.get_rect().width / 2)
-        y2 = y - (surface.get_rect().height / 2)
+    elif alignment == "left":
+        x2 = x - surface.get_rect().width
 
-    button.rect.x = x2
-    button.rect.y = y2
+    button.rect.x, button.rect.y = x2, y2
+
+    ## return new button already in a sprite group ##
     return pygame.sprite.GroupSingle(button)
