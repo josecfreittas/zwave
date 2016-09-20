@@ -21,7 +21,7 @@ class Enemy(pygame.sprite.Sprite):
         "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    def __init__(self, main, channel, model = "random"):
+    def __init__(self, game, channel, model = "random"):
 
         pygame.sprite.Sprite.__init__(self)
 
@@ -29,25 +29,25 @@ class Enemy(pygame.sprite.Sprite):
             models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
             model = random.choice(models)
 
-        self.delay = 62 + (-2 * main.wave)
+        self.delay = 62 + (-2 * game.wave)
         self.timer = 0
         if self.delay < 10:
             self.delay = 10
 
         self.timer = 0
         self.damage = [23, 43]
-        self.damage[0] += (2 * main.wave)
-        self.damage[1] += (2 * main.wave)
+        self.damage[0] += (2 * game.wave)
+        self.damage[1] += (2 * game.wave)
         if self.damage[0] > 100:
             self.damage[0] = 100
             self.damage[1] = 120
 
-        self.life = 80 + (15 * main.wave)
+        self.life = 80 + (15 * game.wave)
         if self.life > 500:
             self.life = 500
             self.total_life = 500
 
-        self.speed = 1 + (0.15 * main.wave)
+        self.speed = 1 + (0.15 * game.wave)
         if self.speed > 3.5:
             self.speed = 3.5
 
@@ -60,13 +60,13 @@ class Enemy(pygame.sprite.Sprite):
         self.total_life = self.life
 
         ## init values ##
-        self.main = main
+        self.game = game
         self.model = model
         if self.model == "zombie":
             self.channel = pygame.mixer.Channel(channel + 1)
 
         self.player_distance = None
-        self.size = 65 * main.scale
+        self.size = 65 * game.scale
         self.angle = 0
         self.movement = "x"
         self.relative = {}
@@ -92,8 +92,8 @@ class Enemy(pygame.sprite.Sprite):
         tile = random.choice(self.spaws).split("x")
 
         ## calculates the axes ##
-        x = int(tile[0]) * (64 * self.main.scale)
-        y = int(tile[1]) * (64 * self.main.scale)
+        x = int(tile[0]) * (64 * self.game.scale)
+        y = int(tile[1]) * (64 * self.game.scale)
 
         ## set relative position ##
         self.relative["x"] = x
@@ -135,16 +135,16 @@ class Enemy(pygame.sprite.Sprite):
 
         ## check collider 1 ##
         if collider1 == "walls":
-            collider1 = self.main.map.collider["walls"]
+            collider1 = self.game.map.collider["walls"]
         elif collider1 == "player":
-            collider1 = self.main.player.collider2
+            collider1 = self.game.player.collider2
 
         return pygame.sprite.groupcollide(collider2, collider1, False, False)
 
     def update_angle(self):
 
         ## update enemy angle based in player location ##
-        self.angle = zwave.helper.angle_by_two_points(self.center, self.main.player.center)
+        self.angle = zwave.helper.angle_by_two_points(self.center, self.game.player.center)
         self.image = zwave.helper.pygame_rotate(self.image_base, self.angle)
 
     def update_position(self):
@@ -159,7 +159,7 @@ class Enemy(pygame.sprite.Sprite):
         self.last["y"] = self.relative["y"]
         
         ## get 'x' and 'y' velocity based on enemy angle ##
-        velocity = zwave.helper.velocity_by_angle((self.speed * self.main.scale) * 2, self.angle)
+        velocity = zwave.helper.velocity_by_angle((self.speed * self.game.scale) * 2, self.angle)
 
         ## move ##
         if self.movement == "x":
@@ -170,14 +170,14 @@ class Enemy(pygame.sprite.Sprite):
             self.movement = "x"
 
         ## update view ##
-        self.rect.x = self.relative["x"] - self.main.x
-        self.rect.y = self.relative["y"] - self.main.y
+        self.rect.x = self.relative["x"] - self.game.x
+        self.rect.y = self.relative["y"] - self.game.y
 
         ## update enemy center point ##
         self.center["x"] =  self.rect.x + (self.size / 2)
         self.center["y"] =  self.rect.y + (self.size / 2)
 
-        self.player_distance = (((self.main.player.center["x"] - self.center["x"]) ** 2) + ((self.main.player.center["y"] - self.center["y"]) ** 2)) ** 0.5
+        self.player_distance = (((self.game.player.center["x"] - self.center["x"]) ** 2) + ((self.game.player.center["y"] - self.center["y"]) ** 2)) ** 0.5
 
     def attack(self):
 
@@ -188,18 +188,18 @@ class Enemy(pygame.sprite.Sprite):
         if self.collision("player", self.collider1):
 
             ## decrease player life and set timer for next attack ##
-            self.main.player.life -= damage
+            self.game.player.life -= damage
             self.timer = self.delay
 
-            self.main.sound["channels"]["enemies_attacks"].play(self.main.sound["bite"], 0)
+            self.game.sound["channels"]["enemies_attacks"].play(self.game.sound["bite"], 0)
 
     def sound(self):
         if not self.channel.get_busy():
             sound = "enemy" + str(random.randint(1, 4))
-            self.channel.play(self.main.sound[sound], 0)
+            self.channel.play(self.game.sound[sound], 0)
         
         volume_distance = (100 - (self.player_distance / 5)) * 0.01
-        volume_geral = self.main.sound["volume"]["effects"] * self.main.sound["volume"]["geral"]
+        volume_geral = self.game.sound["volume"]["effects"] * self.game.sound["volume"]["geral"]
         volume = (volume_geral * volume_distance) * 0.8
 
         if volume < 0:
@@ -225,7 +225,7 @@ class Enemy(pygame.sprite.Sprite):
         ## kill if enemy has no life ##
         if self.life <= 0:
             ## increse player score ##
-            self.main.player.score += 100
+            self.game.player.score += 100
 
             if self.model == "zombie":
                 self.channel.stop()

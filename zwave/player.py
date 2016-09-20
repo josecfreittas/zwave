@@ -2,13 +2,12 @@ import os
 import random
 
 import pygame
-
-import zwave.main
+import zwave.helper
 
 
 class Player(pygame.sprite.Sprite):
 
-    def __init__(self, main, model = "01"):
+    def __init__(self, game, model = "01"):
 
         pygame.sprite.Sprite.__init__(self)
 
@@ -26,9 +25,9 @@ class Player(pygame.sprite.Sprite):
         self.score = 0
 
         ## init values ##
-        self.main = main
+        self.game = game
         self.model = model
-        self.size = 65 * main.scale
+        self.size = 65 * game.scale
         self.angle = 0
         self.center = {}
         self.last = {}
@@ -48,12 +47,12 @@ class Player(pygame.sprite.Sprite):
     def generate_position(self):
 
         ## set position ##
-        self.x = self.main.center["x"] - (self.size / 2)
-        self.y = self.main.center["y"] - (self.size / 2)
+        self.x = self.game.center["x"] - (self.size / 2)
+        self.y = self.game.center["y"] - (self.size / 2)
 
         ## saves the actual position of the enemy, relative to game screen ##
-        self.center["x"] = self.main.center["x"]
-        self.center["y"] = self.main.center["y"]
+        self.center["x"] = self.game.center["x"]
+        self.center["y"] = self.game.center["y"]
 
     def set_colliders(self):
 
@@ -86,51 +85,51 @@ class Player(pygame.sprite.Sprite):
 
         ## check collider 1 ##
         if collider1 == "walls":
-            collider1 = self.main.map.collider["walls"]
+            collider1 = self.game.map.collider["walls"]
         elif collider1 == "enemies":
-            collider1 = self.main.enemies["colliders"]
+            collider1 = self.game.enemies["colliders"]
 
         return pygame.sprite.groupcollide(collider2, collider1, False, False)
 
     def update_angle(self):
 
         ## update enemy angle based in player location ##
-        self.angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
+        self.angle = zwave.helper.angle_by_two_points(self.center, self.game.cursor)
         self.image = zwave.helper.pygame_rotate(self.image_base, self.angle)
 
     def update_position(self):
 
         ## check if had collision, if had, set last position of view ##
         if self.collision("walls", self.collider2) or self.collision("enemies", self.collider2):
-            self.main.x = self.main.last["x"]
-            self.main.y = self.main.last["y"]
+            self.game.x = self.game.last["x"]
+            self.game.y = self.game.last["y"]
 
         ## save current positon of view for future use ##
-        self.main.last["x"] = self.main.x
-        self.main.last["y"] = self.main.y
+        self.game.last["x"] = self.game.x
+        self.game.last["y"] = self.game.y
 
         ## make 'keys' variable with pressed keys
         keys = pygame.key.get_pressed()
 
         ## footsteps sound if the player is walking ##
         if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
-            if not self.main.sound["channels"]["steps"].get_busy():
-                self.main.sound["channels"]["steps"].play(self.main.sound["steps"], -1)
+            if not self.game.sound["channels"]["steps"].get_busy():
+                self.game.sound["channels"]["steps"].play(self.game.sound["steps"], -1)
         else:
-            self.main.sound["channels"]["steps"].stop()
+            self.game.sound["channels"]["steps"].stop()
         
         ## picks speed for each axis ##
-        velocity = zwave.helper.velocity_by_keys(self.speed * self.main.scale, keys)
+        velocity = zwave.helper.velocity_by_keys(self.speed * self.game.scale, keys)
 
         ## movement according to keys down ##
         if keys[pygame.K_w]:
-            self.main.y -= velocity
+            self.game.y -= velocity
         if keys[pygame.K_s]:
-            self.main.y += velocity
+            self.game.y += velocity
         if keys[pygame.K_a]:
-            self.main.x -= velocity
+            self.game.x -= velocity
         if keys[pygame.K_d]:
-            self.main.x += velocity
+            self.game.x += velocity
   
     def shot(self):
 
@@ -140,14 +139,14 @@ class Player(pygame.sprite.Sprite):
             ## check if the type of weapon is gun ##
             if self.weapon["type"] == "gun":
 
-                angle = zwave.helper.angle_by_two_points(self.center, self.main.cursor)
+                angle = zwave.helper.angle_by_two_points(self.center, self.game.cursor)
 
-                bullet = Bullet(angle, self.main)
+                bullet = Bullet(angle, self.game)
 
                 self.weapon["bullets"].append(bullet)
 
                 ## gunshot sound ##
-                self.main.sound["channels"]["attacks"].play(self.main.sound["gunshot"], 0)
+                self.game.sound["channels"]["attacks"].play(self.game.sound["gunshot"], 0)
 
                 ## add timer for next gunshot ##
                 self.weapon["timer"] = self.weapon["delay"]
@@ -178,10 +177,10 @@ class Player(pygame.sprite.Sprite):
     def draw(self):
         for bullet in self.weapon["bullets"]:
             group = bullet.collider()
-            group.draw(self.main.screen)
+            group.draw(self.game.screen)
 
-        self.collider1.draw(self.main.screen)
-        self.collider2.draw(self.main.screen)
+        self.collider1.draw(self.game.screen)
+        self.collider2.draw(self.game.screen)
 
     def wave_update(self):
 
@@ -220,20 +219,20 @@ class Player(pygame.sprite.Sprite):
         self.update_colliders()
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, angle, main):
+    def __init__(self, angle, game):
         pygame.sprite.Sprite.__init__(self)
 
         ## init values ##
         self.angle = angle - 180
-        self.size = 10 * main.scale
+        self.size = 10 * game.scale
 
         path = os.path.join("assets", "img", "bullet.png")
         self.image = zwave.helper.pygame_image(path, self.size)
         self.image = zwave.helper.pygame_rotate(self.image, angle)
 
         self.rect = self.image.get_rect()
-        self.rect.x = main.player.center["x"] - (self.size / 2)
-        self.rect.y = main.player.center["y"] - (self.size / 2)
+        self.rect.x = game.player.center["x"] - (self.size / 2)
+        self.rect.y = game.player.center["y"] - (self.size / 2)
 
         self.velocity = zwave.helper.velocity_by_angle(35, self.angle)
         self.sgroup = pygame.sprite.GroupSingle(self)

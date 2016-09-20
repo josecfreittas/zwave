@@ -6,12 +6,12 @@ import zwave.helper
 
 
 class Map:
-    def __init__(self, main, width = 2048, height = 2048):
+    def __init__(self, game, width = 2048, height = 2048):
 
         ## init values ##
-        self.main = main
-        self.width = width * self.main.scale
-        self.height = height * self.main.scale
+        self.game = game
+        self.width = width * self.game.scale
+        self.height = height * self.game.scale
         self.x = 0
         self.y = 0
         self.center = {}
@@ -57,7 +57,7 @@ class Map:
             if tile == 'W':
 
                 ## make a generic sprite with size of map tiles  ##
-                sprite = Tile(self.main, key, 32)
+                sprite = Tile(self.game, key, 32)
                 self.collider["sprites"][key] = sprite
                 self.collider["walls"].add(self.collider["sprites"][key])
 
@@ -84,20 +84,20 @@ class Map:
             self.collider["sprites"][key].update()
 
     def update_position(self):
-        self.x = self.main.x * -1
-        self.y = self.main.y * -1
+        self.x = self.game.x * -1
+        self.y = self.game.y * -1
 
     def update(self):
         self.update_position()
         self.update_colliders()
-        self.collider["walls"].draw(self.main.screen)
+        self.collider["walls"].draw(self.game.screen)
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, main, position, columns):
+    def __init__(self, game, position, columns):
         pygame.sprite.Sprite.__init__(self)
 
-        self.main =  main
-        self.size =  64 * self.main.scale
+        self.game = game
+        self.size = 64 * self.game.scale
 
         self.image = pygame.surface.Surface((self.size, self.size))
         self.image.fill((255, 0, 0))
@@ -116,8 +116,8 @@ class Tile(pygame.sprite.Sprite):
         self.y = row * self.size
 
     def update_position(self):
-        self.rect.x = self.x - self.main.x
-        self.rect.y = self.y - self.main.y
+        self.rect.x = self.x - self.game.x
+        self.rect.y = self.y - self.game.y
 
     def update(self):
         self.update_position()

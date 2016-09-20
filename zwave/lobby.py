@@ -2,10 +2,11 @@
 
 import json
 import os
+import sys
 
 import pygame
 
-import zwave.main
+import zwave.game
 import zwave.helper
 
 class Lobby:
@@ -48,7 +49,10 @@ class Lobby:
         self.settings = json.loads(open("data/settings.json").read())
 
     def load_language(self):
-        self.text = json.loads(open("data/languages/%s.json" % self.settings["language"], encoding="utf-8").read())
+        if sys.version_info.major > 2:
+            self.text = json.loads(open("data/languages/%s.json" % self.settings["language"], encoding="utf-8").read())
+        else:
+            self.text = json.loads(open("data/languages/%s.json" % self.settings["language"]).read())
 
     def save_settings(self):
         with open("data/settings.json", "w") as outfile:
@@ -64,7 +68,7 @@ class Lobby:
         self.sound = {}
         self.sound["volume"] = {}
         self.sound["volume"]["geral"] = 1
-        self.sound["volume"]["music"] = 0.2
+        self.sound["volume"]["music"] = 0.8
         self.sound["volume"]["effects"] = 0.8
 
         ## init pygame mixer and configure ##
@@ -213,7 +217,7 @@ class Lobby:
     def start_game(self):
         self.running = False
         settings = self.settings
-        zwave.main.Main(self.text, settings["scale"], settings["width"], settings["height"], settings["fullscreen"])
+        zwave.game.Game(self.text, settings["scale"], settings["width"], settings["height"], settings["fullscreen"])
 
     def loop(self):
 

@@ -10,7 +10,7 @@ from zwave.map import *
 from zwave.player import *
 
 
-class Main:
+class Game:
     def __init__(self, text, scale, width, height, fullscreen):
 
         ## init values ##
@@ -66,7 +66,7 @@ class Main:
 
         self.sound["volume"] = {}
         self.sound["volume"]["geral"] = 1
-        self.sound["volume"]["music"] = 0.2
+        self.sound["volume"]["music"] = 0.4
         self.sound["volume"]["effects"] = 0.8
 
         ## init pygame mixer and configure ##
@@ -199,7 +199,7 @@ class Main:
                     self.back_to_lobby()
 
 class Hub:
-    def __init__(self, main):
+    def __init__(self, game):
 
         pygame.font.init()
 
@@ -209,7 +209,7 @@ class Hub:
         self.font["big"] = pygame.font.Font(path, 50)
 
         ## init values ##
-        self.main = main
+        self.game = game
         self.life_percentage = 100
 
         self.avatar = {}
@@ -233,29 +233,29 @@ class Hub:
 
         self.wave = {}
         self.wave["height"] = 30
-        self.wave["x"] = self.main.width - 15
+        self.wave["x"] = self.game.width - 15
         self.wave["y"] = 50
 
         self.enemies = {}
         self.enemies["height"] = 30
-        self.enemies["x"] = self.main.width - 15
+        self.enemies["x"] = self.game.width - 15
         self.enemies["y"] = 15
 
         self.attributes = {}
         self.attributes["height"] = 30
-        self.attributes["x"] = self.main.width - 15
-        self.attributes["y"] = self.main.height - 15
+        self.attributes["x"] = self.game.width - 15
+        self.attributes["y"] = self.game.height - 15
 
         self.set_surfaces()
 
     def set_surfaces(self):
 
         ## loads the avatar with different expressions ##
-        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_01.png")
+        path = os.path.join("assets", "img", "players", self.game.player.model, "avatar_01.png")
         self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
-        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_02.png")
+        path = os.path.join("assets", "img", "players", self.game.player.model, "avatar_02.png")
         self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
-        path = os.path.join("assets", "img", "players", self.main.player.model, "avatar_03.png")
+        path = os.path.join("assets", "img", "players", self.game.player.model, "avatar_03.png")
         self.avatar["image"].append(zwave.helper.pygame_image(path, self.avatar["width"], self.avatar["height"]))
 
         ## lifebar background ##
@@ -281,13 +281,13 @@ class Hub:
             color = (45, 200, 100)
 
         ## lifebar getal background ##
-        self.main.screen.blit(self.lifebar["background"], (self.lifebar["x"], self.lifebar["y"]))
+        self.game.screen.blit(self.lifebar["background"], (self.lifebar["x"], self.lifebar["y"]))
 
         ## lifebar ##
-        pygame.draw.rect(self.main.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life_percentage * 2, 30))
+        pygame.draw.rect(self.game.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life_percentage * 2, 30))
 
         ## lifebar text ##
-        text = "%s: %i / %i" % (self.main.text["life"].upper(), self.main.player.life, self.main.player.total_life)
+        text = "%s: %i / %i" % (self.game.text["life"].upper(), self.game.player.life, self.game.player.total_life)
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## lifebar text background ##
@@ -297,12 +297,12 @@ class Hub:
         surface.set_alpha(150)
 
         ## draw text and text background ##
-        self.main.screen.blit(surface, (self.lifebar["x"], self.lifebar["y"] + 6))
+        self.game.screen.blit(surface, (self.lifebar["x"], self.lifebar["y"] + 6))
 
     def draw_score(self):
 
         ## score text ##
-        text = "%s: %i" % (self.main.text["score"].upper(), self.main.player.score)
+        text = "%s: %i" % (self.game.text["score"].upper(), self.game.player.score)
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## score background ##
@@ -312,7 +312,7 @@ class Hub:
         surface.set_alpha(150)
 
         ## draw score ##
-        self.main.screen.blit(surface, (self.score["x"], self.score["y"] + 6))
+        self.game.screen.blit(surface, (self.score["x"], self.score["y"] + 6))
     
     def draw_avatar(self):
 
@@ -325,12 +325,12 @@ class Hub:
             avatar = self.avatar["image"][0]
 
         ## draw avatar ##
-        self.main.screen.blit(avatar, (self.avatar["x"], self.avatar["y"]))
+        self.game.screen.blit(avatar, (self.avatar["x"], self.avatar["y"]))
 
     def draw_wave(self):
 
         ## wave text ##
-        text = "%s: %i" % (self.main.text["wave"].upper(), self.main.wave)
+        text = "%s: %i" % (self.game.text["wave"].upper(), self.game.wave)
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## wave background ##
@@ -340,12 +340,12 @@ class Hub:
         surface.set_alpha(150)
 
         ## draw wave ##
-        self.main.screen.blit(surface, (self.wave["x"] - surface.get_rect().width, self.wave["y"]))
+        self.game.screen.blit(surface, (self.wave["x"] - surface.get_rect().width, self.wave["y"]))
 
     def draw_enemies(self):
 
         ## enemies text ##
-        text = "%s: %i" % (self.main.text["enemies"].upper(), len(self.main.enemies["sprites"].sprites()))
+        text = "%s: %i" % (self.game.text["enemies"].upper(), len(self.game.enemies["sprites"].sprites()))
         text = self.font["default"].render(text, 1, (255,255,255))
 
         ## enemies background ##
@@ -355,15 +355,15 @@ class Hub:
         surface.set_alpha(150)
 
         ## draw enemies ##
-        self.main.screen.blit(surface, (self.enemies["x"] - surface.get_rect().width, self.enemies["y"]))
+        self.game.screen.blit(surface, (self.enemies["x"] - surface.get_rect().width, self.enemies["y"]))
 
     def draw_wave_timer(self):
 
         ## checks if the timer is being modified ##
-        if self.main.timer < 241:
+        if self.game.timer < 241:
 
             ## get seconds ##
-            timer = int(self.main.timer / self.main.tick)
+            timer = int(self.game.timer / self.game.tick)
 
             ## timer text ##
             text = "%i" % (timer)
@@ -376,18 +376,18 @@ class Hub:
             surface.set_alpha(150)
 
             ## draw timer ##
-            x = self.main.center["x"] - (surface.get_rect().width / 2)
-            y = self.main.center["y"] - (surface.get_rect().height * 3)
-            self.main.screen.blit(surface, (x, y))
+            x = self.game.center["x"] - (surface.get_rect().width / 2)
+            y = self.game.center["y"] - (surface.get_rect().height * 3)
+            self.game.screen.blit(surface, (x, y))
 
     def draw_attributes(self):
 
         ## timer text ##
-        speed = "%s: %.1f" % (self.main.text["speed"], self.main.player.speed)
-        attackspeed = 1 + (1 - (self.main.player.weapon["delay"] / float(self.main.tick)))
-        attackspeed = "%s: %.1f" % (self.main.text["attack_speed"], attackspeed)
-        damage = "%i - %i" % (self.main.player.weapon["damage"][0], self.main.player.weapon["damage"][1])
-        damage = "%s: [%s]" % (self.main.text["damage"], damage)
+        speed = "%s: %.1f" % (self.game.text["speed"], self.game.player.speed)
+        attackspeed = 1 + (1 - (self.game.player.weapon["delay"] / float(self.game.tick)))
+        attackspeed = "%s: %.1f" % (self.game.text["attack_speed"], attackspeed)
+        damage = "%i - %i" % (self.game.player.weapon["damage"][0], self.game.player.weapon["damage"][1])
+        damage = "%s: [%s]" % (self.game.text["damage"], damage)
         text = "%s  |  %s  |  %s" % (speed, attackspeed, damage)
         text = self.font["default"].render(text.upper(), 1, (255,255,255))
 
@@ -400,7 +400,7 @@ class Hub:
         ## draw timer ##
         x = self.attributes["x"] - surface.get_rect().width
         y = self.attributes["y"] - surface.get_rect().height
-        self.main.screen.blit(surface, (x, y))
+        self.game.screen.blit(surface, (x, y))
 
     def draw(self):
         self.draw_lifebar()
@@ -412,5 +412,5 @@ class Hub:
         self.draw_wave_timer()
 
     def update(self):
-        self.life_percentage = self.converter(self.main.player.life, self.main.player.total_life)
+        self.life_percentage = self.converter(self.game.player.life, self.game.player.total_life)
         self.draw()
