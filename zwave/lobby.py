@@ -66,17 +66,13 @@ class Lobby:
     def set_sounds(self):
 
         self.sound = {}
-        self.sound["volume"] = {}
-        self.sound["volume"]["geral"] = 1
-        self.sound["volume"]["music"] = 0.8
-        self.sound["volume"]["effects"] = 0.8
 
         ## init pygame mixer and configure ##
         pygame.mixer.init(22050, -16, 1, 512)
 
         ## load, set volume and init music background ##
         pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "1.ogg"))
-        pygame.mixer.music.set_volume(self.sound["volume"]["music"] * self.sound["volume"]["geral"])
+        pygame.mixer.music.set_volume(self.settings["volume"]["music"] * self.settings["volume"]["geral"])
         pygame.mixer.music.play(-1)
 
         self.sound["channel"] = pygame.mixer.Channel(1)
@@ -216,8 +212,9 @@ class Lobby:
 
     def start_game(self):
         self.running = False
-        settings = self.settings
-        zwave.game.Game(self.text, settings["scale"], settings["width"], settings["height"], settings["fullscreen"])
+        pygame.mixer.stop()
+        pygame.display.quit()
+        zwave.game.Game(self.text, self.settings)
 
     def loop(self):
 

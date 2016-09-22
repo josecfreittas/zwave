@@ -199,7 +199,7 @@ class Enemy(pygame.sprite.Sprite):
             self.channel.play(self.game.sound[sound], 0)
         
         volume_distance = (100 - (self.player_distance / 5)) * 0.01
-        volume_geral = self.game.sound["volume"]["effects"] * self.game.sound["volume"]["geral"]
+        volume_geral = self.game.settings["volume"]["effects"] * self.game.settings["volume"]["geral"]
         volume = (volume_geral * volume_distance) * 0.8
 
         if volume < 0:

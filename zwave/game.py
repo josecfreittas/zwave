@@ -11,16 +11,16 @@ from zwave.player import *
 
 
 class Game:
-    def __init__(self, text, scale, width, height, fullscreen):
+    def __init__(self, text, settings):
 
         ## init values ##
-        self.fullscreen = fullscreen
+        self.settings = settings
+        self.scale = self.settings["scale"]
+        self.width = self.settings["width"]
+        self.height = self.settings["height"]
+        self.wave = 1
         self.text = text
         self.last = {}
-        self.scale = scale
-        self.width = width
-        self.height = height
-        self.wave = 1
         self.center = {}
         self.center["x"] = self.width / 2
         self.center["y"] = self.height / 2
@@ -32,7 +32,7 @@ class Game:
 
         ## game screen ##
 
-        if self.fullscreen:
+        if self.settings["fullscreen"]:
             self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN | pygame.HWSURFACE | pygame.DOUBLEBUF)
         else:
             self.screen = pygame.display.set_mode((self.width, self.height))
@@ -64,11 +64,6 @@ class Game:
 
     def set_sounds(self):
 
-        self.sound["volume"] = {}
-        self.sound["volume"]["geral"] = 1
-        self.sound["volume"]["music"] = 0.4
-        self.sound["volume"]["effects"] = 0.8
-
         ## init pygame mixer and configure ##
         pygame.mixer.init(22050, -16, 1, 512)
         pygame.mixer.set_num_channels(34)
@@ -81,19 +76,19 @@ class Game:
 
         ## load, set volume and init music background ##
         pygame.mixer.music.load(os.path.join("assets", "sounds", "music", "2.ogg"))
-        pygame.mixer.music.set_volume(self.sound["volume"]["music"] * self.sound["volume"]["geral"])
+        pygame.mixer.music.set_volume(self.settings["volume"]["music"] * self.settings["volume"]["geral"])
         pygame.mixer.music.play(-1)
 
         ## footsteps sound ##
-        self.sound["channels"]["steps"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["channels"]["steps"].set_volume(self.settings["volume"]["effects"] * self.settings["volume"]["geral"])
         self.sound["steps"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "footsteps.ogg"))
 
         ## gun shot sound ##
-        self.sound["channels"]["attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["channels"]["attacks"].set_volume(self.settings["volume"]["effects"] * self.settings["volume"]["geral"])
         self.sound["gunshot"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "gunshot.ogg"))
 
         ## enemy attack sound ##
-        self.sound["channels"]["enemies_attacks"].set_volume(self.sound["volume"]["effects"] * self.sound["volume"]["geral"])
+        self.sound["channels"]["enemies_attacks"].set_volume(self.settings["volume"]["effects"] * self.settings["volume"]["geral"])
         self.sound["bite"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "attacks", "bite.ogg"))
 
         ## zombies sounds ##
