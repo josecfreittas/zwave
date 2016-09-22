@@ -21,7 +21,7 @@ class Player(pygame.sprite.Sprite):
 
         self.life = 100
         self.total_life = 100
-        self.speed = 2.5
+        self.speed = 3
         self.score = 0
 
         ## init values ##
@@ -234,7 +234,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x = game.player.center["x"] - (self.size / 2)
         self.rect.y = game.player.center["y"] - (self.size / 2)
 
-        self.velocity = zwave.helper.velocity_by_angle(35, self.angle)
+        self.velocity = zwave.helper.velocity_by_angle(35 * game.scale, self.angle)
         self.sgroup = pygame.sprite.GroupSingle(self)
 
     def update(self):

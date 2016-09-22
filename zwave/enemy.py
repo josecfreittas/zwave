@@ -85,6 +85,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.y = self.relative["y"]
 
         self.set_colliders()
+        self.update()
 
     def generate_position(self):
 

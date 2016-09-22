@@ -2,6 +2,7 @@
     "score": "Score",
     "life": "Life",
     "wave": "Wave",
+    "next_wave": "Next wave in",
     "enemies": "Enemies",
     "speed": "Speed",
     "attack_speed": "Attack Speed",

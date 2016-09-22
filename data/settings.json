@@ -1,9 +1,9 @@
 {
-    "fullscreen": false,
+    "language": "en-us",
     "scale": 1,
     "width": 1024,
     "height": 512,
-    "language": "en-us",
+    "fullscreen": false,
     "volume": {
         "music": 0.4,
         "geral": 1,

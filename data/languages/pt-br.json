@@ -2,6 +2,7 @@
     "score": "Pontos",
     "life": "Vida",
     "wave": "Onda",
+    "next_wave": "Proxima onda em",
     "enemies": "Inimigos",
     "speed": "Velocidade",
     "attack_speed": "Velocidade de ataque",

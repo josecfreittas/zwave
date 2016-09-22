@@ -361,18 +361,18 @@ class Hub:
             timer = int(self.game.timer / self.game.tick)
 
             ## timer text ##
-            text = "%i" % (timer)
+            text = "%s %i" % (self.game.text["next_wave"].upper() ,timer)
             text = self.font["big"].render(text, 1, (255,255,255))
 
             ## timer background ##
-            surface = pygame.Surface((100, text.get_rect().height + 6))
+            surface = pygame.Surface((600, text.get_rect().height + 6))
             surface.fill((0, 0, 0))
-            surface.blit(text, pygame.Rect(50 - (text.get_rect().width / 2), 9, text.get_rect().width, text.get_rect().height))
+            surface.blit(text, pygame.Rect(300 - (text.get_rect().width / 2), 9, text.get_rect().width, text.get_rect().height))
             surface.set_alpha(150)
 
             ## draw timer ##
             x = self.game.center["x"] - (surface.get_rect().width / 2)
-            y = self.game.center["y"] - (surface.get_rect().height * 3)
+            y = self.game.center["y"] - (surface.get_rect().height * 2)
             self.game.screen.blit(surface, (x, y))
 
     def draw_attributes(self):
