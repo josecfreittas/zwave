@@ -186,12 +186,12 @@ class Game:
 
             ## game quit ##
             keys = pygame.key.get_pressed()
-            if keys[pygame.K_ESCAPE] and self.fullscreen:
+            if keys[pygame.K_ESCAPE]:
                 self.back_to_lobby()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.back_to_lobby()
+                    self.running = False
 
 class Hub:
     def __init__(self, game):
