@@ -11,5 +11,7 @@
     "settings": "Settings",
     "exit": "Exit",
     "fullscreen": "Fullscreen",
-    "back": "Back"
+    "back": "Back",
+    "resume": "Resume game",
+    "main": "Main menu"
 }

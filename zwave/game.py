@@ -15,6 +15,7 @@ class Game:
 
         ## init values ##
         self.settings = settings
+        self.paused = False
         self.scale = self.settings["scale"]
         self.width = self.settings["width"]
         self.height = self.settings["height"]
@@ -42,6 +43,7 @@ class Game:
         self.set_sounds()
 
         ## game cursor ##
+        self.mouse = {}
         self.cursor = {}
         self.set_cursor()
 
@@ -98,12 +100,14 @@ class Game:
         self.sound["enemy4"] = pygame.mixer.Sound(os.path.join("assets", "sounds", "enemies", "zombies", "4.ogg"))
 
     def set_cursor(self):
+        self.mouse["x"] = 0
+        self.mouse["y"] = 0
         pygame.mouse.set_visible(False)
-        self.cursor["x"] = 0
-        self.cursor["y"] = 0
-        self.cursor["size"] = 35
-        self.cursor["image"] = os.path.join("assets", "img", "cursor.png")
-        self.cursor["image"] = zwave.helper.pygame_image(self.cursor["image"], self.cursor["size"])
+        size = 35
+        image = os.path.join("assets", "img", "cursor.png")
+        image = zwave.helper.pygame_image(image, size)
+        sprite = zwave.helper.pygame_sprite_by_image(image)
+        self.cursor = pygame.sprite.GroupSingle(sprite)
 
     def set_enemies(self):
         self.enemies["sprites"] = pygame.sprite.Group()
@@ -118,21 +122,33 @@ class Game:
             self.enemies["colliders"].add(enemy.collider2)
 
     def update_enemies(self):
+
+        ## update all enemies ##
         for enemy in self.enemies["sprites"].sprites():
             enemy.update()
+
+        ## check if all enemies are dead ##
         if not self.enemies["sprites"].sprites():
+
+            ## update timer for new wave ##
             if self.timer > 0:
                 self.timer -= 1
             else:
+
+                ## init new wave ##
                 self.wave += 1
                 self.set_enemies()
                 self.player.wave_update()
                 self.timer = 241
 
     def back_to_lobby(self):
+
+        ## stop game, stop sounds and quit pygame display ##
         self.running = False
         pygame.mixer.stop()
         pygame.display.quit()
+
+        ## init game lobby ##
         zwave.lobby.Lobby()
 
     def loop(self):
@@ -144,36 +160,41 @@ class Game:
         while self.running:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
-            self.screen.fill((100, 125, 130))
 
-            ## update map, player, enemies ##
-            self.map.update()
-            self.player.update()
-            self.update_enemies()
+            if not self.paused:
+                self.screen.fill((100, 125, 130))
 
-            ## draw map ground, enemies, player, map walls and cursor ##
-            self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
+                ## update map, player, enemies ##
+                self.map.update()
+                self.player.update()
+                self.update_enemies()
 
-            self.enemies["sprites"].draw(self.screen)
-            self.enemies["colliders"].draw(self.screen)
+                ## draw map ground, enemies, player, map walls and cursor ##
+                self.screen.blit(self.map.surface["ground"], (self.map.x, self.map.y))
 
-            self.player.draw()
+                ## draw enemies ##
+                self.enemies["sprites"].draw(self.screen)
+                self.enemies["colliders"].draw(self.screen)
 
-            self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
+                ## draw player ##
+                self.player.draw()
 
-            ## cursor x position ##
-            self.cursor["x"] = pygame.mouse.get_pos()[0]
-            self.cursor["y"] = pygame.mouse.get_pos()[1]
+                ## draw walls and shadows ##
+                self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
 
-            ## check if the left mouse button is pressed ##
-            if pygame.mouse.get_pressed()[0]:
-                self.player.shot()
-            
+                ## check if the left mouse button is pressed ##
+                if pygame.mouse.get_pressed()[0]:
+                    self.player.shot()
+
             ## draw hub ##
             self.hub.update()
 
-            ## draw cursor ##
-            self.screen.blit(self.cursor["image"], (self.cursor["x"] - (self.cursor["size"] / 2), self.cursor["y"] - (self.cursor["size"] / 2)))
+            ## cursor new position and draw  ##
+            self.mouse["x"] = pygame.mouse.get_pos()[0]
+            self.mouse["y"] = pygame.mouse.get_pos()[1]
+            self.cursor.sprites()[0].rect.x = pygame.mouse.get_pos()[0] - (35.0 / 2)
+            self.cursor.sprites()[0].rect.y = pygame.mouse.get_pos()[1] - (35.0 / 2)
+            self.cursor.draw(self.screen)
 
             ## increment or reset atual frame ##
             self.frame = (self.frame + 1) if self.frame < self.tick else 0
@@ -184,15 +205,16 @@ class Game:
             ## update pygame screen ##
             pygame.display.update()
 
-            ## game back to lobby ##
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_ESCAPE]:
-                self.back_to_lobby()
-
-            ## game exit ##
             for event in pygame.event.get():
+
+                ## game exit ##
                 if event.type == pygame.QUIT:
                     self.running = False
+
+                ## game pause ##
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.paused = not self.paused
 
 class Hub:
     def __init__(self, game):
@@ -202,11 +224,12 @@ class Hub:
         self.font = {}
         path = os.path.join("assets", "fonts", "Renogare.ttf")
         self.font["default"] = pygame.font.Font(path, 14)
+        self.font["button"] = pygame.font.Font(path, 30)
         self.font["big"] = pygame.font.Font(path, 50)
 
         ## init values ##
         self.game = game
-        self.life_percentage = 100
+        self.life = 100
 
         self.avatar = {}
         self.avatar["width"] = 107
@@ -259,6 +282,22 @@ class Hub:
         self.lifebar["background"].set_alpha(127)
         self.lifebar["background"].fill(( 0, 0, 0))
 
+        ## resume game button ##
+        x = self.game.width / 2
+        y = (self.game.height / 2) - 65
+        self.bt_resume = {}
+        self.bt_resume["normal"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (50, 50, 50), "center")
+        self.bt_resume["hover"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (0, 140, 90), "center")
+        self.bt_resume["draw"] =  self.bt_resume["normal"]
+
+        ## main manu button ##
+        x = self.game.width / 2
+        y = self.game.height / 2
+        self.bt_main = {}
+        self.bt_main["normal"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (50, 50, 50), "center")
+        self.bt_main["hover"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (0, 140, 90), "center")
+        self.bt_main["draw"] =  self.bt_main["normal"]
+
     def converter(self, part, total, ctype = "percentage"):
         if ctype == "percentage":
             value = (float(part) / total) * 100.0
@@ -266,12 +305,33 @@ class Hub:
                 value = 0
             return value
 
+    def mouse_hover(self, button):
+
+        ## checks if has a collision with cursor and button ##
+        if pygame.sprite.groupcollide(self.game.cursor, button, False, False):
+            return True
+        else:
+            return False
+
+    def update_button(self, button, selected = False):
+
+        ## checks if the mouse is over the button and change your appearance if yes or not ## 
+        if self.mouse_hover(button["draw"]):
+            button["draw"] = button["hover"]
+        else:
+            button["draw"] = button["normal"]
+
+        if selected:
+            button["selected"].draw(self.game.screen)
+        else:
+            button["draw"].draw(self.game.screen)
+
     def draw_lifebar(self):
 
         ## set color acording to the life percentage ##
-        if self.life_percentage < 35:
+        if self.life < 35:
             color = (195, 100, 70)
-        elif self.life_percentage < 65:
+        elif self.life < 65:
             color = (195, 175, 70)
         else:
             color = (45, 200, 100)
@@ -280,7 +340,7 @@ class Hub:
         self.game.screen.blit(self.lifebar["background"], (self.lifebar["x"], self.lifebar["y"]))
 
         ## lifebar ##
-        pygame.draw.rect(self.game.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life_percentage * 2, 30))
+        pygame.draw.rect(self.game.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life * 2, 30))
 
         ## lifebar text ##
         text = "%s: %i / %i" % (self.game.text["life"].upper(), self.game.player.life, self.game.player.total_life)
@@ -313,9 +373,9 @@ class Hub:
     def draw_avatar(self):
 
         ## set avatar acording to the life percentage ##
-        if self.life_percentage < 35:
+        if self.life < 35:
             avatar = self.avatar["image"][2]
-        elif self.life_percentage < 65:
+        elif self.life < 65:
             avatar = self.avatar["image"][1]
         else:
             avatar = self.avatar["image"][0]
@@ -398,15 +458,23 @@ class Hub:
         y = self.attributes["y"] - surface.get_rect().height
         self.game.screen.blit(surface, (x, y))
 
+    def draw_options(self):
+        self.game.screen.fill((40, 80, 60))
+        self.update_button(self.bt_resume)
+        self.update_button(self.bt_main)
+
     def draw(self):
-        self.draw_lifebar()
-        self.draw_score()
-        self.draw_avatar()
-        self.draw_wave()
-        self.draw_enemies()
-        self.draw_attributes()
-        self.draw_wave_timer()
+        if self.game.paused:
+            self.draw_options()
+        else:   
+            self.draw_lifebar()
+            self.draw_score()
+            self.draw_avatar()
+            self.draw_wave()
+            self.draw_enemies()
+            self.draw_attributes()
+            self.draw_wave_timer()
 
     def update(self):
-        self.life_percentage = self.converter(self.game.player.life, self.game.player.total_life)
+        self.life = self.converter(self.game.player.life, self.game.player.total_life)
         self.draw()

@@ -11,5 +11,7 @@
     "settings": "Configurações",
     "exit": "Fechar",
     "fullscreen": "Tela cheia",
-    "back": "Voltar"
+    "back": "Voltar",
+    "resume": "Retomar jogo",
+    "main": "Menu incial"
 }

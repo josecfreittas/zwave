@@ -94,7 +94,7 @@ class Player(pygame.sprite.Sprite):
     def update_angle(self):
 
         ## update enemy angle based in player location ##
-        self.angle = zwave.helper.angle_by_two_points(self.center, self.game.cursor)
+        self.angle = zwave.helper.angle_by_two_points(self.center, self.game.mouse)
         self.image = zwave.helper.pygame_rotate(self.image_base, self.angle)
 
     def update_position(self):
@@ -139,7 +139,7 @@ class Player(pygame.sprite.Sprite):
             ## check if the type of weapon is gun ##
             if self.weapon["type"] == "gun":
 
-                angle = zwave.helper.angle_by_two_points(self.center, self.game.cursor)
+                angle = zwave.helper.angle_by_two_points(self.center, self.game.mouse)
 
                 bullet = Bullet(angle, self.game)
 
