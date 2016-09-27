@@ -182,11 +182,6 @@ class Game:
                 ## draw walls and shadows ##
                 self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
 
-                ## check if the left mouse button is pressed ##
-                if pygame.mouse.get_pressed()[0]:
-                    self.player.shot()
-
-            ## draw hub ##
             self.hub.update()
 
             ## cursor new position and draw  ##
@@ -215,6 +210,14 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.paused = not self.paused
+
+                ## mouse left click for buttons interaction ##
+                if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                    self.hub.click()
+
+                ## player shot if game is not paused ##
+                if event.type == pygame.MOUSEBUTTONDOWN and not self.paused:
+                    self.player.shot()
 
 class Hub:
     def __init__(self, game):
@@ -283,19 +286,19 @@ class Hub:
         self.lifebar["background"].fill(( 0, 0, 0))
 
         ## resume game button ##
-        x = self.game.width / 2
+        x = 10
         y = (self.game.height / 2) - 65
         self.bt_resume = {}
-        self.bt_resume["normal"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (50, 50, 50), "center")
-        self.bt_resume["hover"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (0, 140, 90), "center")
+        self.bt_resume["normal"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (50, 50, 50), "right")
+        self.bt_resume["hover"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (0, 140, 90), "right")
         self.bt_resume["draw"] =  self.bt_resume["normal"]
 
         ## main manu button ##
-        x = self.game.width / 2
+        x = 10
         y = self.game.height / 2
         self.bt_main = {}
-        self.bt_main["normal"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (50, 50, 50), "center")
-        self.bt_main["hover"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (0, 140, 90), "center")
+        self.bt_main["normal"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (50, 50, 50), "right")
+        self.bt_main["hover"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (0, 140, 90), "right")
         self.bt_main["draw"] =  self.bt_main["normal"]
 
     def converter(self, part, total, ctype = "percentage"):
@@ -336,10 +339,8 @@ class Hub:
         else:
             color = (45, 200, 100)
 
-        ## lifebar getal background ##
-        self.game.screen.blit(self.lifebar["background"], (self.lifebar["x"], self.lifebar["y"]))
-
         ## lifebar ##
+        self.game.screen.blit(self.lifebar["background"], (self.lifebar["x"], self.lifebar["y"]))
         pygame.draw.rect(self.game.screen, color, (self.lifebar["x"], self.lifebar["y"] + 3, self.life * 2, 30))
 
         ## lifebar text ##
@@ -474,6 +475,12 @@ class Hub:
             self.draw_enemies()
             self.draw_attributes()
             self.draw_wave_timer()
+
+    def click(self):
+        if self.mouse_hover(self.bt_main["draw"]):
+            self.game.back_to_lobby()
+        if self.mouse_hover(self.bt_resume["draw"]):
+            self.game.paused = False
 
     def update(self):
         self.life = self.converter(self.game.player.life, self.game.player.total_life)
