@@ -184,11 +184,12 @@ class Game:
             ## update pygame screen ##
             pygame.display.update()
 
-            ## game quit ##
+            ## game back to lobby ##
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
                 self.back_to_lobby()
 
+            ## game exit ##
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False

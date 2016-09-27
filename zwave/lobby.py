@@ -154,66 +154,79 @@ class Lobby:
         self.bt_back["hover"] = zwave.helper.pygame_button(self.text["back"].upper(), self.font, x, y, (0, 140, 90), "center")
         self.bt_back["draw"] =  self.bt_back["normal"]
 
+    def draw_main(self):
+
+        ## start game button ##
+        self.update_button(self.bt_start)
+
+        ## game settings button ##
+        self.update_button(self.bt_settings)
+
+        ## game exit button ##
+        self.update_button(self.bt_exit)
+
+    def draw_settings(self):
+
+        ## language pt-br button ##
+        selected = self.settings["language"] == "pt-br"
+        self.update_button(self.bt_ptbr, selected)
+
+        ## language en-us button ##
+        selected = self.settings["language"] == "en-us"
+        self.update_button(self.bt_enus, selected)
+
+        ## resolution 1024x512 button ##
+        selected = (self.settings["width"] == 1024) and (self.settings["height"] == 512)
+        self.update_button(self.bt_1024x512, selected)
+
+        ## resolution 1366x768 button ##
+        selected = (self.settings["width"] == 1366) and (self.settings["height"] == 768)
+        self.update_button(self.bt_1366x768, selected)
+
+        ## fullscreen on or off button ##
+        selected = self.settings["fullscreen"]
+        self.update_button(self.bt_fullscreen, selected)
+
+        ## back to loby main page button ##
+        self.update_button(self.bt_back)
+
     def draw(self):
 
-        ## draw lobby main page buttons ##
+        ## draw current page ##
         if self.page == "main":
-
-            ## start game button ##
-            self.bt_start["draw"].draw(self.screen)
-
-            ## go to settings page button ##
-            self.bt_settings["draw"].draw(self.screen)
-
-            ## exit game button ##
-            self.bt_exit["draw"].draw(self.screen)
-
-        ## draw lobby settings page buttons ##
+            self.draw_main()
         elif self.page == "settings":
-
-            ## language pt-br ##
-            if self.settings["language"] == "pt-br":
-                self.bt_ptbr["selected"].draw(self.screen)
-            else:
-                self.bt_ptbr["draw"].draw(self.screen)
-
-            ## language en-us ##
-            if self.settings["language"] == "en-us":
-                self.bt_enus["selected"].draw(self.screen)
-            else:
-                self.bt_enus["draw"].draw(self.screen)
-
-            ## resolution 1024x512 ##
-            if (self.settings["width"] == 1024) and (self.settings["height"] == 512) :
-                self.bt_1024x512["selected"].draw(self.screen)
-            else:
-                self.bt_1024x512["draw"].draw(self.screen)
-
-            ## resolution 1366x768 ##
-            if (self.settings["width"] == 1366) and (self.settings["height"] == 768):
-                self.bt_1366x768["selected"].draw(self.screen)
-            else:
-                self.bt_1366x768["draw"].draw(self.screen)
-
-            ## fullscreen on or off ##
-            if self.settings["fullscreen"]:
-                self.bt_fullscreen["selected"].draw(self.screen)
-            else:
-                self.bt_fullscreen["draw"].draw(self.screen)
-
-            ## back to loby main page ##
-            self.bt_back["draw"].draw(self.screen)
+            self.draw_settings()
 
     def mouse_hover(self, button):
+
+        ## checks if has a collision with cursor and button ##
         if pygame.sprite.groupcollide(self.cursor, button, False, False):
             return True
         else:
             return False
 
+    def update_button(self, button, selected = False):
+
+        ## checks if the mouse is over the button and change your appearance if yes or not ## 
+        if self.mouse_hover(button["draw"]):
+            button["draw"] = button["hover"]
+        else:
+            button["draw"] = button["normal"]
+
+        if selected:
+            button["selected"].draw(self.screen)
+        else:
+            button["draw"].draw(self.screen)
+
     def start_game(self):
+
+        ## end lobby loop, sound and pygame display ##
         self.running = False
         pygame.mixer.stop()
         pygame.display.quit()
+
+        ## start the game ##
         zwave.game.Game(self.text, self.settings)
 
     def loop(self):
@@ -232,72 +245,11 @@ class Lobby:
             self.cursor.sprites()[0].rect.x = pygame.mouse.get_pos()[0]
             self.cursor.sprites()[0].rect.y = pygame.mouse.get_pos()[1]
 
-            ## draw menu ##
+            ## draw current page ##
             self.draw()
 
             ## draw cursor ##
             self.cursor.draw(self.screen)
-
-            ## hover effect for lobby main page buttons #
-            if self.page == "main":
-
-                ## game start button ##
-                if self.mouse_hover(self.bt_start["draw"]):
-                    self.bt_start["draw"] = self.bt_start["hover"]
-                else:
-                    self.bt_start["draw"] = self.bt_start["normal"]
-
-                ## game settings button ##
-                if self.mouse_hover(self.bt_settings["draw"]):
-                    self.bt_settings["draw"] = self.bt_settings["hover"]
-                else:
-                    self.bt_settings["draw"] = self.bt_settings["normal"]
-
-                ## exit game button ##
-                if self.mouse_hover(self.bt_exit["draw"]):
-                    self.bt_exit["draw"] = self.bt_exit["hover"]
-                else:
-                    self.bt_exit["draw"] = self.bt_exit["normal"]
-
-
-            ## hover effect for lobby settings page buttons #
-            elif self.page == "settings":
-
-                ## language pt-br ##
-                if self.mouse_hover(self.bt_ptbr["draw"]):
-                    self.bt_ptbr["draw"] = self.bt_ptbr["hover"]
-                else:
-                    self.bt_ptbr["draw"] = self.bt_ptbr["normal"]
-
-                ## language en-us ##
-                if self.mouse_hover(self.bt_enus["draw"]):
-                    self.bt_enus["draw"] = self.bt_enus["hover"]
-                else:
-                    self.bt_enus["draw"] = self.bt_enus["normal"]
-
-                ## resolution 1024x512 ##
-                if self.mouse_hover(self.bt_1024x512["draw"]):
-                    self.bt_1024x512["draw"] = self.bt_1024x512["hover"]
-                else:
-                    self.bt_1024x512["draw"] = self.bt_1024x512["normal"]
-
-                ## resolution 1366x768 ##
-                if self.mouse_hover(self.bt_1366x768["draw"]):
-                    self.bt_1366x768["draw"] = self.bt_1366x768["hover"]
-                else:
-                    self.bt_1366x768["draw"] = self.bt_1366x768["normal"]
-
-                ## fullscreen ##
-                if self.mouse_hover(self.bt_fullscreen["draw"]):
-                    self.bt_fullscreen["draw"] = self.bt_fullscreen["hover"]
-                else:
-                    self.bt_fullscreen["draw"] = self.bt_fullscreen["normal"]
-
-                ## back to lobby main page ##
-                if self.mouse_hover(self.bt_back["draw"]):
-                    self.bt_back["draw"] = self.bt_back["hover"]
-                else:
-                    self.bt_back["draw"] = self.bt_back["normal"]
 
             ## game events ##
             for event in pygame.event.get():
