@@ -27,7 +27,7 @@ class Game:
         self.center["y"] = self.height / 2
 
         ## framerate ##
-        self.tick = 40
+        self.tick = 50
         self.frame = 0
         self.timer = 241
 
@@ -161,7 +161,7 @@ class Game:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
 
-            if not self.paused:
+            if (not self.paused) and (self.player.life > 0):
                 self.screen.fill((100, 125, 130))
 
                 ## update map, player, enemies ##
@@ -459,14 +459,19 @@ class Hub:
         y = self.attributes["y"] - surface.get_rect().height
         self.game.screen.blit(surface, (x, y))
 
-    def draw_options(self):
+    def draw_pause(self):
         self.game.screen.fill((40, 80, 60))
         self.update_button(self.bt_resume)
         self.update_button(self.bt_main)
 
+    def draw_endgame(self):
+        self.game.screen.fill((40, 80, 60))
+
     def draw(self):
         if self.game.paused:
-            self.draw_options()
+            self.draw_pause()
+        elif self.game.player.life < 0:
+            self.draw_endgame()
         else:   
             self.draw_lifebar()
             self.draw_score()

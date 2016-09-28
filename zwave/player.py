@@ -13,15 +13,15 @@ class Player(pygame.sprite.Sprite):
 
         self.weapon = {}
         self.weapon["type"] = "gun"
-        self.weapon["max_delay"] = 40
-        self.weapon["delay"] = 40
+        self.weapon["max_delay"] = 50
+        self.weapon["delay"] = 50
         self.weapon["timer"] = 0
         self.weapon["damage"] = [35, 65]
         self.weapon["bullets"] = []
 
         self.life = 100
         self.total_life = 100
-        self.speed = 3
+        self.speed = 2
         self.score = 0
 
         ## init values ##
