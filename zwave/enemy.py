@@ -23,7 +23,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def __init__(self, game, channel):
 
-        pygame.sprite.Sprite.__init__(self)
+        super(Enemy, self).__init__()
 
         ## init values ##
         self.game = game
@@ -224,6 +224,21 @@ class Enemy(pygame.sprite.Sprite):
 
         self.channel.set_volume(volume)
 
+    def kill(self):
+        if self.model == "zombie":
+            self.channel.stop()
+            self.channel = None
+
+        if self.game.player.life >= 0:
+            self.game.player.score += 100
+            if self.model == "zombie":
+                self.game.player.kills["zombies"] += 1
+            elif self.model == "headcrab":
+                self.game.player.kills["headcrabs"] += 1
+
+        self.touch.kill()
+        super(Enemy, self).kill()
+
     def update(self):
 
         ## update gunshot timer ##
@@ -241,14 +256,4 @@ class Enemy(pygame.sprite.Sprite):
 
         ## kill if enemy has no life and increment player score ##
         if self.life <= 0:
-            if self.model == "zombie":
-                self.channel.stop()
-                self.channel = None
-                self.game.player.kills["zombies"] += 1
-            else:
-                self.game.player.kills["headcrabs"] += 1
-
-            self.game.player.score += 100
-
-            self.touch.kill()
             self.kill()

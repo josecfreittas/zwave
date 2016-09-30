@@ -121,11 +121,13 @@ class Game:
             self.enemies["sprites"].add(enemy)
             self.enemies["colliders"].add(enemy.collider2)
 
-    def update_enemies(self):
+    def update_enemies(self, kill = False):
 
         ## update all enemies ##
         for enemy in self.enemies["sprites"].sprites():
             enemy.update()
+            if kill:
+                enemy.kill()
 
         ## check if all enemies are dead ##
         if not self.enemies["sprites"].sprites():
@@ -181,6 +183,9 @@ class Game:
 
                 ## draw walls and shadows ##
                 self.screen.blit(self.map.surface["walls"], (self.map.x, self.map.y))
+
+            if self.player.life <= 0:
+                self.update_enemies(True)
 
             self.hub.update()
 
@@ -441,11 +446,9 @@ class Hub:
 
         ## timer text ##
         speed = "%s: %.1f" % (self.game.text["speed"], self.game.player.speed)
-        attackspeed = 1 + (1 - (self.game.player.weapon["delay"] / float(self.game.tick)))
-        attackspeed = "%s: %.1f" % (self.game.text["attack_speed"], attackspeed)
         damage = "%i - %i" % (self.game.player.weapon["damage"][0], self.game.player.weapon["damage"][1])
         damage = "%s: [%s]" % (self.game.text["damage"], damage)
-        text = "%s  |  %s  |  %s" % (speed, attackspeed, damage)
+        text = "%s |  %s" % (speed, damage)
         text = self.font["default"].render(text.upper(), 1, (255,255,255))
 
         ## timer background ##

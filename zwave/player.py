@@ -9,12 +9,11 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, game, model = "01"):
 
-        pygame.sprite.Sprite.__init__(self)
+        super(Player, self).__init__()
 
         self.weapon = {}
         self.weapon["type"] = "gun"
-        self.weapon["max_delay"] = 50
-        self.weapon["delay"] = 50
+        self.weapon["delay"] = 20
         self.weapon["timer"] = 0
         self.weapon["damage"] = [35, 65]
         self.weapon["bullets"] = []
