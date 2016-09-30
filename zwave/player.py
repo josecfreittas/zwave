@@ -23,6 +23,9 @@ class Player(pygame.sprite.Sprite):
         self.total_life = 100
         self.speed = 2
         self.score = 0
+        self.kills = {}
+        self.kills["zombies"] = 0
+        self.kills["headcrabs"] = 0
 
         ## init values ##
         self.game = game

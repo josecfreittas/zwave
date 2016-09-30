@@ -1,12 +1,12 @@
 {
-    "language": "en-us",
-    "scale": 1,
-    "width": 1024,
-    "height": 512,
     "fullscreen": false,
+    "language": "en-us",
+    "height": 512,
+    "width": 1024,
+    "scale": 1,
     "volume": {
-        "music": 0.4,
         "geral": 1,
-        "effects": 0.8
+        "effects": 0.8,
+        "music": 0.4
     }
 }

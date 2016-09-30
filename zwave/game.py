@@ -470,7 +470,7 @@ class Hub:
     def draw(self):
         if self.game.paused:
             self.draw_pause()
-        elif self.game.player.life < 0:
+        elif self.game.player.life <= 0:
             self.draw_endgame()
         else:   
             self.draw_lifebar()

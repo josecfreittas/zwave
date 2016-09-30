@@ -21,73 +21,84 @@ class Enemy(pygame.sprite.Sprite):
         "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    def __init__(self, game, channel, model = "random"):
+    models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
+
+    def __init__(self, game, channel):
 
         pygame.sprite.Sprite.__init__(self)
 
-        if model == "random":
-            models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
-            model = random.choice(models)
-
-        self.delay = 62 + (-2 * game.wave)
-        self.timer = 0
-        if self.delay < 10:
-            self.delay = 10
-
-        self.timer = 0
-        self.damage = [23, 43]
-        self.damage[0] += (2 * game.wave)
-        self.damage[1] += (2 * game.wave)
-        if self.damage[0] > 100:
-            self.damage[0] = 100
-            self.damage[1] = 120
-
-        self.life = 80 + (15 * game.wave)
-        if self.life > 500:
-            self.life = 500
-            self.total_life = 500
-
-        self.speed = 1 + (0.15 * game.wave)
-        if self.speed > 3.5:
-            self.speed = 3.5
-
-        if model == "headcrab":
-            self.speed *= 3
-            self.life = int(0.5 * self.life)
-            self.damage[0] = int(0.5 * self.damage[0])
-            self.damage[1] = int(0.5 * self.damage[1])
-
-        self.total_life = self.life
-
         ## init values ##
         self.game = game
-        self.model = model
-        if self.model == "zombie":
-            self.channel = pygame.mixer.Channel(channel + 1)
-
-        self.player_distance = None
-        self.size = 65 * game.scale
+        self.channel = channel
+        self.size = 65 * self.game.scale
         self.angle = 0
         self.movement = "x"
-        self.relative = {}
-        self.center = {}
-        self.last = {}
+        self.player_distance = None
 
-        self.generate_position()
+        self.set_model()
+        self.set_life()
+        self.set_attack_delay()
+        self.set_damage()
+        self.set_speed()
+        self.set_position()
+        self.set_colliders()
+
+        self.update()
+
+    def set_model(self):
+        self.model = random.choice(self.models)
+        if self.model == "zombie":
+            self.channel = pygame.mixer.Channel(self.channel + 1)
 
         color = random.randint(1, 9)
         path = os.path.join("assets", "img", "enemies", self.model, "%i.png" % color)
         self.image_base = zwave.helper.pygame_image(path, self.size)
         self.image = self.image_base
-
         self.rect = self.image.get_rect()
-        self.rect.x = self.relative["x"]
-        self.rect.y = self.relative["y"]
 
-        self.set_colliders()
-        self.update()
+    def set_life(self):
+        self.total_life = 80 + (15 * self.game.wave)
+        if self.total_life > 500:
+            self.total_life = 500
 
-    def generate_position(self):
+        if self.model == "headcrab":
+            self.total_life = int(self.total_life / 2)
+
+        self.life = self.total_life
+
+    def set_attack_delay(self):
+        self.timer = 0
+        self.delay = 62 + (-2 * self.game.wave)
+        if self.delay < 10:
+            self.delay = 10
+
+    def set_speed(self):
+        self.speed = 1 + (0.15 * self.game.wave)
+        if self.speed > 3.5:
+            self.speed = 3.5
+
+        if self.model == "headcrab":
+            self.speed *= 3
+
+    def set_damage(self):
+        self.damage = [10, 45]
+        self.damage[0] += (2 * self.game.wave)
+        self.damage[1] += (2 * self.game.wave)
+
+        if self.model == "headcrab":
+            self.damage[0] = int(self.damage[0] / 2)
+            self.damage[1] = int(self.damage[1] / 2)
+
+        if self.damage[0] > 100:
+            self.damage[0] = 100
+        if self.damage[1] > 150:
+            self.damage[1] = 150
+
+    def set_position(self):
+
+        self.relative = {}
+        self.center = {}
+        self.last = {}
 
         ## get a random spaw of lis ##
         tile = random.choice(self.spaws).split("x")
@@ -105,6 +116,9 @@ class Enemy(pygame.sprite.Sprite):
         ## saves the actual position of the enemy, relative to game screen ##
         self.center["x"] = self.relative["x"] - (self.size / 2)
         self.center["y"] = self.relative["y"] - (self.size / 2)
+
+        self.rect.x = self.relative["x"]
+        self.rect.y = self.relative["y"]
 
     def set_colliders(self):
 
@@ -223,14 +237,16 @@ class Enemy(pygame.sprite.Sprite):
         if self.model == "zombie":
             self.sound()
 
-        ## kill if enemy has no life ##
+        ## kill if enemy has no life and increment player score ##
         if self.life <= 0:
-            ## increse player score ##
-            self.game.player.score += 100
-
             if self.model == "zombie":
                 self.channel.stop()
                 self.channel = None
+                self.game.player.kills["zombies"] += 1
+            else:
+                self.game.player.kills["headcrabs"] += 1
+
+            self.game.player.score += 100
 
             self.touch.kill()
             self.kill()
