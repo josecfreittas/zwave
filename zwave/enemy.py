@@ -21,8 +21,6 @@ class Enemy(pygame.sprite.Sprite):
         "5x29", "8x29", "11x29", "14x29", "17x29", "20x29", "23x29", "26x29", "29x29",
     ]
 
-    models = ["zombie", "zombie", "zombie", "zombie", "zombie", "zombie", "headcrab"]
-
     def __init__(self, game, channel):
 
         pygame.sprite.Sprite.__init__(self)
@@ -46,7 +44,11 @@ class Enemy(pygame.sprite.Sprite):
         self.update()
 
     def set_model(self):
-        self.model = random.choice(self.models)
+        if random.randint(0, 100) < 30:
+            self.model = "headcrab"
+        else:
+            self.model = "zombie"
+
         if self.model == "zombie":
             self.channel = pygame.mixer.Channel(self.channel + 1)
 
