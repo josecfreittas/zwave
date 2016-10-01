@@ -485,10 +485,11 @@ class Hub:
             self.draw_wave_timer()
 
     def click(self):
-        if self.mouse_hover(self.bt_main["draw"]):
-            self.game.back_to_lobby()
-        if self.mouse_hover(self.bt_resume["draw"]):
-            self.game.paused = False
+        if self.game.paused:
+            if self.mouse_hover(self.bt_main["draw"]):
+                self.game.back_to_lobby()
+            if self.mouse_hover(self.bt_resume["draw"]):
+                self.game.paused = False
 
     def update(self):
         self.life = self.converter(self.game.player.life, self.game.player.total_life)
