@@ -153,6 +153,15 @@ class Game:
         ## init game lobby ##
         zwave.lobby.Lobby()
 
+    def newgame(self):
+
+        ## stop game, stop sounds and quit pygame display ##
+        self.running = False
+        pygame.mixer.stop()
+        pygame.display.quit()
+
+        self = Game(self.text, self.settings)
+
     def loop(self):
 
         ## set pygame clock ##
@@ -292,15 +301,23 @@ class Hub:
 
         ## resume game button ##
         x = 10
-        y = (self.game.height / 2) - 65
+        y = (self.game.height / 2) - 155
         self.bt_resume = {}
         self.bt_resume["normal"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (50, 50, 50), "right")
         self.bt_resume["hover"] = zwave.helper.pygame_button(self.game.text["resume"].upper(), self.font["button"], x, y, (0, 140, 90), "right")
         self.bt_resume["draw"] =  self.bt_resume["normal"]
 
+        ## new game button ##
+        x = 10
+        y = (self.game.height / 2) - 90
+        self.bt_new = {}
+        self.bt_new["normal"] = zwave.helper.pygame_button(self.game.text["new"].upper(), self.font["button"], x, y, (50, 50, 50), "right")
+        self.bt_new["hover"] = zwave.helper.pygame_button(self.game.text["new"].upper(), self.font["button"], x, y, (0, 140, 90), "right")
+        self.bt_new["draw"] =  self.bt_new["normal"]
+
         ## main manu button ##
         x = 10
-        y = self.game.height / 2
+        y = (self.game.height / 2) - 25
         self.bt_main = {}
         self.bt_main["normal"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (50, 50, 50), "right")
         self.bt_main["hover"] = zwave.helper.pygame_button(self.game.text["main"].upper(), self.font["button"], x, y, (0, 140, 90), "right")
@@ -465,10 +482,13 @@ class Hub:
     def draw_pause(self):
         self.game.screen.fill((40, 80, 60))
         self.update_button(self.bt_resume)
+        self.update_button(self.bt_new)
         self.update_button(self.bt_main)
 
     def draw_endgame(self):
         self.game.screen.fill((40, 80, 60))
+        self.update_button(self.bt_new)
+        self.update_button(self.bt_main)
 
     def draw(self):
         if self.game.paused:
@@ -485,9 +505,13 @@ class Hub:
             self.draw_wave_timer()
 
     def click(self):
-        if self.game.paused:
+        if (self.game.paused) or (not self.game.player.alive()):
             if self.mouse_hover(self.bt_main["draw"]):
                 self.game.back_to_lobby()
+            if self.mouse_hover(self.bt_new["draw"]):
+                self.game.newgame()
+
+        if self.game.paused:
             if self.mouse_hover(self.bt_resume["draw"]):
                 self.game.paused = False
 
