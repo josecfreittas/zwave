@@ -174,7 +174,7 @@ class Enemy(pygame.sprite.Sprite):
         ## save last position ##
         self.last["x"] = self.relative["x"]
         self.last["y"] = self.relative["y"]
-        
+
         ## get 'x' and 'y' velocity based on enemy angle ##
         velocity = zwave.helper.velocity_by_angle((self.speed * self.game.scale) * 2, self.angle)
 
@@ -229,7 +229,7 @@ class Enemy(pygame.sprite.Sprite):
             self.channel.stop()
             self.channel = None
 
-        if self.game.player.life >= 0:
+        if self.game.player.alive():
             self.game.player.score += 100
             if self.model == "zombie":
                 self.game.player.kills["zombies"] += 1

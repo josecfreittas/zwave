@@ -136,7 +136,7 @@ class Player(pygame.sprite.Sprite):
     def shot(self):
 
         ## checks if timer for the shot is zero ##
-        if (self.weapon["timer"] == 0) and (self.life > 0):
+        if (self.weapon["timer"] == 0) and (self.alive()):
 
             ## check if the type of weapon is gun ##
             if self.weapon["type"] == "gun":
@@ -205,20 +205,27 @@ class Player(pygame.sprite.Sprite):
         if self.speed < 4: 
             self.speed += 0.1
 
+    def kill(self):
+        if self.game.sound["channels"]["steps"].get_busy():
+            self.game.sound["channels"]["steps"].stop()
+
+        self.touch.kill()
+        super(Player, self).kill()
+
     def update(self):
 
-        if self.life <= 0:
-            self.touch.kill()
+        if self.life > 0:
+            ## update gunshot timer ##
+            if self.weapon["timer"] > 0:
+                self.weapon["timer"] -= 1
+
+            self.update_bullets()
+            self.update_angle()
+            self.update_position()
+            self.update_colliders()
+
+        elif self.alive():
             self.kill()
-
-        ## update gunshot timer ##
-        if self.weapon["timer"] > 0:
-            self.weapon["timer"] -= 1
-
-        self.update_bullets()
-        self.update_angle()
-        self.update_position()
-        self.update_colliders()
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, angle, game):

@@ -130,7 +130,7 @@ class Game:
                 enemy.kill()
 
         ## check if all enemies are dead ##
-        if (not self.enemies["sprites"].sprites()) and self.player.life > 0:
+        if (not self.enemies["sprites"].sprites()) and self.player.alive():
 
             ## update timer for new wave ##
             if self.timer > 0:
@@ -163,7 +163,7 @@ class Game:
 
             pygame.display.set_caption("FPS: %.0f" % clock.get_fps())
 
-            if (not self.paused) and (self.player.life > 0):
+            if (not self.paused) and (self.player.alive()):
                 self.screen.fill((100, 125, 130))
 
                 ## update map, player, enemies ##
@@ -473,7 +473,7 @@ class Hub:
     def draw(self):
         if self.game.paused:
             self.draw_pause()
-        elif self.game.player.life <= 0:
+        elif not self.game.player.alive():
             self.draw_endgame()
         else:   
             self.draw_lifebar()
