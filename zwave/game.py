@@ -130,7 +130,7 @@ class Game:
                 enemy.kill()
 
         ## check if all enemies are dead ##
-        if not self.enemies["sprites"].sprites():
+        if (not self.enemies["sprites"].sprites()) and self.player.life > 0:
 
             ## update timer for new wave ##
             if self.timer > 0:

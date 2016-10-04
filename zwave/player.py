@@ -136,7 +136,7 @@ class Player(pygame.sprite.Sprite):
     def shot(self):
 
         ## checks if timer for the shot is zero ##
-        if self.weapon["timer"] == 0:
+        if (self.weapon["timer"] == 0) and (self.life > 0):
 
             ## check if the type of weapon is gun ##
             if self.weapon["type"] == "gun":
